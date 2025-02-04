@@ -1,0 +1,15 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-airportcapacity-dev-02536-authRole",
+      "UnauthRoleArn": "arn:aws:iam::761018871591:role/amplify-airportcapacity-dev-02536-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::761018871591:role/amplify-airportcapacity-dev-02536-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-airportcapacity-dev-02536-deployment",
+      "UnauthRoleName": "amplify-airportcapacity-dev-02536-unauthRole",
+      "StackName": "amplify-airportcapacity-dev-02536",
+      "StackId": "arn:aws:cloudformation:us-east-1:761018871591:stack/amplify-airportcapacity-dev-02536/f93d6470-e261-11ef-b4d3-0effd43ab39d",
+      "AmplifyAppId": "d397uuidtr94b"
+    }
+  }
+}
