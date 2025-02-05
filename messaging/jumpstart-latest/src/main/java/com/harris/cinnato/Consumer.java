@@ -28,40 +28,14 @@ class Consumer {
         Output reporter = null;
         Config config = ConfigFactory.load();
         String reporterName = config.getString("output");
-
-        logger.info("Attempting to load output class: {}", reporterName); // Log the reporterName to see what class is being loaded
-
         try {
-            // Step 1: Load the class using reflection
             Class<?> clazz = Class.forName(reporterName);
-            logger.info("Class {} loaded successfully", reporterName); // Log success after class is loaded
-            
-            // Step 2: Instantiate the class using the constructor that accepts Config
             Object obj = clazz.getConstructor(Config.class).newInstance(config);
             reporter = (Output) obj;
-            logger.info("Output class {} instantiated successfully", reporterName); // Log success after instantiation
-
-        } catch (ClassNotFoundException e) {
-            logger.error("Class not found: {}", reporterName, e); // Log if the class itself was not found
-            System.exit(-1);
-        } catch (NoSuchMethodException e) {
-            logger.error("No constructor with Config parameter found for class: {}", reporterName, e); // Log if no matching constructor is found
-            System.exit(-1);
-        } catch (InstantiationException e) {
-            logger.error("Failed to instantiate class: {}", reporterName, e); // Log instantiation issues
-            System.exit(-1);
-        } catch (IllegalAccessException e) {
-            logger.error("Illegal access when trying to instantiate class: {}", reporterName, e); // Log if there's an access issue
-            System.exit(-1);
-        } catch (InvocationTargetException e) {
-            logger.error("Error invoking constructor for class: {}", reporterName, e); // Log if the constructor throws an exception
-            System.exit(-1);
         } catch (Exception e) {
-            logger.error("An unexpected error occurred while initializing the output class: {}", reporterName, e); // General catch for unexpected exceptions
+            logger.error("Invalid outputs class provided {}", reporterName);
             System.exit(-1);
         }
-
-
 
         if (config.getString("providerUrl").startsWith("amqp")) {
             AMQPConsumer consumer = new AMQPConsumer(config, metrics, reporter);
