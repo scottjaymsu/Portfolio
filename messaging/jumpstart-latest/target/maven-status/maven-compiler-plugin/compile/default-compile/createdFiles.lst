@@ -1,0 +1,12 @@
+com\harris\cinnato\outputs\DatabaseOutput.class
+com\harris\cinnato\outputs\NoopOutput.class
+com\harris\cinnato\solace\SolaceConsumerV1.class
+com\harris\cinnato\solace\SolaceConsumerV2.class
+com\harris\cinnato\solace\AMQPConsumer.class
+com\harris\cinnato\solace\JMSConsumer.class
+com\harris\cinnato\solace\SolaceInitialContext.class
+com\harris\cinnato\outputs\Output.class
+com\harris\cinnato\outputs\StdoutOutput.class
+com\harris\cinnato\Consumer.class
+com\harris\cinnato\outputs\MessageFileOutput.class
+com\harris\cinnato\outputs\FileOutput.class
