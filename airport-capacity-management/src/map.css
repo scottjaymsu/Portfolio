@@ -1,0 +1,40 @@
+/* 
+    Map contianer
+*/
+#map {
+    width: 100%;
+    height: 100vh; 
+}
+
+/* 
+    Back button Styling for
+    returning to overview
+*/
+#back-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 5;
+    padding: 10px 15px;
+    background-color: #1c3149;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+/* 
+    Search Box Styling
+*/
+#map-search {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    padding: 10px;
+    width: 300px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
