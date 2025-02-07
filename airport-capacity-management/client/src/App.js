@@ -13,7 +13,6 @@ function App() {
           <Route path="/batch" element={<BatchFile />} />
         </Routes>
     </BrowserRouter> 
-  );
-}
+  );}
 
 export default App;

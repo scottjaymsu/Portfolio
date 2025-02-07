@@ -6,7 +6,7 @@ const batchFileRoutes = require('./routes/batchFileRoutes');
 const port = 5000
 
 app.use(cors());
-app.use(express.json({limit: '500kb'}));
+app.use(express.json({limit: '100mb'}));
 
 app.use('/batch', batchFileRoutes);
 
