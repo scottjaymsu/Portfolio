@@ -5,11 +5,14 @@ from src.scraper import scrape_flights
 #that the API can request from. 
 def main():
     iata_codes = get_iata_codes()
-    
     for iata_code in iata_codes:
-        flights = scrape_flights(iata_code)
-        if flights:
-            insert_flights(flights)
+        if iata_code[0]:
+            flights = scrape_flights(iata_code, 'departures')
+            if flights:
+                insert_flights(flights)
+            flights = scrape_flights(iata_code, 'arrivals')
+            if flights:
+                insert_flights(flights)
 
 if __name__ == "__main__":
     main()
