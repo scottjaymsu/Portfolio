@@ -1,0 +1,40 @@
+table {
+    background: #CCC7C8;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    overflow: hidden;
+}
+
+thead {
+    background-color: #010F31;
+    color:white;
+}
+
+th {
+    position: sticky;
+    padding: 10px;
+}
+
+.tbody-wrapper {
+    display: block;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+tbody {
+    display: table;
+    width: 100%;
+}
+
+/* TODO Apparently border-bottom doesn't work if border-collapse is set to separate? No clue why, but apparently giving the box-shadow attribute fixes it*/
+tr {
+    box-shadow: 0px 0px 0px 1px #010F31;
+    display: table;
+    width: 100%;
+}
+
+td, th {
+    text-align: center;
+    width: 25%;
+  }
