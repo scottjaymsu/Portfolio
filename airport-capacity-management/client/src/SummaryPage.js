@@ -1,5 +1,5 @@
 import React from "react";
-import { GoogleMap, LoadScript, Marker, Polygon } from "@react-google-maps/api";
+import { GoogleMap, LoadScript, Polygon } from "@react-google-maps/api";
 import { Card, CardContent } from "./components/card";
 import {
   BarChart,
@@ -284,7 +284,7 @@ export default function SummaryPage() {
 
   return (
     <div className="map-container">
-      <LoadScript googleMapsApiKey="AIzaSyASfrjJ6WwB39A6lT0bae6i6DvKRodZQrw">
+      <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
         <GoogleMap
           mapContainerStyle={containerStyle}
           options={mapOptions}
@@ -318,12 +318,12 @@ export default function SummaryPage() {
 
       <div className="info-card">
         <Card className="card-content">
-          <CardContent className="text-center">
+          <CardContent className="text-center flex-1">
             <h2 className="title">KTEB - Teterboro Airport</h2>
             <p className={getStatusClass("Overcapacity")}>Overcapacity</p>
           </CardContent>
         </Card>
-        <Card className="card-content">
+        <Card className="card-content flex-2">
           <CardContent>
             <h3 className="subtitle">Traffic Overview</h3>
             <ResponsiveContainer width="100%" height={120}>
@@ -340,7 +340,7 @@ export default function SummaryPage() {
             </ResponsiveContainer>
           </CardContent>
         </Card>
-        <Card className="card-content">
+        <Card className="card-content flex-3">
           <CardContent>
             <h3 className="subtitle">Incoming Flights</h3>
             <table className="info-table">
@@ -369,7 +369,7 @@ export default function SummaryPage() {
             </table>
           </CardContent>
         </Card>
-        <Card className="card-content">
+        <Card className="card-content flex-3">
           <CardContent>
             <h3 className="subtitle">FBOs</h3>
             <table className="info-table">
@@ -394,7 +394,7 @@ export default function SummaryPage() {
             </table>
           </CardContent>
         </Card>
-        <button className="see-more">see more</button>
+        <button className="see-more flex-1">see more</button>
       </div>
     </div>
   );
