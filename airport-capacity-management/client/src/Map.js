@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { startTransition, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './map.css'; 
 
 // Center of the U.S. Position
@@ -11,6 +12,8 @@ const MapComponent = () => {
     const mapRef = useRef(null); 
     // For the search box
     const searchBoxRef = useRef(null); 
+    // For navigation
+    const navigate = useNavigate();
 
     useEffect(() => {
         const initializeMap = () => {
@@ -69,6 +72,8 @@ const MapComponent = () => {
                 map.setZoom(15); // Adjust zoom level (higher = more zoomed-in)
                 map.setCenter(marker.getPosition()); // Center the map on the marker
                 infoWindow.open(map, marker); // Info window
+
+                navigate(`/summary/${markerData.title}`); // Navigate to the summary page
             });
 
             // Autocomplete search at top 
