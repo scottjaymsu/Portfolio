@@ -167,25 +167,25 @@ const MapComponent = () => {
                 <button id="notif-toggle" onClick={toggleNotification}>Notif</button>
                 <div id="notif-list">
                     <i className="notif-wrapper">
-                        KTEB is Overcapacity! Check Reccomendations to provide room for incoming aircraft.
+                        KTEB is Overcapacity! Check recommendations to provide room for incoming aircraft.
                     </i>
                     <i className="notif-wrapper">
-                        KHPN is Overcapacity! Check Reccomendations to provide room for incoming aircraft.
+                        KHPN is Overcapacity! Check recommendations to provide room for incoming aircraft.
                     </i>
                     <i className="notif-wrapper">
-                        KLAS is Overcapacity Check Reccomendations to provide room for incoming aircraft.
+                        KLAS is Overcapacity! Check recommendations to provide room for incoming aircraft.
                     </i>
                     <i className="notif-wrapper">
-                        KMDW is Overcapacity! Check Reccomendations to provide room for incoming aircraft.
+                        KMDW is Overcapacity! Check recommendations to provide room for incoming aircraft.
                     </i>
                     <i className="notif-wrapper">
-                        KDAL is Overcapacity! Check Reccomendations to provide room for incoming aircraft.
+                        KDAL is Overcapacity! Check recommendations to provide room for incoming aircraft.
                     </i>
                     <i className="notif-wrapper">
-                        KBPI is reaching capacity. On 3/3/2025 KBPI will be over capacity and action will be needed. 
+                        KBPI is reaching capacity. On 3/3/2025, KBPI will be over capacity and action will be needed. 
                     </i>
                     <i className="notif-wrapper">
-                        KSDL is reaching capacity. On 3/7/2025 KSDL will be over capacity and action will be needed.
+                        KSDL is reaching capacity. On 3/7/2025, KSDL will be over capacity and action will be needed.
                     </i>
     
                 </div>
