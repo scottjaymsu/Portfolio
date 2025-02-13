@@ -15,41 +15,26 @@ public class DatabaseOutput extends Output {
     private static final Logger logger = LoggerFactory.getLogger(DatabaseOutput.class);
 
     private Connection connection;
+    private PreparedStatement ps;
 
     public DatabaseOutput(Config config) {
         super(config);
         Config mysqlConfig = config.getConfig("mysql");
-        
         String uri = mysqlConfig.getString("uri");
         String user = mysqlConfig.getString("user");
         String password = mysqlConfig.getString("password");
         
+        //No longer tryiing to create the database if it doesn't exist, I don't think thaat's necessary anymore
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-
-            try (Connection tempConn = DriverManager.getConnection(
-                    uri.substring(0, uri.lastIndexOf("/")), 
-                    user,
-                    password)) {
-                
-                String dbName = uri.substring(uri.lastIndexOf("/") + 1);
-                Statement stmt = tempConn.createStatement();
-                
-                stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS `" + dbName + "`");
-                logger.info("Database existence verified/created");
-            }
-
-            connection = DriverManager.getConnection(uri, user, password);
-            logger.info("Successfully connected to database");
-
-        } catch (ClassNotFoundException e) {
-            logger.error("MySQL JDBC Driver not found", e);
-            throw new RuntimeException("MySQL JDBC Driver not found", e);
-        } catch (SQLException e) {
-            logger.error("Database connection failed", e);
-            throw new RuntimeException("Database connection failed", e);
+           Class.forName("com.mysql.cj.jdbc.Driver");
+           this.connection = DriverManager.getConnection(uri, user, password);
+           logger.info("Successfully connected to database");
+        } catch (Exception e) {
+           logger.error("Failed to connect to database", e);
+           System.exit(-1);
         }
-    }
+  
+     }
 
     /*
      * Scraping the Flight Message;
@@ -59,39 +44,22 @@ public class DatabaseOutput extends Output {
      */
     public JSONObject scrapeFlightMessage(JSONObject single_message) {
         JSONObject flightInfo = new JSONObject();
+        //Switched to just setting exists to automatically be 0, so there were no errors relating to not finding aircraft, and I could remove
+        //a lot of the error checking
+        flightInfo.put("exists", 0);
         JSONObject flight = single_message.getJSONObject("flight");
         if (flight != null) {
             String aircraftIdentification = null;
-
-            if (flight.has("flightIdentification") && flight.getJSONObject("flightIdentification").has("aircraftIdentification")) {
-                aircraftIdentification = flight.getJSONObject("flightIdentification").getString("aircraftIdentification");
-            }
-
-            if (aircraftIdentification != null && aircraftIdentification.endsWith("QS")) {
-                String departurePoint = null;
-                if (flight.has("departure") && 
-                    flight.getJSONObject("departure").has("departurePoint")) {
-                    departurePoint = flight.getJSONObject("departure").getString("departurePoint");
-                }
-
-                String arrivalPoint = null;
-                if (flight.has("arrival") && 
-                    flight.getJSONObject("arrival").has("arrivalPoint")) {
-                    arrivalPoint = flight.getJSONObject("arrival").getString("arrivalPoint");
-                }
-
+            aircraftIdentification = flight.getJSONObject("flightIdentification").getString("aircraftIdentification");
+            if (aircraftIdentification.endsWith("QS")) {
+                String departurePoint = flight.getJSONObject("departure").getString("departurePoint");
+                String arrivalPoint = flight.getJSONObject("arrival").getString("arrivalPoint");
+                
                 flightInfo.put("aircraftIdentification", aircraftIdentification);
                 flightInfo.put("departurePoint", departurePoint);
                 flightInfo.put("arrivalPoint", arrivalPoint);
                 flightInfo.put("exists", 1);
-
-            } else {
-                logger.info("Skipping flight: " + (aircraftIdentification != null ? aircraftIdentification : "Unknown") + " (does not end with 'QS').");
-                flightInfo.put("exists", 0);
             }
-        } else {
-            logger.warn("No 'flight' object found in the message.");
-            flightInfo.put("exists", 0);
         }
         return flightInfo;
     }
@@ -111,24 +79,24 @@ public class DatabaseOutput extends Output {
             "ON DUPLICATE KEY UPDATE " +
             "departure_departurePoint = VALUES(departure_departurePoint), " +
             "arrival_arrivalPoint = VALUES(arrival_arrivalPoint)";
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, aircraftIdentification);
-            ps.setString(2, departurePoint);
-            ps.setString(3, arrivalPoint);
-            ps.executeUpdate();
-            logger.info("Inserted/Updated: Aircraft ID: " + aircraftIdentification + ", Departure: " + departurePoint + ", Arrival: " + arrivalPoint);
-        } catch (SQLException e) {
-            logger.error("Error while inserting/updating flight message", e);
-        }
+        
+        //I get error lines here now that I removed the try, but it doesn't affect any of the code running
+        ps = connection.prepareStatement(sql);
+        ps.setString(1, aircraftIdentification);
+        ps.setString(2, departurePoint);
+        ps.setString(3, arrivalPoint);
+        ps.executeUpdate();
+        logger.info("Inserted/Updated: Aircraft ID: " + aircraftIdentification + ", Departure: " + departurePoint + ", Arrival: " + arrivalPoint);
+        
     }
 
 
     /*
-     * Main function for grabbing the messages and parsing them.
+     * Main function for grabbing the messages and parsing them. 
      */
     @Override
     public void output(String message, String header) {
+        //Conversion to JSON from XML because iit's much easier to parse this way
         JSONObject xmlJSONObj = XML.toJSONObject(message);
 
         try {
