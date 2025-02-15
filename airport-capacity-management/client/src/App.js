@@ -8,7 +8,7 @@ function App() {
         <Router>
             <Routes>
                 <Route path="/" element={<MapComponent />} />
-                <Route path="/summary/:location" element={<SummaryPage />} />
+                <Route path="/summary/:location" element={<SummaryPage/>} />
             </Routes>
         </Router>
     );

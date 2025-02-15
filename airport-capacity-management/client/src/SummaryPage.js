@@ -1,4 +1,5 @@
-import React from "react";
+import React, {useState, useEffect} from "react";
+import { useParams } from 'react-router-dom';
 import { GoogleMap, LoadScript, Polygon } from "@react-google-maps/api";
 import { Card, CardContent } from "./components/card";
 import {
@@ -19,78 +20,6 @@ const containerStyle = {
   width: "100vw",
   height: "100vh",
 };
-
-// Map Center
-const center = {
-  lat: 40.8485,
-  lng: -74.0715,
-};
-
-// Parking Lot Coordinates
-const parkingLots = [
-  {
-    name: "Signature East",
-    coordinates: [
-      { lat: 40.85406, lng: -74.05682 },
-      { lat: 40.85633, lng: -74.05341 },
-      { lat: 40.8562, lng: -74.05326 },
-      { lat: 40.85565, lng: -74.05363 },
-      { lat: 40.85551, lng: -74.05321 },
-      { lat: 40.85299, lng: -74.05485 },
-      { lat: 40.85344, lng: -74.05628 },
-    ],
-    color: "#B9BE80",
-    labelPosition: { lat: 40.8545, lng: -74.0555 },
-  },
-  {
-    name: "Signature West",
-    coordinates: [
-      { lat: 40.85045, lng: -74.06971 },
-      { lat: 40.85394, lng: -74.06631 },
-      { lat: 40.85281, lng: -74.06431 },
-      { lat: 40.84959, lng: -74.06871 },
-    ],
-    color: "#C76666",
-    labelPosition: { lat: 40.85192, lng: -74.0672 },
-  },
-  {
-    name: "Signature South",
-    coordinates: [
-      { lat: 40.84382, lng: -74.06566 },
-      { lat: 40.84603, lng: -74.06866 },
-      { lat: 40.8477, lng: -74.06602 },
-      { lat: 40.84631, lng: -74.06448 },
-      { lat: 40.846, lng: -74.06495 },
-      { lat: 40.84548, lng: -74.06448 },
-    ],
-    color: "#C76666",
-    labelPosition: { lat: 40.84594, lng: -74.06635 },
-  },
-  {
-    name: "Jet",
-    coordinates: [
-      { lat: 40.84301, lng: -74.06491 },
-      { lat: 40.84086, lng: -74.06651 },
-      { lat: 40.84065, lng: -74.06305 },
-      { lat: 40.84146, lng: -74.06254 },
-      { lat: 40.84294, lng: -74.06211 },
-    ],
-    color: "#B9BE80",
-    labelPosition: { lat: 40.84177, lng: -74.06397 },
-  },
-  {
-    name: "Atlantic",
-    coordinates: [
-      { lat: 40.85418, lng: -74.06611 },
-      { lat: 40.8584, lng: -74.06184 },
-      { lat: 40.8577, lng: -74.0608 },
-      { lat: 40.85495, lng: -74.06109 },
-      { lat: 40.8529, lng: -74.06407 },
-    ],
-    color: "#B9BE80",
-    labelPosition: { lat: 40.85590, lng: -74.06270 },
-  },
-];
 
 // Flight Data in the table
 const flightData = [
@@ -267,7 +196,55 @@ function CustomOverlay({ map, position, text }) {
 
 // Summary Page Component
 export default function SummaryPage() {
+  const airportCode = useParams().location;
   const [map, setMap] = React.useState(null);
+  const [parkingLots, setParkingLots] = useState([]);
+  const [airportCoordinates, setAirportCoordinates] = useState({lat:40.84,lng:-74.07,});
+
+  useEffect(() => {
+    console.log(airportCode);
+    //Fetch all the parking coordinates related to FBO's so that the map can overlay them for viewing
+    async function fetchParkingCoordinates() {
+      try {
+        const response = await fetch(`http://localhost:5000/airports/getParkingCoordinates/${airportCode}`);
+        const data = await response.json();
+        console.log(data)
+        const parkingLots = data.map((lot) => {
+          const coordinates = lot.coordinates[0].map(coord => ({ lat: coord.x, lng: coord.y }));
+          return {
+            name: lot.FBO_Name,
+            coordinates: coordinates,
+            color: "#B9BE80",
+            labelPosition: coordinates[0]
+          };
+        });
+  
+        setParkingLots(parkingLots);
+      } catch (error) {
+        console.error("Error fetching parking data:", error);
+      }
+    }
+
+    //Fetch the lat long coordinates of each airport, it doesn't center perfectly but I don't think that'll be an issue
+    async function fetchAirportData() {
+      try {
+        const response = await fetch(`http://localhost:5000/airports/getAirportData/${airportCode}`);
+        const data = await response.json();
+        const { latitude_deg, longitude_deg } = data[0];
+        const lat = parseFloat(latitude_deg);
+        const long = parseFloat(longitude_deg);
+        setAirportCoordinates({
+          lat: lat,
+          lng: long
+        });
+      } catch (error) {
+        console.error("Error fetching parking data:", error);
+      }
+    }
+  
+    fetchParkingCoordinates();
+    fetchAirportData();
+  }, []);
 
   return (
     <div className="map-container">
@@ -275,7 +252,7 @@ export default function SummaryPage() {
         <GoogleMap
           mapContainerStyle={containerStyle}
           options={mapOptions}
-          center={center}
+          center={airportCoordinates}
           zoom={15}
           onLoad={(mapInstance) => setMap(mapInstance)}
         >
