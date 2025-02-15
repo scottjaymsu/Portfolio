@@ -4,6 +4,8 @@ import './App.css';
 import BatchFile from './pages/BatchFile'; 
 import Home from './pages/Home'; 
 import RecEngine from './pages/RecEngine'; 
+import SimulatorComponent from './pages/Simulator';
+
 
 
 function App() {
@@ -13,6 +15,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/batch" element={<BatchFile />} />
           <Route path="/rec/:iata_code" element={<RecEngine />} />
+          <Route path="/simulator" element={<SimulatorComponent />} />
+  
         </Routes>
     </BrowserRouter> 
   );}
