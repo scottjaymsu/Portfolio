@@ -10,6 +10,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { getStatusClass } from "./utils/helpers";
 
 import "./SummaryPage.css";
 
@@ -200,20 +201,6 @@ const mapOptions = {
       stylers: [{ visibility: "off" }],
     },
   ],
-};
-
-// Get CSS styling class for the status bubble
-const getStatusClass = (status) => {
-  switch (status) {
-    case "Open":
-      return "status-bubble open";
-    case "Full":
-      return "status-bubble full";
-    case "Overcapacity":
-      return "status-bubble-lg full";
-    default:
-      return "status-bubble";
-  }
 };
 
 // Custom Overlay for parking lot labels to display on the map
