@@ -6,14 +6,12 @@ package com.harris.cinnato;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Slf4jReporter;
 import com.harris.cinnato.outputs.Output;
-import com.harris.cinnato.solace.AMQPConsumer;
 import com.harris.cinnato.solace.JMSConsumer;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -37,13 +35,10 @@ class Consumer {
             System.exit(-1);
         }
 
-        if (config.getString("providerUrl").startsWith("amqp")) {
-            AMQPConsumer consumer = new AMQPConsumer(config, metrics, reporter);
-            consumer.connect();
-        } else {
-            JMSConsumer consumer = new JMSConsumer(config, metrics, reporter);
-            consumer.connect();
-        }
+        
+        JMSConsumer consumer = new JMSConsumer(config, metrics, reporter);
+        consumer.connect();
+        
 
         if (config.getBoolean("metrics")) {
             startReporter();
