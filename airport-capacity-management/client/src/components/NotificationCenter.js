@@ -1,10 +1,10 @@
-import React from 'react';
-import { FaBell } from 'react-icons/fa';
-import './component.css';
+import React from "react";
+import { FaBell } from "react-icons/fa";
+import "./component.css";
 
 const NotificationCenter = ({ notifications, visible, toggleVisibility }) => {
   return (
-    <div id="notification-center" className={visible ? 'visible' : ''}>
+    <div id="notification-center" className={visible ? "visible" : ""}>
       <button id="notif-toggle" onClick={toggleVisibility}>
         <FaBell size={20} />
       </button>

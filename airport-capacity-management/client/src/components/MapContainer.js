@@ -52,7 +52,7 @@ const MapContainer = ({ markers, onMarkerClick, setMapInstance }) => {
           map.setZoom(15);
           map.setCenter(marker.getPosition());
           infoWindow.open(map, marker);
-          onMarkerClick(markerData);
+          if (onMarkerClick) onMarkerClick(markerData);
           navigate(`/summary/${markerData.title}`); // Navigate to the summary page
         });
       });

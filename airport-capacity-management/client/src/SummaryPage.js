@@ -244,7 +244,7 @@ export default function SummaryPage() {
   
     fetchParkingCoordinates();
     fetchAirportData();
-  }, []);
+  }, [airportCode]);
 
   return (
     <div className="map-container">
