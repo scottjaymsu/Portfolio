@@ -1,19 +1,20 @@
 @echo off
-setlocal enabledelayedexpansion
+setlocal
 
 set BUILD=false
 
-:parse_args
-if "%1"=="" goto end_parse_args
+:: Parse options
+:parse_opts
+if "%1"=="" goto done_opts
 if "%1"=="-b" set BUILD=true
 shift
-goto parse_args
+goto parse_opts
+:done_opts
 
-:end_parse_args
-
+:: If BUILD is true, execute the build process
 if "%BUILD%"=="true" (
     echo BUILDING PROJECT
-    cd jumpstart-latest
+    cd jumpstart-latest\
 
     echo CLEANING THE MVN PACKAGE
     mvn clean package
@@ -27,12 +28,13 @@ if "%BUILD%"=="true" (
     cd ..
 
     echo BUILD DOCKER IMAGE
-    docker build -t scds-jumpstart .
+    docker buildx rm mybuilder
+    docker buildx build --platform linux/amd64 -t flight_data_scraper:latest .
+    : amd version so it can run on AWS amd servers
 )
 
-
+:: Run Docker container
 echo RUN DOCKER CONTAINER
-docker run -it --rm --name scds-jumpstart-fdps-v -v "%cd%\fdps.conf:/app/application.conf" scds-jumpstart
-
+docker run -it --rm --name flight_data_scraper-fdps-v -v "%cd%\fdps.conf:/app/application.conf" flight_data_scraper
 
 endlocal

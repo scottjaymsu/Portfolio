@@ -24,18 +24,12 @@ if [ "$BUILD" = true ]; then
     mv target/jumpstart-jar-with-dependencies.jar lib/jumpstart-jar-with-dependencies.jar
 
     cd ..
-fi
 
-echo "BUILD DOCKER IMAGE"
-docker build -t scds-jumpstart .
+    echo "BUILD DOCKER IMAGE"
+    docker build --platform linux/amd64 -t username486/flight_data_scraper:latest .
+    # amd version so it can run on AWS amd servers
+fi
 
 echo "RUN DOCKER CONTAINER"
 
-#Need to change the command if it's on windows, not sure if this will work on mac so going to have someone test this...
-#At the moment if running on windows you must be using a linux subsystem, git bash or wsl!! .sh doesn't work on command prompt idt
-OS=$(uname -s)
-if [[ "$OS" == "MINGW"* ]]; then
-    winpty docker run -it --rm --name scds-jumpstart-fdps-v -v "$(pwd)/fdps.conf:/app/application.conf" scds-jumpstart
-else
-    docker run -it --rm --name scds-jumpstart-fdps-v -v "$(pwd)/fdps.conf:/app/application.conf" scds-jumpstart
-fi
+docker run -it --rm --name flight_data_scraper-fdps-v -v "$(pwd)/fdps.conf:/app/application.conf" flight_data_scraper

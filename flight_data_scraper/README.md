@@ -1,11 +1,19 @@
-To use:
+# To use:
 
-# ./run.sh
-# (Make sure you are in the 'flight_data_scraper' directory)
-# IF YOU MAKE ANY CHANGES TO THE 'JUMPSTART-LATEST' DIRECTORY, RUN ./run.sh -b, THE -B FLAG WILL BUILD THE DIRECTORY
+### Mac/Linux
+`./run.sh` to run<br />
+`./run.sh -b` to run and build
 
-# The "flight_data_scraper" directory handles all data messages from the FAA SWIM data stream. It makes use of an already existing java application called "jumpstart-latest" to accept the Java Messaging Service messages. Each message contains an XML string. The jumpstart-latest/src/main/java/com/harris/cinnato/outputs directory are where the java files who control what happens to each JMS message live. In that directory, we have created a file called "DatabaseOutput.java" The rest of the 'jumpstart-latest' app is left as it. The contains all of our code and logic for parsing the data and inputing it into our database. The database information is accepted as CLI flags, so output database information should be stored in the fdps.conf file, which will run the program with those flags. That file also stored the information for connection to the FAA SWIM data stream.
+### Windows
+`run.bat` to run<br />
+`run.bat -b` to run and build
+#
+# IMPORTANT
+* Use the "-b" flag to build/compile (do this every time you modify the code to build a new docker image)
+* The docker image this program outputs can be uploaded to a server (using Docker Hub or AWS ECR)
+* Choose database connection in 'fdps.conf' file
+#
+# More details: 
+The "flight_data_scraper" runs a docker container of a program that will proccess an online flight data stream and construct a database of NetJets flights.
 
-# PUT DATABASE CONNECTION INFORMATION IN flight_data_scraper/fdps.conf
-
-# Side note: If you are on WINDOWS you need to use a linux subsystem such as git bash or wsl to run the .sh script. Alternatively, you can just copy and paste the commands from that script to the command line
+The "flight_data_scraper" directory handles all data messages from the FAA's SWIM TFMS data stream. It makes use of an already existing java application called "jumpstart-latest" to accept the Java Messaging Service messages from SWIM. The program extracts an XML string from each JMS message. In the `jumpstart-latest/src/main/java/com/harris/cinnato/outputs` directory you will find the java files that direct teh XML string to an output. In that directory, we have created a file called `DatabaseOutput.java`. This file contains all of our code and logic for parsing the flight data and inputing it into our database. To input the data stream JMS connection and the database connection information into the 'jumpstart-latest' application, store that information in the `fdps.conf` file.

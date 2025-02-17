@@ -228,6 +228,7 @@ public class DatabaseOutput extends Output {
 
         // Parse each flight data message type
         String msgType = flightInfo.optString("msgType", null);
+        System.out.print("MsgType=" + msgType + " ");
 
         // "Zulu" time, formed like "YYYY-MM-DDTHH:MM:SSZ"
         String eta = null;
@@ -256,7 +257,7 @@ public class DatabaseOutput extends Output {
 
                     // Insert the data into the database
                     // Message can come through only before takeoff
-                    InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, false, null);
+                    InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, false, false);
                 }
             break;
 
@@ -575,6 +576,9 @@ public class DatabaseOutput extends Output {
                 }
 
                 stmt.executeUpdate();
+
+                // Print
+                System.out.println("Inserted: FlightRef=" + flightRef + ", Acid=" + acid + ", arrArpt=" + arrArpt + ", depArtp=" + depArpt + ", etd=" + etd + ", eta=" + eta + ", departed=" + departed + ", arrived=" + arrived);
                 
             } catch (Exception e) {
                 e.printStackTrace();
