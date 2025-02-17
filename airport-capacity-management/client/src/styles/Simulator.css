@@ -1,0 +1,441 @@
+/* Overall grid of the page */
+#simulator-grid {
+    display: flex;
+    flex-direction: column;
+    background-color: #f6f4f2;
+    height: 100vh;
+    padding: 10px;
+    gap: 10px;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #444240;
+}
+
+/* Header segment of the grid */
+#head-dashboard {
+    display: flex;
+    flex-direction: row;
+    height: 150px;
+    border-radius: 5px;
+    flex: 2;
+}
+
+/* HEADER */
+
+/* For both ends of header */
+.header-segment-large {
+    flex: 1;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    font-weight: bold;
+    /* border: .5px solid #444240; */
+}
+
+/* For center divs of header */
+.header-segment-small {
+    flex: .5; 
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    font-weight: bold;
+    justify-content: center;
+    gap: 10px;
+    /* border: .5px solid #444240; */
+}
+
+/* HEADER BLOCK 1 */
+
+#header1 {
+    display: flex;
+    flex-direction: column; 
+    justify-content: space-between;
+    flex: 1;
+    gap: 40px;
+}
+/* Wrapper for top of first
+header div */
+#title-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 30px;
+
+}
+/* Return to Map button */
+#back-button {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    padding: 10px;
+}
+/* Back Button Image */
+#back-button img {
+    width: 30px;
+    height: auto;
+}
+
+#airport-title {
+    text-transform: uppercase;
+    font-size: 25px;
+    font-weight: bold;
+}
+.air-title {
+    text-transform: uppercase;
+}
+
+#sim-title {
+    font-size: 16px;
+    font-weight: normal;
+}
+
+#fbo-title {
+    padding-left: 10px;
+    padding-top: 70px;
+    padding-bottom: 10px;
+}
+/* HEADER BLOCK 1 */
+
+/* HEADER BLOCK 2 */
+
+/* HEADER BLOCK 2 */
+
+/* HEADER LEGEND BLOCK */
+.legend-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    
+}
+
+.legend-square {
+    width: 10px;
+    height: 10px;
+    background-color: #d7d5d3;
+    border-radius: 2px;
+    margin-right: 10px;
+}
+/* HEADER LEGEND BLOCK */
+
+#dropdown {
+    background-color: white; /* White background */
+    color: #444240;
+    cursor: pointer;
+    border-radius: 0px;
+    font-size: 16px;
+    border: 2px solid #444240;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+select::after {
+    content: '\25BC'; /* Unicode character for downward triangle */
+    position: absolute;
+    right: 10px; /* Position the arrow on the right */
+    top: 50%; /* Center the arrow vertically */
+    transform: translateY(-50%); /* Adjust to center the arrow */
+    font-size: 14px; /* Adjust size of the arrow */
+    color: #444240; /* Color of the arrow */
+    pointer-events: none; 
+
+}
+
+select option {
+    padding: 10px; /* Padding for the options */
+    font-size: 16px; /* Font size for the options */
+}
+
+
+
+
+#plane-info-wrapper {
+    background-color: #D7D5D3;
+    border-radius: 5px;
+    height: 100%;
+    width: 90%;
+    align-self: flex-end;
+    display: grid; /* Enable grid layout */
+    grid-template-columns: repeat(2, 1fr); /* 2 equal-width columns */
+    grid-template-rows: repeat(2, 1fr);
+}
+
+.plane-info-section {
+    border-radius: 5px; /* Rounded corners */
+    padding: 20px; /* Inner padding */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centers the status text */
+    align-items: center; /* Centers horizontally */
+    text-align: center;
+    position: relative;
+
+}
+
+.plane-section-title {
+    font-size: x-small;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+
+}
+.plane-section-status {
+    font-size: large;
+    font-weight: bold;
+}
+/* HEADER */
+
+
+/* Wrapper for bottom half of screen with 
+    table and alerts */
+#main-wrapper {
+    flex-grow: 1;
+    flex: 8;
+    overflow: auto;
+    display: flex;
+    gap: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 20px;
+    
+
+}
+
+/* Table Window */
+
+/* Wrapper for whole table */
+#planes-table {
+    flex: 7;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    border: 3px solid #444240;
+    background-color: #d7d5d3;
+}
+
+#planes-table-wrapper {
+    flex-grow: 1;
+    overflow-y: auto; /* Allows only the table body to scroll */
+    max-height: 400px; /* Adjust this based on your layout */
+    background-color: #d7d5d3;
+
+}
+
+/* Main table styling */
+#planes-table table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 0px;
+    background-color: #d7d5d3;
+}
+
+/* Table header */
+#planes-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background-color: transparent;
+    color: #444240;
+    border-bottom: 3px solid #444240;
+}
+
+/* Body of table */
+#planes-table tbody {
+    display: block;
+    overflow-y: auto;
+    max-height: 577px; /* Adjust height as needed */
+}
+
+/* Rows of table */
+#planes-table tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed; /* Keeps column alignment */
+}
+
+/* 
+    Column titles 
+ */
+ #planes-table th {
+    padding: 10px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bolder;
+    text-align: left;
+    color: #444240;
+
+}
+
+/* 
+    Rows of table 
+ */
+#planes-table td {
+    font-family: Arial, Helvetica, sans-serif;
+    border-bottom: 1px solid #444240;
+    padding: 10px;
+    text-align: left;
+}
+
+/* Status box alignment */
+.status-wrapper {
+    justify-content: center;
+    align-items: center;
+
+
+}
+
+/* 
+    Status Box to left of tail number
+ */
+.status-box {
+    margin-left: 30px;
+    width: 20px;
+    height: 20px;
+    background-color: #c76666;
+    border-radius: 2px;
+}
+
+/* Table Window */
+
+
+
+
+
+/* ALERTS CENTER */
+/* 
+    Main wrapper for alerts center 
+ */
+#alerts-center {
+ 
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #d7d5d3;
+    border-radius: 5px;
+}
+
+#alerts-title {
+    padding: 10px;
+    font-size: xx-large;
+    font-weight: bold;
+}
+
+
+#rec-table {
+    flex: 7;
+    justify-content: center;
+    align-items: left;
+    width: 100%;
+    border-radius: 5px;
+    border: 2px solid #444240;
+}
+
+/* Main table styling */
+#rec-table table {
+    border-collapse: collapse;
+    border-radius: 0px;
+    background-color: transparent;
+}
+
+/* Table header */
+#rec-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    color: #444240;
+    background-color: transparent;
+    border-bottom: 3px solid #444240;
+}
+
+/* Body of table */
+#rec-table tbody {
+    display: block;
+    overflow-y: auto;
+    max-height: 505px; /* Adjust height as needed */
+}
+/* 
+/* Rows of table */
+#rec-table tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed; /* Keeps column alignment */
+
+}
+
+/* 
+    Column titles 
+ */
+#rec-table th {
+    padding: 10px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bolder;
+    text-align: left;
+    color: #444240;
+
+}
+
+
+/* 
+    Rows of table 
+ */
+#rec-table td {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: medium;
+    border-bottom: 1px solid #444240;
+    padding: 8px;
+
+} 
+
+
+
+
+.down-arrow {
+    width: 0; 
+    height: 0; 
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 10px solid #444240;
+    float: right;
+
+}
+
+.up-arrow {
+    width: 0; 
+    height: 0; 
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-bottom: 10px solid #444240;
+    float: right;
+}
+  
+
+.alert-wrapper {
+    display: table-cell;
+    align-items: center;
+}
+
+/* alterts status box */
+.alert-box {
+    display: inline-block; /* Makes the alert box behave like inline elements */
+    width: 12px;
+    height: 12px;
+    background-color: #c76666;
+    border-radius: 2px;
+    margin-right: 5px;
+    
+}
+
+
+
+/* Classes for colors */
+.red-color {
+    background-color: #c76666
+}
+
+.green-color {
+    background-color: #B9BE80;
+}
+
+.yellow-color {
+    background-color: #ECAC57;
+}

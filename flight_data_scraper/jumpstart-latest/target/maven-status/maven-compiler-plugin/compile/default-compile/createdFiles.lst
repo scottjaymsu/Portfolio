@@ -1,0 +1,7 @@
+com/harris/cinnato/solace/JMSConsumer.class
+com/harris/cinnato/solace/SolaceConsumerV1.class
+com/harris/cinnato/outputs/FileOutput.class
+com/harris/cinnato/Consumer.class
+com/harris/cinnato/solace/SolaceInitialContext.class
+com/harris/cinnato/outputs/Output.class
+com/harris/cinnato/outputs/DatabaseOutput.class
