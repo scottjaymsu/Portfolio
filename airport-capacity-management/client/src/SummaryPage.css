@@ -1,0 +1,128 @@
+.map-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.info-card {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  bottom: 10px;
+  width: 40%;
+  background: #eae8e6;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  overflow: scroll;
+  justify-content: space-between;
+}
+
+.status-bubble {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-weight: bold;
+  text-align: center;
+  min-width: 80px;
+}
+
+.status-bubble-lg {
+  display: inline-block;
+  padding: 8px 35px;
+  border-radius: 15px;
+  font-weight: bold;
+  text-align: center;
+  margin: 4px;
+}
+
+.open {
+  background-color: #b9be80;
+  color: white;
+}
+
+.full {
+  background-color: #c76666;
+  color: white;
+}
+
+.card-content {
+  background-color: white;
+  margin-bottom: 10px;
+  flex-basis: 1;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  margin: 4px;
+}
+
+.status {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  font-weight: 650;
+  margin-top: 3px;
+  margin-bottom: 5px;
+}
+
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.info-table th,
+.info-table td {
+  border: 1px solid #ddd;
+  padding: 3px;
+  text-align: center;
+}
+
+.info-table th {
+  background-color: #1c3149;
+  color: white;
+}
+
+.see-more {
+  background-color: #3b536c;
+  color: white;
+  font-weight: 600;
+  font-size: large;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  text-align: center;
+  margin-top: auto;
+  align-self: center;
+  width: 100%;
+}
+
+.see-more:hover {
+  background-color: #142236;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.flex-2 {
+  flex: 2;
+}
+
+.flex-3 {
+  flex: 3;
+}
