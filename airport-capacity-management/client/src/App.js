@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css';
 import BatchFile from './pages/BatchFile'; 
-import Home from './pages/Home'; 
 import RecEngine from './pages/RecEngine'; 
 import SimulatorComponent from './pages/Simulator';
 import MapComponent from './Map';
