@@ -16,62 +16,55 @@ const recc = [
 const SimulatorComponent = () => {
     const { iata_code } = useParams();
     const [expandedRow, setExpandedRow] = useState(null);
-
-
     const [fboData, setFboData] = useState([]);
     const [totalSpace, setTotalSpace] = useState(0);
     const [takenSpace, setTakenSpace] = useState(0);
     const [selectedFBO, setSelectedFBO] = useState(null);
     const [selectedAirport, setSelectedAirport] = useState(null);
+    const [localTime, setLocalTime] = useState(new Date().toLocaleString());
 
     const toggleRow = (index) => {
         setExpandedRow(expandedRow === index ? null : index);
     };
 
     useEffect(() => {
-        
-
         const getAirportFBOs = async () => {
             try {
                 const response = await axios.get(`http://localhost:5001/simulator/getAirportFBOs/${iata_code}`);
-                // console.log('API response (getAirportFBOs):', response.data); // Debugging statement
                 setFboData(response.data);
-                // Total Space
                 const totalSpace = response.data.reduce((sum, fbo) => sum + (fbo.Total_Space || 0), 0);
                 setTotalSpace(totalSpace);
-                // Parking Taken Up
                 const takenSpace = response.data.reduce((sum, fbo) => sum + (fbo.Parking_Space_Taken || 0), 0);
                 setTakenSpace(takenSpace);
                 if (response.data.length > 0) {
-                    setSelectedFBO(response.data[0]); // Set default selected FBO to the first one in the list
-                    setSelectedAirport(response.data[0].Airport_Code); // Extract Airport_Code
+                    setSelectedFBO(response.data[0]);
+                    setSelectedAirport(response.data[0].Airport_Code);
                 }
-               
-                
-
-                
             } catch (error) {
                 console.error('Error fetching airport FBOs AHHHHHH:', error);
             }
-            
         };
 
-  
-        
         getAirportFBOs();
     }, [iata_code]);
 
+    // For updating local time 
+    // Currently just our time but can change individual airport times 
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setLocalTime(new Date().toLocaleString());
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, []);
+
+    // When FBO is selected from dropdown
+    // Changes var to selected one that changes other divs on page 
     const handleFBOChange = (event) => {
         const selectedFBOName = event.target.value;
         const selectedFBO = fboData.find(fbo => fbo.FBO_Name === selectedFBOName);
         setSelectedFBO(selectedFBO);
     };
-
-    // TODO:
-    // ALL NETJETS TAIL #s
-    // Update local time
-    // ALL Planes currently at the airport 
-    // REC ENGINE - select what actually appears in alerts 
 
     return (
         <div>
@@ -91,7 +84,6 @@ const SimulatorComponent = () => {
                     </div>
                     <div className='header-segment-small'>
                         <div >{selectedAirport} Capacity</div>
-                 
                         <div>{takenSpace}/{totalSpace}</div>
                         <div>FBO Capacity</div>
                         {selectedFBO && (
@@ -124,14 +116,13 @@ const SimulatorComponent = () => {
                             {fboData.map((data, index) => (
                                 <option key={index}>{data.FBO_Name}</option>
                             ))}
-                            
                         </select>
                     </div>
                     <div className='header-segment-small'>
                         <label htmlFor="datetime">Arrival Time</label>
                         <input type="datetime-local" id="time" name="time"></input>
                         <label htmlFor="local-datetime">Local Time</label>
-                        <input type="text" id="local-datetime" readOnly></input>
+                        <input type="text" id="local-datetime" readOnly value={localTime}></input>
                     </div>
                     <div className='header-segment-large'>
                         <div id="plane-info-wrapper">
@@ -220,7 +211,6 @@ const SimulatorComponent = () => {
                     </div>
                 </div>
             </div>
-            
         </div>
     );
 };
