@@ -77,8 +77,12 @@ header div */
 }
 
 #airport-title {
+    text-transform: uppercase;
     font-size: 25px;
     font-weight: bold;
+}
+.air-title {
+    text-transform: uppercase;
 }
 
 #sim-title {
