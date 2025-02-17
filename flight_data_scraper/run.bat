@@ -28,8 +28,7 @@ if "%BUILD%"=="true" (
     cd ..
 
     echo BUILD DOCKER IMAGE
-    docker buildx rm mybuilder
-    docker buildx build --platform linux/amd64 -t flight_data_scraper:latest .
+    docker build --platform linux/amd64 -t username486/flight_data_scraper:latest .
     : amd version so it can run on AWS amd servers
 )
 
