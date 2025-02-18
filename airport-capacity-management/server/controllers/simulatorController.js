@@ -29,3 +29,18 @@ exports.getNetjetsFleet = (req, res) => {
         res.json(results);
     });
 };
+
+exports.getArrivingPlanes = (req, res) => {
+  const { iata_code } = req.params;
+  const query = 'SELECT * FROM flight_plans WHERE arrival_airport = ? OR departure_airport = ?';
+
+  db.query(query, [iata_code], (err, results) => {
+    if (err) {
+      console.error('Error fetching arriving planes:', err);
+      res.status(500).send('Error fetching arriving planes');
+      return;
+    }
+    console.log('Query results:', results); // Debugging statement
+    res.json(results);
+  });
+};

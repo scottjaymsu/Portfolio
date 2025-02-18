@@ -49,7 +49,10 @@ const SimulatorComponent = () => {
     const [expandedRow, setExpandedRow] = useState(null);
     const [fboData, setFboData] = useState([]);
     const [fleetData, setFleetData] = useState([]);
+    const [arrivingPlanes, setArrivingPlanes] = useState([]);
 
+
+//  SPACES CHANGING THAT NEED TO CHANGE WITH NEW DATA?
     const [totalSpace, setTotalSpace] = useState(0);
     const [takenSpace, setTakenSpace] = useState(0);
     const [selectedFBO, setSelectedFBO] = useState(null);
@@ -88,9 +91,19 @@ const SimulatorComponent = () => {
             }
         };
 
+        const getArrivingPlanes = async () => {
+            try {
+                const response = await axios.get(`http://localhost:5001/simulator/getArrivingPlanes/${iata_code}`);
+                setArrivingPlanes(response.data);
+            } catch (error) {
+                console.error('Error fetching arriving planes:', error);
+            }
+        };
+
 
         getNetjetsFleet();
         getAirportFBOs();
+        getArrivingPlanes();
     }, [iata_code]);
 
     // For updating local time 
@@ -211,17 +224,20 @@ const SimulatorComponent = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {data.map((val, key) => (
+                                {arrivingPlanes.map((val, key) => (
                                     <tr key={key}>
                                         <td className="status-wrapper">
-                                            <div className="status-box"></div>
+                                            <div className="status-box blue-color"></div>
                                         </td>
-                                        <td>{val.tailNumber}</td>
-                                        <td>{val.status}</td>
-                                        <td>{val.type}</td>
-                                        <td>{val.nextEvent}</td>
+                                        
+                                        <td>{val.acid}</td> {/* Tail # */}
+                                        <td>Arriving</td> {/* Status  */}
+                                        <td>type</td> {/*plane type */}
+                                        <td>{val.eta}</td> {/* next event */}
                                     </tr>
                                 ))}
+
+                                
                             </tbody>
                         </table>
                     </div>
