@@ -26,10 +26,10 @@ if [ "$BUILD" = true ]; then
     cd ..
 
     echo "BUILD DOCKER IMAGE"
-    docker build --platform linux/amd64 -t username486/flight_data_scraper:latest .
+    docker build --platform linux/amd64 -t username486/netjets_server:latest .
     # amd version so it can run on AWS amd servers
 fi
 
 echo "RUN DOCKER CONTAINER"
 
-docker run -it --rm --name flight_data_scraper-fdps-v -v "$(pwd)/fdps.conf:/app/application.conf" flight_data_scraper
+docker run -it --rm --name flight_data_scraper-fdps-v -v "$(pwd)/fdps.conf:/app/application.conf" username486/netjets_server:latest

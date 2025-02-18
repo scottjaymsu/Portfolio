@@ -139,6 +139,23 @@ public class DatabaseOutput extends Output {
     }
 
     /*
+     * Helper function that parses flightStatusAndSpec object to find the aircraft model
+     * Input: JSONObject for the data message object
+     * Output: Modely type as a string, or null
+     */
+    private String flightStatusAndSpec_Model(JSONObject flightDataMessage) {
+        JSONObject flightStatusAndSpec = flightDataMessage.optJSONObject("nxcm:flightStatusAndSpec");
+        if (flightStatusAndSpec != null) {
+            JSONObject aircraftModel = flightStatusAndSpec.optJSONObject("nxcm:aircraftModel");
+            if (aircraftModel != null) {
+                // The aircraft model
+                return aircraftModel.optString("content", null);
+            }
+        }
+        return null;
+    }
+
+    /*
      * Helper function that converts a Zulu time string to a MySQL DATETIME string
      * Input: Zulu time string
      * Output: MySQL DATETIME string
@@ -228,7 +245,7 @@ public class DatabaseOutput extends Output {
 
         // Parse each flight data message type
         String msgType = flightInfo.optString("msgType", null);
-        System.out.print("MsgType=" + msgType + " ");
+        //System.out.print("MsgType=" + msgType + " ");
 
         // "Zulu" time, formed like "YYYY-MM-DDTHH:MM:SSZ"
         String eta = null;
@@ -238,6 +255,9 @@ public class DatabaseOutput extends Output {
         // message will be ESTIMATED if that plane hasn't physically triggered landing signals but the plane should have landed by now accoridng to the schedule.
         // Not sure if this information will be useful or not
         String etaType = null;
+
+        // Get the model type to make sure we have it stored in our database
+        String model = null;
 
         // Find ETA and ETD data, then insert it into the database
         switch (msgType) {
@@ -254,8 +274,11 @@ public class DatabaseOutput extends Output {
                     if (arrArpt == null) {
                         arrArpt = qualifiedAircraftId_Airport(flightPlanInformation);
                     }
+                    
+                    // Extracts the model type, if it exists
+                    model = flightStatusAndSpec_Model(flightPlanInformation);
 
-                    // Insert the data into the database
+                    // Insert the data into the flight plan database
                     // Message can come through only before takeoff
                     InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, false, false);
                 }
@@ -275,7 +298,29 @@ public class DatabaseOutput extends Output {
                         arrArpt = qualifiedAircraftId_Airport(flightPlanAmendmentInformation);
                     }
 
-                    // Insert the data into the database
+                    // Sometimes this message will cancel a flight plan if a diversion happens
+                    JSONObject diversionCancelData = flightPlanAmendmentInformation.optJSONObject("ncsmDiversionCancelData");
+                    if (diversionCancelData != null) {
+                        JSONObject canceledFlightReferenceObject = diversionCancelData.optJSONObject("canceledFlightReference");
+                        if (canceledFlightReferenceObject != null) {
+                            String cancelFlightRef = canceledFlightReferenceObject.optString("content");
+                            
+                            // Delete this flight plan from the flight plans database
+                            String sql = "DELETE FROM flight_plans WHERE flightRef = ?;";
+            
+                            try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+                
+                                pstmt.setString(1, cancelFlightRef);
+                
+                                pstmt.executeUpdate();
+                
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                    // Insert the data into the flight plan database
                     // Message can come through before takeoff, and after landing sometimes
                     InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, null, null);
                 }
@@ -309,9 +354,13 @@ public class DatabaseOutput extends Output {
                     }
                 }
                 
-                // Insert the data into the database
+                // Insert the data into the flight plan database
                 // Message only comes through after landing (although the landing time might be estimated sometimes)
                 InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, true, true);
+
+                // We know this is an active flight plan
+                // Make sure the jet is pointing to this flight plan as its active flight plan
+                UpdateFleetDatabase(flightRef, acid, model);
                 
                 break;
 
@@ -338,9 +387,13 @@ public class DatabaseOutput extends Output {
                     etd = timeOfDeparture.optString("content", null);
                 }
 
-                // Insert the data into the database
+                // Insert the data into the flight plan database
                 // Message only comes through after takeoff
                 InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, true, false);
+
+                // We know this is an active flight plan
+                // Make sure the jet is pointing to this flight plan as its active flight plan
+                UpdateFleetDatabase(flightRef, acid, model);
 
                 break;
 
@@ -379,9 +432,13 @@ public class DatabaseOutput extends Output {
                     }
                 }
 
-                // Insert the data into the database
+                // Insert the data into the flight plan database
                 // Message only comes through for planes in the air
                 InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, true, false);
+
+                // We know this is an active flight plan
+                // Make sure the jet is pointing to this flight plan as its active flight plan
+                UpdateFleetDatabase(flightRef, acid, model);
 
                 break;
 
@@ -396,9 +453,13 @@ public class DatabaseOutput extends Output {
                     eta = ncsmRouteData_ETA(oceanicReport);
                 }
 
-                // Insert the data into the database
+                // Insert the data into the flight plan database
                 // Message only comes through for planes in the air
                 InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, true, false);
+
+                // We know this is an active flight plan
+                // Make sure the jet is pointing to this flight plan as its active flight plan
+                UpdateFleetDatabase(flightRef, acid, model);
 
                 break;
 
@@ -412,10 +473,13 @@ public class DatabaseOutput extends Output {
 
                         // Extracts ETD string, if it exists
                         etd = get_ETD(airlineData.optJSONObject("nxcm:etd"));
+
+                        // Extracts the model type, if it exists
+                        model = flightStatusAndSpec_Model(airlineData);
                     }
                 }
 
-                // Insert the data into the database
+                // Insert the data into the flight plan database
                 // Message is supposed to come through before takeoff, but sometimes it might come after
                 // So, manually check the ETD time to see if it has taken off yet
                 InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, isBeforeCurrentTime(etd), false);
@@ -432,18 +496,44 @@ public class DatabaseOutput extends Output {
 
                         // Extracts ETD string, if it exists
                         etd = get_ETD(airlineData.optJSONObject("nxcm:etd"));
+
+                        // Extracts the model type, if it exists
+                        model = flightStatusAndSpec_Model(airlineData);
                     }
                 }
 
-                // Insert the data into the database
+                // Insert the data into the flight plan database
                 // Message can come thorugh at any time, even after landing
                 // So, manually check the ETD time to see if it has taken off yet
-                InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, isBeforeCurrentTime(etd), null);
+                Boolean etd_bool = null;
+                Boolean eta_bool = null;
+                if (etd != null) {
+                    if (isBeforeCurrentTime(etd) == false) {
+                        // Plane has not yet taken off
+                        etd_bool = false;
+                        eta_bool = false;
+                    }
+                    else {
+                        // Plane has take off
+                        etd_bool = true;
+
+                        if (isBeforeCurrentTime(eta) == false) {
+                            // Plane has not yet landed
+                            eta_bool = false;
+
+                            // We know this is an active flight plan
+                            // Make sure the jet is pointing to this flight plan as its active flight plan
+                            UpdateFleetDatabase(flightRef, acid, model);
+                        }
+                    }
+                }
+                
+
+                InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, etd_bool, eta_bool);
                 
                 break;
 
             case "FlightScheduleActivate":
-                System.out.println(flightInfo.toString(4));
                 JSONObject ncsmFlightScheduleActivate = flightInfo.optJSONObject("fdm:ncsmFlightScheduleActivate");
                 if (ncsmFlightScheduleActivate != null) {
                     // Search nested objects for ETA (usually found in ncsmRouteData object)
@@ -453,7 +543,7 @@ public class DatabaseOutput extends Output {
                     etd = ncsmRouteData_ETD(ncsmFlightScheduleActivate);
                 }
 
-                // Insert the data into the database
+                // Insert the data into the flight plan database
                 // Message comes through 24 hrs before takeoff
                 InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, false, false);
 
@@ -469,7 +559,7 @@ public class DatabaseOutput extends Output {
                     etd = ncsmRouteData_ETD(ncsmFlightRoute);
                 }
 
-                // Insert the data into the database
+                // Insert the data into the flight plan database
                 // Messgae comes through before takeoff
                 InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, false, false);
 
@@ -487,9 +577,12 @@ public class DatabaseOutput extends Output {
 
                     // Extracts ETD string, if it exists
                     etd = get_ETD(ncsmFlightTimes.optJSONObject("nxcm:etd")); 
+
+                    // Extracts the model type, if it exists
+                    model = flightStatusAndSpec_Model(ncsmFlightTimes);
                 }
 
-                // Insert the data into the database
+                // Insert the data into the flight plan database
                 // Messgae comes through before or shortly after etd time to notify of takeoff delay
                 InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, false, false);
 
@@ -504,7 +597,7 @@ public class DatabaseOutput extends Output {
 
 
     /*
-     * Helper function that inserts data into the database
+     * Helper function that inserts data into the flight plan database
      * Input: Each element of the entery
      */
     private void InsertIntoDatabase(String flightRef, String acid, String depArpt, String arrArpt, String etd, String eta, Boolean departed, Boolean arrived) {
@@ -578,11 +671,58 @@ public class DatabaseOutput extends Output {
                 stmt.executeUpdate();
 
                 // Print
-                System.out.println("Inserted: FlightRef=" + flightRef + ", Acid=" + acid + ", arrArpt=" + arrArpt + ", depArtp=" + depArpt + ", etd=" + etd + ", eta=" + eta + ", departed=" + departed + ", arrived=" + arrived);
+                // System.out.println("Inserted: FlightRef=" + flightRef + ", Acid=" + acid + ", arrArpt=" + arrArpt + ", depArtp=" + depArpt + ", etd=" + etd + ", eta=" + eta + ", departed=" + departed + ", arrived=" + arrived);
                 
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    /*
+     * Helper function that links a plane to a specific active flight plan. Will also make sure a plane's model type is up to date
+     * 
+     * In this database, a plane (acid) will point to it most recent flight plan (flightRef). Then one can index the flight plans database to determine if
+     * the plane's flight plan is currently active (the plane is in the air) or if the flight plan has arrived (plane is parked at its arrival airport)
+     * 
+     * Input: Each element of the entry
+     */
+    private void UpdateFleetDatabase(String flightRef, String acid, String model) {
+        if (flightRef != null && acid != null) {
+            String sql = null;
+            if (model != null) {
+                // We know the model type of this plane, make sure the database has this data up to date
+                sql = "INSERT INTO netjets_fleet (acid, plane_type, flightRef) VALUES (?, ?, ?)  ON DUPLICATE KEY UPDATE acid = VALUES(acid), plane_type = VALUES(plane_type), flightRef = VALUES(flightRef);";
+
+                try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+
+                    pstmt.setString(1, acid);
+                    pstmt.setString(2, model);
+                    pstmt.setString(3, flightRef);
+    
+                    pstmt.executeUpdate();
+    
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            else {
+                // We didn't pull model type info, so don't update that column
+                sql = "INSERT INTO netjets_fleet (acid, flightRef) VALUES (?, ?)  ON DUPLICATE KEY UPDATE acid = VALUES(acid), flightRef = VALUES(flightRef);";
+
+                try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+
+                    pstmt.setString(1, acid);
+                    pstmt.setString(2, flightRef);
+    
+                    pstmt.executeUpdate();
+    
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            
+            
         }
     }
 
