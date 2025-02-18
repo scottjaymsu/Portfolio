@@ -16,3 +16,16 @@ exports.getAirportFBOs = (req, res) => {
     });
   };
 
+exports.getNetjetsFleet = (req, res) => {
+    const query = 'SELECT * FROM mock_netjets_fleet_data';
+
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching NetJets fleet:', err);
+            res.status(500).send('Error fetching NetJets fleet');
+            return;
+        }
+        console.log('Query results:', results); // Debugging statement
+        res.json(results);
+    });
+};

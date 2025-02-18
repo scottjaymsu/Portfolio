@@ -64,16 +64,17 @@ header div */
 
 }
 /* Return to Map button */
-#back-button {
+#back-button-sim {
     border: none;
     background-color: transparent;
     cursor: pointer;
     padding: 10px;
 }
 /* Back Button Image */
-#back-button img {
+#back-button-sim img {
     width: 30px;
     height: auto;
+    background-color: transparent;
 }
 
 #airport-title {
@@ -90,7 +91,7 @@ header div */
     font-weight: normal;
 }
 
-#fbo-title {
+#fbo-title-sim {
     padding-left: 10px;
     padding-top: 70px;
     padding-bottom: 10px;
@@ -429,13 +430,17 @@ select option {
 
 /* Classes for colors */
 .red-color {
-    background-color: #c76666
+    background-color: rgb(209, 96, 94);
+}
+
+.blue-color {
+    background-color: rgb(88, 120, 163);
 }
 
 .green-color {
-    background-color: #B9BE80;
+    background-color: rgb(133,181,178);
 }
 
 .yellow-color {
-    background-color: #ECAC57;
+    background-color: rgb(228,147,67);
 }

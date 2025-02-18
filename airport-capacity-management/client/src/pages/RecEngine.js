@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Table from '../components/Table.js';
@@ -74,7 +74,7 @@ function RecEngine() {
     getPlanesAtAirport();
     getAllPlanes();
     getAirportFBOs();
-  }, []);
+  }, [iata_code]);
 
   //I guess you can't store objects as values in HTML select elements, so I stored the tail number and in here make a request
   //To get detailed information about the plane based on it's tail number (runs when a user selects a new plane to view)

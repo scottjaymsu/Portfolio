@@ -5,18 +5,51 @@ import '../styles/Simulator.css';
 
 const data = [
     { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
-    // ... other data
+    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
+    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
+    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
+    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
+    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
+    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
+    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
+    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
+    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
+    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
+    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
+    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
+    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
+    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
+
+
 ];
 
 const recc = [
     {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
-    // ... other data
+    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
+    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
+    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
+    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
+    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
+    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
+    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
+    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
+    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
+    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
+    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
+    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
+    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
+    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
+    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
+    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
+    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
 ];
 
 const SimulatorComponent = () => {
     const { iata_code } = useParams();
     const [expandedRow, setExpandedRow] = useState(null);
     const [fboData, setFboData] = useState([]);
+    const [fleetData, setFleetData] = useState([]);
+
     const [totalSpace, setTotalSpace] = useState(0);
     const [takenSpace, setTakenSpace] = useState(0);
     const [selectedFBO, setSelectedFBO] = useState(null);
@@ -45,6 +78,18 @@ const SimulatorComponent = () => {
             }
         };
 
+        // Get ALL tail numbers 
+        const getNetjetsFleet = async () => {
+            try {
+                const response = await axios.get('http://localhost:5001/simulator/getNetjetsFleet');
+                setFleetData(response.data);
+            } catch (error) {
+                console.error('Error fetching NetJets fleet:', error);
+            }
+        };
+
+
+        getNetjetsFleet();
         getAirportFBOs();
     }, [iata_code]);
 
@@ -52,7 +97,7 @@ const SimulatorComponent = () => {
     // Currently just our time but can change individual airport times 
     useEffect(() => {
         const interval = setInterval(() => {
-            setLocalTime(new Date().toLocaleString());
+            setLocalTime(new Date().toISOString());
         }, 1000);
 
         return () => clearInterval(interval);
@@ -66,6 +111,9 @@ const SimulatorComponent = () => {
         setSelectedFBO(selectedFBO);
     };
 
+
+    
+
     return (
         <div>
             <div id="simulator-grid">
@@ -73,13 +121,13 @@ const SimulatorComponent = () => {
                     <div id="header1">
                         <div className='header-segment-large'>
                             <div id="title-wrapper">
-                                <button id="back-button">
+                                <button id="back-button-sim">
                                     <img src="/back-arrow.png" alt="Back Button"></img>
                                 </button>
                                 <div id="airport-title">{selectedAirport}</div>
                                 <div id="sim-title">Flight Simulator</div>
                             </div>
-                            <div id="fbo-title">{selectedFBO ? selectedFBO.FBO_Name : 'Select an FBO'}</div>
+                            <div id='fbo-title-sim'>{selectedFBO ? selectedFBO.FBO_Name : 'Select an FBO'}</div>
                         </div>
                     </div>
                     <div className='header-segment-small'>
@@ -92,8 +140,8 @@ const SimulatorComponent = () => {
                     </div>
                     <div className='header-segment-small'>
                         <div className='legend-row'>
-                            <div className='legend-square red-color'></div>
-                            <div>Maintenance</div>
+                            <div className='legend-square blue-color'></div>
+                            <div>Arriving</div>
                         </div>
                         <div className='legend-row'>
                             <div className='legend-square yellow-color'></div>
@@ -103,13 +151,18 @@ const SimulatorComponent = () => {
                             <div className='legend-square green-color'></div>
                             <div>Parked</div>
                         </div>
+                        <div className='legend-row'>
+                            <div className='legend-square red-color'></div>
+                            <div>Maintenance</div>
+                        </div>
                     </div>
                     <div className='header-segment-small'>
                         <label htmlFor="dropdown">Tail Number</label>
                         <select id="dropdown" name="dropdown">
-                            <option value="option1">Option 1</option>
-                            <option value="option2">Option 2</option>
-                            <option value="option3">Option 3</option>
+                            {fleetData.map((data, index) => (
+                                <option key={index}>{data.tail_number}</option>
+                            ))}
+                         
                         </select>
                         <label htmlFor="dropdown">FBO</label>
                         <select id="dropdown" name="dropdown" onChange={handleFBOChange} value={selectedFBO ? selectedFBO.FBO_Name : ''}>
