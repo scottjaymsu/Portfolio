@@ -4,12 +4,12 @@
  */
 const airportDB = require('../models/airportDB');
 
-// Controller to get airport data by FAA Designator
+// Controller to get airport data by FAA Designator - {FAA designator, name}
 exports.getAirportData = (req, res) => {
     // Testing
     const ident = req.params.ident || 'KTEB';
 
-    const query = 'SELECT ident, name, capacity FROM airport_data WHERE ident = ?';
+    const query = 'SELECT ident, name FROM airport_data WHERE ident = ?';
 
     airportDB.query(query, [ident], (err, results) => {
         if (err) {
