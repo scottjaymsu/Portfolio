@@ -206,7 +206,7 @@ export default function SummaryPage() {
     //Fetch all the parking coordinates related to FBO's so that the map can overlay them for viewing
     async function fetchParkingCoordinates() {
       try {
-        const response = await fetch(`http://localhost:5000/airports/getParkingCoordinates/${airportCode}`);
+        const response = await fetch(`http://localhost:5001/airports/getParkingCoordinates/${airportCode}`);
         const data = await response.json();
         console.log(data)
         const parkingLots = data.map((lot) => {
@@ -228,7 +228,7 @@ export default function SummaryPage() {
     //Fetch the lat long coordinates of each airport, it doesn't center perfectly but I don't think that'll be an issue
     async function fetchAirportData() {
       try {
-        const response = await fetch(`http://localhost:5000/airports/getAirportData/${airportCode}`);
+        const response = await fetch(`http://localhost:5001/airports/getAirportData/${airportCode}`);
         const data = await response.json();
         const { latitude_deg, longitude_deg } = data[0];
         const lat = parseFloat(latitude_deg);

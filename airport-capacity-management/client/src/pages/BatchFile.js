@@ -20,7 +20,7 @@ function BatchFile() {
       skipEmptyLines: true,
       complete: async function (results) {
         try {
-            const response = await axios.post('http://localhost:5000/batch/insertBatchData', results.data);
+            const response = await axios.post('http://localhost:5001/batch/insertBatchData', results.data);
   
             if (response.status === 200) {
               console.log('Data successfully inserted!');
@@ -37,7 +37,7 @@ function BatchFile() {
         skipEmptyLines: true,
         complete: async function (results) {
           try {
-              const response = await axios.post('http://localhost:5000/batch/insertAirportData', results.data);
+              const response = await axios.post('http://localhost:5001/batch/insertAirportData', results.data);
     
               if (response.status === 200) {
                 console.log('Data successfully inserted!');

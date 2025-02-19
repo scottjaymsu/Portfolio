@@ -23,7 +23,7 @@ function RecEngine() {
   useEffect(() => {
     const getAirportInformation = async() => {
       try {
-        const response = await axios.get(`http://localhost:5000/rec/getAirportInformation/${iata_code}`);
+        const response = await axios.get(`http://localhost:5001/rec/getAirportInformation/${iata_code}`);
         setAirportInformation(response.data[0]);
       } catch (error) {
         console.error("Error fetching tthe FBOs at this airport: ", error);
@@ -31,7 +31,7 @@ function RecEngine() {
     }
     const getDepartingFlights = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/rec/upcomingDepartingFlights/${iata_code}/NetJets`);
+            const response = await axios.get(`http://localhost:5001/rec/upcomingDepartingFlights/${iata_code}/NetJets`);
             setDepartingFlights(response.data);
         } catch (error) {
             console.error("Error fetching departing flights: ", error);
@@ -40,13 +40,13 @@ function RecEngine() {
     //Is it better to split these up into two api requests or store them all in one object and sort them when using? TODO
     const getPlanesAtAirport = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/rec/getPlanesAtAirport/${iata_code}/NetJets`);
+            const response = await axios.get(`http://localhost:5001/rec/getPlanesAtAirport/${iata_code}/NetJets`);
             setCurrentPlanes(response.data);
         } catch (error) {
             console.error("Error fetching departing flights: ", error);
         }
         try {
-          const response = await axios.get(`http://localhost:5000/rec/getPlanesAtAirport/${iata_code}`);
+          const response = await axios.get(`http://localhost:5001/rec/getPlanesAtAirport/${iata_code}`);
           setAllCurrentPlanes(response.data);
           console.log(response.data);
       } catch (error) {
@@ -55,7 +55,7 @@ function RecEngine() {
     };
     const getAllPlanes = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/rec/getAllPlanes`);
+        const response = await axios.get(`http://localhost:5001/rec/getAllPlanes`);
         setAllPlanes(response.data);
       } catch (error) {
         console.error("error fetching all planes in netjets fleet");
@@ -63,7 +63,7 @@ function RecEngine() {
     }
     const getAirportFBOs = async() => {
       try {
-        const response = await axios.get(`http://localhost:5000/rec/getAirportFBOs/${iata_code}`);
+        const response = await axios.get(`http://localhost:5001/rec/getAirportFBOs/${iata_code}`);
         setAirportFBOs(response.data);
       } catch (error) {
         console.error("Error fetching tthe FBOs at this airport: ", error);
@@ -81,7 +81,7 @@ function RecEngine() {
   useEffect(() => {
     const getPlaneInformation = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/rec/getPlaneInformation/${selectedSimulationPlane}`);
+        const response = await axios.get(`http://localhost:5001/rec/getPlaneInformation/${selectedSimulationPlane}`);
         setSelectedPlaneInformation(response.data[0]);
       } catch (error) {
         console.error("error fetching all planes in netjets fleet");
@@ -95,7 +95,7 @@ function RecEngine() {
     const getFBOInformation = async () => {
       try {
         console.log(selectedFBO);
-        const response = await axios.get(`http://localhost:5000/rec/getFBOInformation/${selectedFBO}`);
+        const response = await axios.get(`http://localhost:5001/rec/getFBOInformation/${selectedFBO}`);
         setSelectedFBOInformation(response.data[0]);
       } catch (error) {
         console.error("error fetching all planes in netjets fleet");
