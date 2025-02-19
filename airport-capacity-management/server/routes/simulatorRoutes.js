@@ -8,7 +8,8 @@ router.get('/getAirportFBOs/:iata_code', simulatorController.getAirportFBOs);
 router.get('/getNetjetsFleet', simulatorController.getNetjetsFleet);
 router.get('/getArrivingPlanes/:iata_code', simulatorController.getArrivingPlanes);
 
-
+// Rec Engine
+router.get('getRecommendations', simulatorController.getRecommendations);
 module.exports = router;
 
 

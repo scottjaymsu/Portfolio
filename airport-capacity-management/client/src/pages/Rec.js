@@ -61,3 +61,9 @@ const GenerateRecString = (planes) => {
 // manually add if in mx
 // manually add if long term parking
 // manually add what fbo its at?
+
+// highlighting for airports can we add in this feature for users idk?
+// uploading data (csv) for database
+// manually altering planes status
+// drag components? and drop? kind of idea for simulating planes
+// more visuals? 
