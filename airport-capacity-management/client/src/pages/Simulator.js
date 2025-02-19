@@ -59,6 +59,8 @@ const SimulatorComponent = () => {
     const [selectedAirport, setSelectedAirport] = useState(null);
     const [localTime, setLocalTime] = useState(new Date().toLocaleString());
 
+    const [recs, setRecs] = useState([]);
+
     const toggleRow = (index) => {
         setExpandedRow(expandedRow === index ? null : index);
     };
@@ -82,35 +84,47 @@ const SimulatorComponent = () => {
         };
 
         // Get ALL tail numbers 
-        const getNetjetsFleet = async () => {
+        // const getNetjetsFleet = async () => {
+        //     try {
+        //         const response = await axios.get('http://localhost:5001/simulator/getNetjetsFleet');
+        //         setFleetData(response.data);
+        //     } catch (error) {
+        //         console.error('Error fetching NetJets fleet:', error);
+        //     }
+        // };
+
+        // const getArrivingPlanes = async () => {
+        //     try {
+        //         const response = await axios.get(`http://localhost:5001/simulator/getArrivingPlanes/${iata_code}`);
+        //         setArrivingPlanes(response.data);
+        //     } catch (error) {
+        //         console.error('Error fetching arriving planes:', error);
+        //     }
+        // };
+
+        const getRecommendations = async () => {
             try {
-                const response = await axios.get('http://localhost:5001/simulator/getNetjetsFleet');
-                setFleetData(response.data);
+                const response = await axios.get(`http://localhost:5001/simulator/getRecommendations/${iata_code}`);
+                setRecs(response.data);
+                console.log('Recommendations:', response.data);
             } catch (error) {
-                console.error('Error fetching NetJets fleet:', error);
+                console.error('Error fetching recommendations:', error);
             }
         };
 
-        const getArrivingPlanes = async () => {
-            try {
-                const response = await axios.get(`http://localhost:5001/simulator/getArrivingPlanes/${iata_code}`);
-                setArrivingPlanes(response.data);
-            } catch (error) {
-                console.error('Error fetching arriving planes:', error);
-            }
-        };
-
-
-        getNetjetsFleet();
+        getRecommendations();
+        // getNetjetsFleet();
         getAirportFBOs();
-        getArrivingPlanes();
+        // getArrivingPlanes();
     }, [iata_code]);
 
     // For updating local time 
     // Currently just our time but can change individual airport times 
     useEffect(() => {
         const interval = setInterval(() => {
-            setLocalTime(new Date().toISOString());
+            const now = new Date();
+            const formattedDate = `${now.toLocaleDateString('en-us', {day: 'numeric', month: 'numeric', year: 'numeric'})}, ${now.toLocaleTimeString('en-us', {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false})}`;
+            setLocalTime(formattedDate);
         }, 1000);
 
         return () => clearInterval(interval);
@@ -254,11 +268,11 @@ const SimulatorComponent = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {recc.map((val, key) => (
+                                    {recs.map((val, key) => (
                                         <React.Fragment key={key}>
                                             <tr className="expandable-row">
                                                 <td className="alert-wrapper">
-                                                    <div className="alert-box"></div>
+                                                    <div className="alert-box green-color"></div>
                                                     <span>{val.tailNumber}</span>
                                                 </td>
                                                 <td>{val.status}</td>
@@ -269,7 +283,7 @@ const SimulatorComponent = () => {
                                             </tr>
                                             {expandedRow === key && (
                                                 <tr className="expanded-content active">
-                                                    <td colSpan="5">{val.details}</td>
+                                                    <td colSpan="5">{val.recString}</td>
                                                 </tr>
                                             )}
                                         </React.Fragment>

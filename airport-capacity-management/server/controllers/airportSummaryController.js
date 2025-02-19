@@ -31,4 +31,3 @@ exports.getAirportData = (req, res) => {
         }
     });
 }
-  
