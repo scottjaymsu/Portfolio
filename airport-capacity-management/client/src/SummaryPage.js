@@ -1,5 +1,5 @@
-import React, {useState, useEffect} from "react";
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { GoogleMap, LoadScript, Polygon } from "@react-google-maps/api";
 import { Card, CardContent } from "./components/card";
 import {
@@ -110,7 +110,7 @@ const mapOptions = {
   // Hide non relevant map features
   styles: [
     {
-      featureType: "poi", 
+      featureType: "poi",
       elementType: "labels",
       stylers: [{ visibility: "off" }],
     },
@@ -120,12 +120,12 @@ const mapOptions = {
       stylers: [{ visibility: "off" }],
     },
     {
-      featureType: "road", 
+      featureType: "road",
       elementType: "labels",
       stylers: [{ visibility: "off" }],
     },
     {
-      featureType: "administrative", 
+      featureType: "administrative",
       elementType: "labels",
       stylers: [{ visibility: "off" }],
     },
@@ -186,7 +186,7 @@ function CustomOverlay({ map, position, text }) {
         fontSize: "12px",
         whiteSpace: "nowrap",
         textAlign: "center",
-        pointerEvents: "none", 
+        pointerEvents: "none",
       }}
     >
       {text}
@@ -199,26 +199,34 @@ export default function SummaryPage() {
   const airportCode = useParams().location;
   const [map, setMap] = React.useState(null);
   const [parkingLots, setParkingLots] = useState([]);
-  const [airportCoordinates, setAirportCoordinates] = useState({lat:40.84,lng:-74.07,});
+  const [airportCoordinates, setAirportCoordinates] = useState({
+    lat: 40.84,
+    lng: -74.07,
+  });
 
   useEffect(() => {
     console.log(airportCode);
     //Fetch all the parking coordinates related to FBO's so that the map can overlay them for viewing
     async function fetchParkingCoordinates() {
       try {
-        const response = await fetch(`http://localhost:5001/airports/getParkingCoordinates/${airportCode}`);
+        const response = await fetch(
+          `http://localhost:5001/airports/getParkingCoordinates/${airportCode}`
+        );
         const data = await response.json();
-        console.log(data)
+        console.log(data);
         const parkingLots = data.map((lot) => {
-          const coordinates = lot.coordinates[0].map(coord => ({ lat: coord.x, lng: coord.y }));
+          const coordinates = lot.coordinates[0].map((coord) => ({
+            lat: coord.x,
+            lng: coord.y,
+          }));
           return {
             name: lot.FBO_Name,
             coordinates: coordinates,
             color: "#B9BE80",
-            labelPosition: coordinates[0]
+            labelPosition: coordinates[0],
           };
         });
-  
+
         setParkingLots(parkingLots);
       } catch (error) {
         console.error("Error fetching parking data:", error);
@@ -228,57 +236,57 @@ export default function SummaryPage() {
     //Fetch the lat long coordinates of each airport, it doesn't center perfectly but I don't think that'll be an issue
     async function fetchAirportData() {
       try {
-        const response = await fetch(`http://localhost:5001/airports/getAirportData/${airportCode}`);
+        const response = await fetch(
+          `http://localhost:5001/airports/getAirportData/${airportCode}`
+        );
         const data = await response.json();
         const { latitude_deg, longitude_deg } = data[0];
         const lat = parseFloat(latitude_deg);
         const long = parseFloat(longitude_deg);
         setAirportCoordinates({
           lat: lat,
-          lng: long
+          lng: long,
         });
       } catch (error) {
         console.error("Error fetching parking data:", error);
       }
     }
-  
+
     fetchParkingCoordinates();
     fetchAirportData();
   }, [airportCode]);
 
   return (
     <div className="map-container">
-      <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
-        <GoogleMap
-          mapContainerStyle={containerStyle}
-          options={mapOptions}
-          center={airportCoordinates}
-          zoom={15}
-          onLoad={(mapInstance) => setMap(mapInstance)}
-        >
-          {parkingLots.map((lot, index) => (
-            <Polygon
-              key={index}
-              path={lot.coordinates}
-              options={{
-                fillColor: lot.color,
-                fillOpacity: 0.5,
-                strokeColor: lot.color,
-                strokeOpacity: 0.8,
-                strokeWeight: 2,
-              }}
-            />
-          ))}
-          {parkingLots.map((lot, index) => (
-            <CustomOverlay
-              key={`overlay-${index}`}
-              map={map}
-              position={lot.labelPosition}
-              text={lot.name}
-            />
-          ))}
-        </GoogleMap>
-      </LoadScript>
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        options={mapOptions}
+        center={airportCoordinates}
+        zoom={15}
+        onLoad={(mapInstance) => setMap(mapInstance)}
+      >
+        {parkingLots.map((lot, index) => (
+          <Polygon
+            key={index}
+            path={lot.coordinates}
+            options={{
+              fillColor: lot.color,
+              fillOpacity: 0.5,
+              strokeColor: lot.color,
+              strokeOpacity: 0.8,
+              strokeWeight: 2,
+            }}
+          />
+        ))}
+        {parkingLots.map((lot, index) => (
+          <CustomOverlay
+            key={`overlay-${index}`}
+            map={map}
+            position={lot.labelPosition}
+            text={lot.name}
+          />
+        ))}
+      </GoogleMap>
 
       <div className="info-card">
         <Card className="card-content">
