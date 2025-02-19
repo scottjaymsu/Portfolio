@@ -43,3 +43,28 @@ exports.getCurrentCapacity = (req, res) => {
         res.json(results);
     });
 }
+
+
+// Controller to get overall capacity of airport using mock data
+exports.getOverallCapacity = (req, res) => {
+    // Testing
+    const airportCode = req.params.Airport_Code || 'KTEB';
+
+    const query = 'SELECT Total_Space FROM airport_parking WHERE Airport_Code = ?';
+
+    airportDB.query(query, [airportCode], (err, results) => {
+        if (err) {
+            console.error("Error querying airport data.", err);
+            return res.status(500).json({ error: 'Error querying airport data.' });
+        }
+
+        const totalCapacity = results.reduce((sum, item) => sum + item.Total_Space, 0);
+
+        // Testing
+        console.log({totalCapacity});
+        // Send results back as response
+        res.json({totalCapacity});
+    });
+}
+
+
