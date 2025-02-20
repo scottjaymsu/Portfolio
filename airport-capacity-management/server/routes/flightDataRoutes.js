@@ -5,7 +5,7 @@ const express = require('express');
 const router = express.Router();
 const flightDataController = require('../controllers/flightDataController');
 
-router.get('/getArrivingFlights', flightDataController.getArrivingFlights);
-router.get('/getDepartingFlights', flightDataController.getDepartingFlights);
+router.get('/getArrivingFlights/:id', flightDataController.getArrivingFlights);
+router.get('/getDepartingFlights/:id', flightDataController.getDepartingFlights);
 
 module.exports = router;

@@ -7,9 +7,10 @@ import axios from 'axios';
  * @param id - faa designator of airport
  * @returns component 
  */
-    export default function Flight({id}) {
-    // State to hold departing flights
-    const [departingFlights, setDepartingFlights] = useState([]);
+export default function Flight({id}) {
+    // Ref to check if component is mounted
+    const mounted = React.useRef(false);
+
     // State to hold arriving flights
     const [arrivingFlights, setArrivingFlights] = useState([]);
     // State to hold error message
@@ -59,4 +60,3 @@ import axios from 'axios';
             {error && <p>{error}</p>}
         </div>
     );
-}

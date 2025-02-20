@@ -7,7 +7,7 @@ const flightDB = require('../models/db');
 // Controller to get flight data by airport that it is arriving to
 exports.getArrivingFlights = (req, res) => {
     // Testing
-    const airport = req.query.departing_airport || 'KHPN';
+    const airport = req.params.id;
 
     // {tail number, eta, departing airport, arrival airport, plane type, parking area}
     const query = `
