@@ -3,12 +3,13 @@ import axios from 'axios';
 
 
 /**
- * Incoming flight table
+ * Arriving flight table
  * States hold arriving flights info
- * @param id - faa designator of airport
+ * @param id - faa designator of airport flights
+ * flights are arriving to
  * @returns component 
  */
-export default function IncomingFlightTable({id}) {
+export default function ArrivingFlightTable({id}) {
     // State to hold arriving flights
     const [arrivingFlights, setArrivingFlights] = useState([]);
     // State to hold error message
@@ -32,11 +33,11 @@ export default function IncomingFlightTable({id}) {
 
 
     /**
-     * Create table for incoming flights.
+     * Create table for arriving flights.
      * 
      * There are 4 columns {tail number,
      * aircraft type, parking area, 
-     * arrival date/time.
+     * arrival date/time}
      * 
      * There are n rows,
      * where n is the number of incoming flights.
@@ -46,7 +47,7 @@ export default function IncomingFlightTable({id}) {
     <div>
       <table border="1" style={{ width: '100%', textAlign: 'left', padding: '8px' }}>
         <caption style={{ fontSize: '24px', fontWeight: 'bold', paddingBottom: '10px' }}>
-      Incoming Flights
+          Arriving Flights
         </caption>
         <thead>
           <tr>

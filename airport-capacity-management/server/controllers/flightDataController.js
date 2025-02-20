@@ -6,7 +6,6 @@ const flightDB = require('../models/db');
 
 // Controller to get flight data by airport that it is arriving to
 exports.getArrivingFlights = (req, res) => {
-    // Testing
     const airport = req.params.id;
 
     // {tail number, eta, departing airport, arrival airport, plane type, parking area}
@@ -47,16 +46,24 @@ exports.getArrivingFlights = (req, res) => {
 
 // Controller to get next departure flights times by airport
 exports.getDepartingFlights = (req, res) => {
-    // Testing
-    const airport = req.query.departing_airport || 'KHPN';
+    const airport = req.params.id;
 
-    // {airport}}
     const query = `
         SELECT 
-            acid,
-            etd
+            flight_plans.acid,
+            flight_plans.etd,
+            netjets_fleet.plane_type,
+            aircraft_types.parkingArea
         FROM 
             flight_plans
+        LEFT JOIN
+            netjets_fleet
+        ON 
+            netjets_fleet.acid = flight_plans.acid
+        LEFT JOIN 
+            aircraft_types
+        ON 
+            netjets_fleet.plane_type = aircraft_types.type            
         WHERE 
             flight_plans.departing_airport = ?
     `;
