@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/Simulator.css';
 
+// import { get } from '../../../server/routes/simulatorRoutes'
+
 const data = [
     { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
     { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
@@ -50,6 +52,7 @@ const SimulatorComponent = () => {
     const [fboData, setFboData] = useState([]);
     const [fleetData, setFleetData] = useState([]);
     const [arrivingPlanes, setArrivingPlanes] = useState([]);
+    const [departingPlanes, setDepartingPlanes] = useState([]);
 
 
 //  SPACES CHANGING THAT NEED TO CHANGE WITH NEW DATA?
@@ -84,23 +87,32 @@ const SimulatorComponent = () => {
         };
 
         // Get ALL tail numbers 
-        // const getNetjetsFleet = async () => {
-        //     try {
-        //         const response = await axios.get('http://localhost:5001/simulator/getNetjetsFleet');
-        //         setFleetData(response.data);
-        //     } catch (error) {
-        //         console.error('Error fetching NetJets fleet:', error);
-        //     }
-        // };
+        const getNetjetsFleet = async () => {
+            try {
+                const response = await axios.get('http://localhost:5001/simulator/getNetjetsFleet');
+                setFleetData(response.data);
+            } catch (error) {
+                console.error('Error fetching NetJets fleet:', error);
+            }
+        };
 
-        // const getArrivingPlanes = async () => {
-        //     try {
-        //         const response = await axios.get(`http://localhost:5001/simulator/getArrivingPlanes/${iata_code}`);
-        //         setArrivingPlanes(response.data);
-        //     } catch (error) {
-        //         console.error('Error fetching arriving planes:', error);
-        //     }
-        // };
+        const getArrivingPlanes = async () => {
+            try {
+                const response = await axios.get(`http://localhost:5001/simulator/getArrivingPlanes/${iata_code}`);
+                setArrivingPlanes(response.data);
+            } catch (error) {
+                console.error('Error fetching arriving planes:', error);
+            }
+        };
+
+        const getDepartingPlanes = async () => {
+            try {
+                const response = await axios.get(`http://localhost:5001/simulator/getDepartingPlanes/${iata_code}`);
+                setDepartingPlanes(response.data);
+            } catch (error) {
+                console.error('Error fetching departing planes:', error);
+            }
+        };
 
         const getRecommendations = async () => {
             try {
@@ -113,9 +125,10 @@ const SimulatorComponent = () => {
         };
 
         getRecommendations();
-        // getNetjetsFleet();
+        getNetjetsFleet();
         getAirportFBOs();
-        // getArrivingPlanes();
+        getArrivingPlanes();
+        getDepartingPlanes();
     }, [iata_code]);
 
     // For updating local time 
@@ -186,9 +199,10 @@ const SimulatorComponent = () => {
                     <div className='header-segment-small'>
                         <label htmlFor="dropdown">Tail Number</label>
                         <select id="dropdown" name="dropdown">
-                            {fleetData.map((data, index) => (
-                                <option key={index}>{data.tail_number}</option>
-                            ))}
+                            {/* {fleetData.map((data, index) => (
+                                <option key={index}>{data.acid}</option>
+                            ))} */}
+                            <option>N244QS</option>
                          
                         </select>
                         <label htmlFor="dropdown">FBO</label>
@@ -246,8 +260,19 @@ const SimulatorComponent = () => {
                                         
                                         <td>{val.acid}</td> {/* Tail # */}
                                         <td>Arriving</td> {/* Status  */}
-                                        <td>type</td> {/*plane type */}
+                                        <td>CL-650</td> {/*plane type */}
                                         <td>{val.eta}</td> {/* next event */}
+                                    </tr>
+                                ))}
+                                {departingPlanes.map((val, key) => (
+                                    <tr key={key}>
+                                        <td className="status-wrapper">
+                                            <div className="status-box yellow-color"></div>
+                                        </td>
+                                        <td>{val.acid}</td> {/* Tail # */}
+                                        <td>Departing</td> {/* Status  */}
+                                        <td>cc</td> {/*plane type */}
+                                        <td>{new Date(val.etd).toLocaleDateString('en-US', { day: 'numeric', month: 'numeric', year: 'numeric' })}, {new Date(val.etd).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}</td>
                                     </tr>
                                 ))}
 

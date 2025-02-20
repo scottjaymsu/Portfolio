@@ -16,34 +16,53 @@ exports.getAirportFBOs = (req, res) => {
     });
   };
 
-// exports.getNetjetsFleet = (req, res) => {
-//     const query = 'SELECT * FROM mock_netjets_fleet_data';
+exports.getNetjetsFleet = (req, res) => {
+    const query = 'SELECT acid FROM netjets_fleet';
 
-//     db.query(query, (err, results) => {
-//         if (err) {
-//             console.error('Error fetching NetJets fleet:', err);
-//             res.status(500).send('Error fetching NetJets fleet');
-//             return;
-//         }
-//         console.log('Query results:', results); // Debugging statement
-//         res.json(results);
-//     });
-// };
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching NetJets fleet:', err);
+            res.status(500).send('Error fetching NetJets fleet');
+            return;
+        }
+        console.log('Netjets Fleet results:', results); // Debugging statement
+        res.json(results);
+    });
+};
 
 exports.getArrivingPlanes = (req, res) => {
   const { iata_code } = req.params;
-  const query = 'SELECT flight_plans.acid, flight_plans.etd, flight_plans.eta FROM flight_plans WHERE flight_plans.arrival_airport = kteb AND flight_plans.arrived = TRUE';
+  const query = 'SELECT flight_plans.acid, flight_plans.etd, flight_plans.eta FROM flight_plans WHERE flight_plans.arrival_airport = ? AND flight_plans.arrived = TRUE';
 
-  db.query(query, [iata_code, iata_code], (err, results) => {
+  db.query(query, ['k'+iata_code], (err, results) => {
     if (err) {
       console.error('Error fetching arriving planes:', err);
       res.status(500).send('Error fetching arriving planes');
       return;
     }
+    console.log('Arriving Planes:', results); // Debugging statement
+    res.json(results);
+
+    
+  });
+};
+
+exports.getDepartingPlanes = (req, res) => {
+  const { iata_code } = req.params;
+  const query = 'SELECT flight_plans.acid, flight_plans.etd, flight_plans.eta FROM flight_plans WHERE flight_plans.departure_airport = ? AND flight_plans.departed = TRUE';
+
+  db.query(query, ['k'+iata_code], (err, results) => {
+    if (err) {
+      console.error('Error fetching departing planes:', err);
+      res.status(500).send('Error fetching departing planes');
+      return;
+    }
     console.log('Query results:', results); // Debugging statement
     res.json(results);
   });
-};
+}
+
+
 
 /**
  * Run querys for data used for reccomendations
