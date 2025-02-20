@@ -7,7 +7,7 @@ import axios from 'axios';
  * @param id - faa designator of airport
  * @returns component 
  */
-export default function Flight(id) {
+    export default function Flight({id}) {
     // State to hold departing flights
     const [departingFlights, setDepartingFlights] = useState([]);
     // State to hold arriving flights
@@ -18,7 +18,7 @@ export default function Flight(id) {
     // Fetch departing flights by airport when component mounts
     useEffect(() => {
         // Fetch departing flights by airport
-        axios.get(`http://localhost:5000/flightData/getDepartingFlights/${'KTEB'}`)
+        axios.get(`http://localhost:5000/flightData/getDepartingFlights/${id}`)
             .then((response) => {
                 setDepartingFlights(response.data);
             })
@@ -26,12 +26,12 @@ export default function Flight(id) {
                 setError('Error fetching departing flights');
                 console.error('Error fetching departing flights:', err);
             });
-    }, ['KTEB']);
+    }, [id]);
 
     // Fetch arriving flights by airport when component mounts
     useEffect(() => {
         // Fetch arriving flights by airport
-        axios.get(`http://localhost:5000/flightData/getArrivingFlights/${'KTEB'}`)
+        axios.get(`http://localhost:5000/flightData/getArrivingFlights/${id}`)
             .then((response) => {
                 setArrivingFlights(response.data);
             })
@@ -39,11 +39,11 @@ export default function Flight(id) {
                 setError('Error fetching arriving flights');
                 console.error('Error fetching arriving flights:', err);
             });
-    }, ['KTEB']);
+    }, [id]);
 
     return (
         <div>
-            <h1>Flights at {'KTEB'}</h1>
+            <h1>Flights at {id}</h1>
             <h2>Departing Flights</h2>
             <ul>
                 {departingFlights.map((flight) => (
