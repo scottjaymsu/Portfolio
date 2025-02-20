@@ -6,12 +6,11 @@ const airportDB = require('../models/airportDB');
 
 // Controller to get airport data by FAA Designator - {FAA designator, name}
 exports.getAirportData = (req, res) => {
-    // Testing
-    const ident = req.params.ident || 'KTEB';
+    const id = req.params.id;
 
     const query = 'SELECT ident, name FROM airport_data WHERE ident = ?';
 
-    airportDB.query(query, [ident], (err, results) => {
+    airportDB.query(query, [id], (err, results) => {
         if (err) {
             console.error("Error querying airport data.", err);
             return res.status(500).json({ error: 'Error querying airport data.' });
@@ -26,12 +25,11 @@ exports.getAirportData = (req, res) => {
 
 // Controller to get current capacity of airport
 exports.getCurrentCapacity = (req, res) => {
-    // Testing
-    const ident = req.params.ident || 'KTEB';
+    const id = req.params.id;
 
     const query = 'SELECT COUNT(*) FROM netjets_fleet JOIN flight_plans ON netjets_fleet.flightRef = flight_plans.flightRef WHERE flight_plans.arrival_airport = ? AND flight_plans.arrived = TRUE';
 
-    airportDB.query(query, [ident], (err, results) => {
+    airportDB.query(query, [id], (err, results) => {
         if (err) {
             console.error("Error querying airport data.", err);
             return res.status(500).json({ error: 'Error querying airport data.' });
@@ -48,11 +46,11 @@ exports.getCurrentCapacity = (req, res) => {
 // Controller to get overall capacity of airport using mock data
 exports.getOverallCapacity = (req, res) => {
     // Testing
-    const airportCode = req.params.Airport_Code || 'KTEB';
+    const id = req.params.id;
 
     const query = 'SELECT Total_Space FROM airport_parking WHERE Airport_Code = ?';
 
-    airportDB.query(query, [airportCode], (err, results) => {
+    airportDB.query(query, [id], (err, results) => {
         if (err) {
             console.error("Error querying airport data.", err);
             return res.status(500).json({ error: 'Error querying airport data.' });

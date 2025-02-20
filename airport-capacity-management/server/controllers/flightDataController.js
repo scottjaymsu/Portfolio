@@ -45,6 +45,7 @@ exports.getArrivingFlights = (req, res) => {
 }
 
 // Controller to get next departure flights times by airport
+// {tail number, departing date/time, plane type, plane area (ft.^2)}
 exports.getDepartingFlights = (req, res) => {
     const airport = req.params.id;
 

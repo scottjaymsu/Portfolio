@@ -3,10 +3,10 @@
  */
 const express = require('express');
 const router = express.Router();
-const airportDataController = require('../controllers/AirportDataController');
+const airportDataController = require('../controllers/airportDataController');
 
-router.get('/getAirportData/ident', airportDataController.getAirportData);
-router.get('/getCurrentCapacity/ident', airportDataController.getCurrentCapacity);
-router.get('/getOverallCapacity/ident', airportDataController.getOverallCapacity);
+router.get('/getAirportData/:id', airportDataController.getAirportData);
+router.get('/getCurrentCapacity/:id', airportDataController.getCurrentCapacity);
+router.get('/getOverallCapacity/:id', airportDataController.getOverallCapacity);
 
 module.exports = router;
