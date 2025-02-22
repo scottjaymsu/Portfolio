@@ -18,7 +18,7 @@ export default function DepartingFlightTable({id}) {
     // Fetch departing flights by faa designator when component mounts
     useEffect(() => {
         // Fetch departing flights by airport
-        axios.get(`http://localhost:5000/flightData/getDepartingFlights/${id}`)
+        axios.get(`http://localhost:5001/flightData/getDepartingFlights/${id}`)
             .then((response) => {
                 setDepartingFlights(response.data);
             })

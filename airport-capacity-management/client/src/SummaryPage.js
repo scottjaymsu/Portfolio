@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { GoogleMap, LoadScript, Polygon } from "@react-google-maps/api";
 import { Card, CardContent } from "./components/card";
 import {
@@ -170,7 +170,10 @@ function CustomOverlay({ map, position, text }) {
       overlayView.setMap(map);
 
       return () => {
-        overlayView.setMap(null);
+        if (divRef.current) {
+          overlayView.setMap(null);
+        }
+
       };
     }
   }, [map, position]);
@@ -204,6 +207,12 @@ export default function SummaryPage() {
     lng: -74.07,
   });
 
+  const [airportMetadata, setAirportMetadata] = useState([]);
+  const [FBOList, setFBOList] = useState([]);
+
+  const navigate = useNavigate();
+
+
   useEffect(() => {
     console.log(airportCode);
     //Fetch all the parking coordinates related to FBO's so that the map can overlay them for viewing
@@ -226,6 +235,13 @@ export default function SummaryPage() {
             labelPosition: coordinates[0],
           };
         });
+        const FBOs = data.map((lot) => {
+          return {
+            name: lot.FBO_Name,
+            status: "Open"
+          };
+        });
+        setFBOList(FBOs);
 
         setParkingLots(parkingLots);
       } catch (error) {
@@ -247,6 +263,7 @@ export default function SummaryPage() {
           lat: lat,
           lng: long,
         });
+        setAirportMetadata(data[0]);
       } catch (error) {
         console.error("Error fetching parking data:", error);
       }
@@ -254,7 +271,14 @@ export default function SummaryPage() {
 
     fetchParkingCoordinates();
     fetchAirportData();
+    console.log("test", chartData);
+
   }, [airportCode]);
+
+  const handleSeeMore = () => {
+    navigate(`/simulator/${airportMetadata.iata_code}`);
+  };
+
 
   return (
     <div className="map-container">
@@ -291,7 +315,7 @@ export default function SummaryPage() {
       <div className="info-card">
         <Card className="card-content">
           <CardContent className="text-center flex-1">
-            <h2 className="title">KTEB - Teterboro Airport</h2>
+            <h2 className="title">{airportCode} - {airportMetadata.name}</h2>
             <p className={getStatusClass("Overcapacity")}>Overcapacity</p>
           </CardContent>
         </Card>
@@ -366,7 +390,7 @@ export default function SummaryPage() {
             </table>
           </CardContent>
         </Card>
-        <button className="see-more flex-1">see more</button>
+        <button className="see-more flex-1" onClick={handleSeeMore}>see more</button>
       </div>
     </div>
   );

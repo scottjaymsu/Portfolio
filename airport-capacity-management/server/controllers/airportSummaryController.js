@@ -31,3 +31,35 @@ exports.getAirportData = (req, res) => {
         }
     });
 }
+
+exports.getArrivingPlanes = (req, res) => {
+    const {airport_code} = req.params;
+
+    const query = "SELECT * FROM flight_plans WHERE arrival_airport = ?;";
+    
+    db.query(query, [airport_code], (err, results) => {
+        if (err) {
+            console.error("Error fetching arriving planes...", err);
+            res.status(500).json({error: "Error fetching arriving planes..."});
+        }
+        else {
+            res.json(results);
+        }
+    });
+}
+  
+exports.getDepartingPlanes = (req, res) => {
+    const {airport_code} = req.params;
+
+    const query = "SELECT * FROM flight_plans WHERE departing_airport = ?;";
+    
+    db.query(query, [airport_code], (err, results) => {
+        if (err) {
+            console.error("Error fetching arriving planes...", err);
+            res.status(500).json({error: "Error fetching arriving planes..."});
+        }
+        else {
+            res.json(results);
+        }
+    });
+}

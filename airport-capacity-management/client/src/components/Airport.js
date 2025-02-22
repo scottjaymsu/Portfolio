@@ -22,7 +22,7 @@ export default function Airport(id) {
     // Fetch airport data by FAA Designator when component mounts
     useEffect(() => {
         // Fetch name and FAA designator of airport
-        axios.get('http://localhost:5000/airportData/getAirportData/${id}')
+        axios.get('http://localhost:5001/airportData/getAirportData/${id}')
             .then((response) => {
                 setAirportData(response.data);
             })
@@ -35,7 +35,7 @@ export default function Airport(id) {
     // Fetch current capacity of airport when component mounts
     useEffect(() => {
         // Fetch current capacity of airport
-        axios.get(`http://localhost:5000/airportData/getCurrentCapacity/${id}`)
+        axios.get(`http://localhost:5001/airportData/getCurrentCapacity/${id}`)
             .then((response) => {
                 setCurrentCapacity(response.data);
             })
@@ -48,7 +48,7 @@ export default function Airport(id) {
     // Fetch max capacity of airport when component mounts
     useEffect(() => {
         // Fetch max capacity of airport
-        axios.get(`http://localhost:5000/airportData/getOverallCapacity/${id}`)
+        axios.get(`http://localhost:5001/airportData/getOverallCapacity/${id}`)
             .then((response) => {
                 setMaxCapacity(response.data);
             })
