@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from 'axios';
 import MapContainer from "./components/MapContainer";
 import Sidebar from "./components/SideBar";
 import NotificationCenter from "./components/NotificationCenter";
@@ -11,61 +12,6 @@ const ORIGINAL_CENTER = { lat: 39.8283, lng: -98.5795 };
 // Original Zoom Position
 const ORIGINAL_ZOOM = 5;
 
-// Markers for our main 10 airports
-// Hard Code Change Later when connect to backend
-const markers = [
-  {
-    position: { lat: 40.8583, lng: -74.0615 },
-    title: "KTEB",
-    status: "Overcapacity",
-  },
-  {
-    position: { lat: 41.0683, lng: -73.7087 },
-    title: "KHPN",
-    status: "Overcapacity",
-  },
-  {
-    position: { lat: 26.6857, lng: -80.0928 },
-    title: "KPBI",
-    status: "Reaching Capacity",
-  },
-  {
-    position: { lat: 36.0831, lng: -115.1482 },
-    title: "KLAS",
-    status: "Overcapacity",
-  },
-  {
-    position: { lat: 42.3656, lng: -71.0096 },
-    title: "KBOS",
-    status: "Undercapacity",
-  },
-  {
-    position: { lat: 43.6088, lng: -110.7376 },
-    title: "KJAC",
-    status: "Undercapacity",
-  },
-  {
-    position: { lat: 41.7868, lng: -87.7522 },
-    title: "KMDW",
-    status: "Overcapacity",
-  },
-  {
-    position: { lat: 33.6204, lng: -111.9153 },
-    title: "KSDL",
-    status: "Reaching Capacity",
-  },
-  {
-    position: { lat: 32.8438, lng: -96.8485 },
-    title: "KDAL",
-    status: "Overcapacity",
-  },
-  {
-    position: { lat: 39.6423, lng: -106.917 },
-    title: "KEGE",
-    status: "Undercapacity",
-  },
-];
-
 const MapComponent = () => {
   // State for search input
   const [searchTerm, setSearchTerm] = useState("");
@@ -73,7 +19,21 @@ const MapComponent = () => {
   const [mapInstance, setMapInstance] = useState(null);
   const [notificationVisible, setNotificationVisible] = useState(false);
   const [sidebarVisible, setSidebarVisible] = useState(false);
+
+  const [markers, setMarkers] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const getAirportMarkers = async() => {
+      try {
+        const response = await axios.get(`http://localhost:5001/map/getAirportMarkers`);
+        setMarkers(response.data);
+      } catch (error) {
+        console.error("Error fetching tthe FBOs at this airport: ", error);
+      }
+    }
+    getAirportMarkers();
+  }, []);
 
   // Filter locations based on search input
   const filteredLocations = markers.filter((loc) =>

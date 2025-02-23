@@ -1,6 +1,9 @@
 const express = require('express');
-const simulatorController = require('../controllers/mapController');
+const mapController = require('../controllers/mapController');
 
 const router = express.Router();
 
-router.get('getCurrentAirportStatus', simulatorController.getCurrentAirportStatus);
+router.get('getCurrentAirportStatus', mapController.getCurrentAirportStatus);
+router.get('/getAirportMarkers', mapController.getAirportMarkers);
+
+module.exports = router;
