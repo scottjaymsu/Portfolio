@@ -18,7 +18,6 @@ function App() {
           <Route path="/batch" element={<BatchFile />} />
           <Route path="/rec/:iata_code" element={<RecEngine />} />
           <Route path="/simulator/:iata_code" element={<SimulatorComponent />} />
-  
         </Routes>
     </BrowserRouter> 
   );}

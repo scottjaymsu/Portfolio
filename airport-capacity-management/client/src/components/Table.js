@@ -1,29 +1,37 @@
 import React from 'react';
 import '../styles/Table.css'
 
-const Table = ({ headers, rows, title, className }) => {
+const Table = ({ headers, rows, title, className, getRowProps = () => ({}) }) => {
+
+  //We need to calculate column width here because it looks wonky if it's not equal length for every column
+  const columnWidth = `${100 / headers.length}%`;
+
   return (
-    <div>
+    <div className="table-container">
       <h2>{title}</h2>
       <table cellPadding="10" className={className}>
         <thead>
           <tr>
             {headers.map((header, index) => (
-              <th key={index}>{header}</th>
+              <th key={index} style={{width: columnWidth }}>{header}</th>
             ))}
           </tr>
         </thead>
-        <div className="tbody-wrapper">
-            <tbody>
-            {rows.map((row, index) => (
-                <tr key={index}>
+          <tbody>
+          {rows.map((row, index) => {
+            {/* Industry standard seems to be sending "props" to be able to style rows differently than the original
+              component is set up to style. Pass them as parameters in the Table definition. Probably should include one for
+              headers too at some point.*/}
+              const rowProps = getRowProps(row, index);
+              return (
+                <tr key={index} {...rowProps}>
                 {row.map((cell, cellIndex) => (
-                    <td key={cellIndex}>{cell}</td>
+                    <td key={cellIndex} style={{width: columnWidth }}>{cell}</td>
                 ))}
-                </tr>
-            ))}
-            </tbody>
-        </div>
+              </tr>
+              );
+            })}
+          </tbody>
       </table>
     </div>
   );

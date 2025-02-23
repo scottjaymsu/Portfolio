@@ -1,56 +1,64 @@
 const db = require('../models/db');
 
-//Need to update this to match insertAirportData which I researched how to not have to specify columns
-exports.insertBatchData = (req, res) => {
-    const batchData = req.body; 
-  
-    const query = `INSERT INTO aircraft_metadata (ICAO_Code, FAA_Designator, Manufacturer, Model_FAA, Model_BADA, Physical_Class_Engine, Num_Engines, AAC, AAC_minimum, AAC_maximum, ADG, TDG, Approach_Speed_knot, Approach_Speed_minimum_knot, Approach_Speed_maximum_knot, 
-    Wingspan_ft_without_winglets_sharklets, Wingspan_ft_with_winglets_sharklets, Length_ft, Tail_Height_at_OEW_ft, Wheelbase_ft, Cockpit_to_Main_Gear_ft, Main_Gear_Width_ft, 
-    MTOW_lb, MALW_lb, Main_Gear_Config, ICAO_WTC, Parking_Area_ft2, Class, FAA_Weight, CWT, One_Half_Wake_Category, Two_Wake_Category_Appx_A, Two_Wake_Category_Appx_B, Rotor_Diameter_ft, SRS, LAHSO, FAA_Registry, Registration_Count, TMFS_Operations_FY24, Remarks, LastUpdate)
-                VALUES ?`;
-  
-    const values = batchData.map(row => [row.ICAO_Code, row.FAA_Designator, row.Manufacturer, row.Model_FAA, row.Model_BADA,row.Physical_Class_Engine, row.Num_Engines, row.AAC, row.AAC_minimum, row.AAC_maximum, row.ADG, row.TDG, row.Approach_Speed_knot, 
-        row.Approach_Speed_minimum_knot, row.Approach_Speed_maximum_knot, row.Wingspan_ft_without_winglets_sharklets, row.Wingspan_ft_with_winglets_sharklets, row.Length_ft,
-      row.Tail_Height_at_OEW_ft, row.Wheelbase_ft, row.Cockpit_to_Main_Gear_ft, row.Main_Gear_Width_ft, row.MTOW_lb, row.MALW_lb, row.Main_Gear_Config, row.ICAO_WTC, row.Parking_Area_ft2, row.Class,
-      row.FAA_Weight, row.CWT, row.One_Half_Wake_Category, row.Two_Wake_Category_Appx_A, row.Two_Wake_Category_Appx_B, row.Rotor_Diameter_ft, row.SRS, row.LAHSO, row.FAA_Registry, row.Registration_Count, row.TMFS_Operations_FY24, row.Remarks, row.LastUpdate]);
-  
-    db.query(query, [values], (err, results) => {
-      if (err) {
-        console.error('Error inserting data into database:', err);
-        res.status(500).json({ error: 'Unable to insert data' });
-      }});};
-  
-
-//When a user inserts the specific csv file from: https://ourairports.com/data/ (free and open for the public to consume)
-exports.insertAirportData = (req, res) => {
-  const batchData = req.body; 
-  const keys = Object.keys(batchData[0]);
-
-  //We should determine how we best want to do this. We COULD just update rows based on the airport_id but at that point you're still
-  //iterating and updating every row as you don't know what specifically has changed. So at this point I think just deleting the entire
-  //table and readding it is the best action.
-  const cleanQuery = "DELETE FROM airports;";
-  db.query(cleanQuery, (err, results) => {
-    if (err) {
-      console.error('Error deleting from the table:', err);
-      res.status(500).json({ error: 'Unable to delete data' });
-      return
-    }});
-
-  const query = "INSERT INTO airports (" + keys.toString() + ") VALUES ?";
-
-  //Is there an easier way to do this?
-  // Object.values(batchData): Extracts all the objects within batchData
-  // map(obj => Object.values(obj)): Extracts all the values from each object
-  // Have to convert the value to null IF it's an empty string or MySQL will throw an error :(
-  const values = batchData.map(obj => 
-    Object.values(obj).map(value => (value === '' ? null : value))
-  );
-  
-  db.query(query, [values], (err, results) => {
+//Returns any airports that match the idents that is passed over in the req.body
+exports.getExistingAirports = (req, res) => {
+  console.log(req.body)
+  const identArray = req.body.map(airport => airport.ident);
+  const query = "SELECT ident FROM airport_data WHERE ident IN (?)"
+  console.log(identArray);
+  db.query(query, [identArray], (err, results) => {
     if (err) {
       console.error('Error inserting data into database:', err);
       res.status(500).json({ error: 'Unable to insert data' });
-    }});
+    }
+    else {
+      const returnResults = results.map(result => result.ident);
+      console.log(returnResults);
+      res.json(results);
+  }});
+}
 
-  }
+//Inserts additional airports into the sql table (or updates them depending on if primary key -- ident -- already exists)
+//Note on promises: I've figured out how to do sql statements iteratively without sending responses that break the backend before all the queries are done
+//A promise essentially runs as a reject or resolve... if any of the promises are rejected then it will send an error to the front end
+//If they are all resolved then it will just be like a normal return to the front end
+exports.insertAirport = (req, res) => {
+  const batchData = req.body; 
+  const insertedAirports = [];
+  const queries = batchData.map((airport) => {
+      return new Promise((resolve, reject) => {
+        const { ident, iata_code, name, latitude_deg, longitude_deg, iso_country, iso_region, municipality } = airport;
+        const lat = parseFloat(latitude_deg);
+        const long = parseFloat(longitude_deg);
+
+        console.log(lat);
+        console.log(long);
+        const query = `INSERT INTO airport_data (ident, iata_code, name, latitude_deg, longitude_deg, iso_country, iso_region, municipality)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE 
+          iata_code = VALUES(iata_code),
+          name = VALUES(name),
+          latitude_deg = VALUES(latitude_deg),
+          longitude_deg = VALUES(longitude_deg),
+          iso_country = VALUES(iso_country),
+          iso_region = VALUES(iso_region),
+          municipality = VALUES(municipality)`;
+
+        db.query(query, [ ident, iata_code, name, lat, long, iso_country, iso_region, municipality], (err, results) => {
+          if (err) {
+              console.error("Error fetching arriving planes...", err);
+              reject(err);
+          } else {
+            insertedAirports.push(ident);
+            resolve(results);
+          }
+      });
+    });
+  });
+  Promise.all(queries).then(() => {
+    res.status(200).json({ message: "Successful", insertedAirports});
+  }).catch((error) => {
+    console.error("Error: ", error);
+    res.status(500).json({ error: "error"});
+  })
+}

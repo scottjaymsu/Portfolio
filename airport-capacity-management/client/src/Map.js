@@ -3,6 +3,7 @@ import MapContainer from "./components/MapContainer";
 import Sidebar from "./components/SideBar";
 import NotificationCenter from "./components/NotificationCenter";
 import { useNavigate } from "react-router-dom";
+import './styles/Map.css';
 
 // Center of the U.S. Position
 const ORIGINAL_CENTER = { lat: 39.8283, lng: -98.5795 };
@@ -99,6 +100,11 @@ const MapComponent = () => {
     navigate(`/summary/${location.title}`);
   };
 
+  const handleAirportButton = () => {
+    navigate(`/batch`);
+  };
+
+
   return (
     <div>
       <NotificationCenter
@@ -114,6 +120,7 @@ const MapComponent = () => {
         visible={notificationVisible}
         toggleVisibility={() => setNotificationVisible(!notificationVisible)}
       />
+          
 
       <Sidebar
         searchTerm={searchTerm}
@@ -124,8 +131,13 @@ const MapComponent = () => {
         visible={sidebarVisible}
         toggleVisibility={() => setSidebarVisible(!sidebarVisible)}
       />
+      <div>
 
+
+      </div>
       <MapContainer markers={markers} setMapInstance={setMapInstance} />
+      <button class="data-button" onClick={handleAirportButton}>Add Airports</button>
+
     </div>
   );
 };

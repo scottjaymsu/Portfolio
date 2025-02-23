@@ -6,6 +6,7 @@ const airportSummaryRoutes = require('./routes/airportSummaryRoutes');
 const airportDataRoutes = require('./routes/airportDataRoutes');
 const flightDataRoutes = require('./routes/flightDataRoutes');
 const fboCapacityRoutes = require('./routes/fboCapacityRoutes');
+const batchFileRoutes = require('./routes/batchFileRoutes');
 
 const port = process.env.PORT || 5001;
 
@@ -17,6 +18,7 @@ app.use('/airports', airportSummaryRoutes);
 app.use('/airportData', airportDataRoutes);
 app.use('/flightData', flightDataRoutes);
 app.use('/fboinfo', fboCapacityRoutes);
+app.use('/batch', batchFileRoutes);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
