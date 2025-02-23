@@ -29,7 +29,7 @@ const MapComponent = () => {
         const response = await axios.get(`http://localhost:5001/map/getAirportMarkers`);
         setMarkers(response.data);
       } catch (error) {
-        console.error("Error fetching tthe FBOs at this airport: ", error);
+        console.error("Error fetching the FBOs at this airport: ", error);
       }
     }
     getAirportMarkers();
