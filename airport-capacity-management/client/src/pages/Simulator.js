@@ -3,57 +3,20 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/Simulator.css';
 
-// import { get } from '../../../server/routes/simulatorRoutes'
-
-const data = [
-    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
-    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
-    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
-    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
-    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
-    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
-    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
-    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
-    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
-    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
-    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
-    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
-    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
-    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
-    { tailNumber: "N246QS", status: "Parked", type: "CL-650S", nextEvent: "2 / 3 / 2025 11:15:00"},
-
-
-];
-
-const recc = [
-    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
-    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
-    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
-    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
-    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
-    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
-    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
-    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
-    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
-    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
-    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
-    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
-    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
-    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
-    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
-    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
-    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
-    {tailNumber: "N246QS", status: "Parked", nextEvent: "2 / 3 / 2025 ", details: "extra extra extra"},
-];
-
 const SimulatorComponent = () => {
-    const { iata_code } = useParams();
+    const { airportCode } = useParams();
     const [expandedRow, setExpandedRow] = useState(null);
     const [fboData, setFboData] = useState([]);
     const [fleetData, setFleetData] = useState([]);
-    const [arrivingPlanes, setArrivingPlanes] = useState([]);
-    const [departingPlanes, setDepartingPlanes] = useState([]);
+    const [selectedPlaneType, setSelectedPlaneType] = useState('');
+    const [selectedPlaneLocation, setSelectedPlaneLocation] = useState('');
+    const [selectedPlaneSize, setSelectedPlaneSize] = useState('');
+    const [selectedSpots, setSelecteedSpots] = useState(''); 
+    const [searchTerm, setSearchTerm] = useState('');
 
+
+    // Data for all flight plans this airport 
+    const [allPlanes, setAllPlanes] = useState([]);
 
 //  SPACES CHANGING THAT NEED TO CHANGE WITH NEW DATA?
     const [totalSpace, setTotalSpace] = useState(0);
@@ -71,7 +34,8 @@ const SimulatorComponent = () => {
     useEffect(() => {
         const getAirportFBOs = async () => {
             try {
-                const response = await axios.get(`http://localhost:5001/simulator/getAirportFBOs/${iata_code}`);
+                console.log(`Fetching data for location: ${airportCode}`);
+                const response = await axios.get(`http://localhost:5001/simulator/getAirportFBOs/${airportCode}`);
                 setFboData(response.data);
                 const totalSpace = response.data.reduce((sum, fbo) => sum + (fbo.Total_Space || 0), 0);
                 setTotalSpace(totalSpace);
@@ -86,7 +50,7 @@ const SimulatorComponent = () => {
             }
         };
 
-        // Get ALL tail numbers 
+        // Get ALL NetJets tail numbers, current location, cabin size, spots required 
         const getNetjetsFleet = async () => {
             try {
                 const response = await axios.get('http://localhost:5001/simulator/getNetjetsFleet');
@@ -96,27 +60,19 @@ const SimulatorComponent = () => {
             }
         };
 
-        const getArrivingPlanes = async () => {
+        const getAllPlanes = async () => {
             try {
-                const response = await axios.get(`http://localhost:5001/simulator/getArrivingPlanes/${iata_code}`);
-                setArrivingPlanes(response.data);
+                const response = await axios.get(`http://localhost:5001/simulator/getAllPlanes/${airportCode}`);
+                setAllPlanes(response.data);
             } catch (error) {
-                console.error('Error fetching arriving planes:', error);
+                console.error('Error fetching all planes:', error);
             }
         };
 
-        const getDepartingPlanes = async () => {
-            try {
-                const response = await axios.get(`http://localhost:5001/simulator/getDepartingPlanes/${iata_code}`);
-                setDepartingPlanes(response.data);
-            } catch (error) {
-                console.error('Error fetching departing planes:', error);
-            }
-        };
-
+        // Get reccomendations to populate from rec engine
         const getRecommendations = async () => {
             try {
-                const response = await axios.get(`http://localhost:5001/simulator/getRecommendations/${iata_code}`);
+                const response = await axios.get(`http://localhost:5001/simulator/getRecommendations/${airportCode}`);
                 setRecs(response.data);
                 console.log('Recommendations:', response.data);
             } catch (error) {
@@ -124,19 +80,28 @@ const SimulatorComponent = () => {
             }
         };
 
-        getRecommendations();
         getNetjetsFleet();
         getAirportFBOs();
-        getArrivingPlanes();
-        getDepartingPlanes();
-    }, [iata_code]);
+        getAllPlanes();
+        getRecommendations();
+
+    }, [airportCode]);
 
     // For updating local time 
     // Currently just our time but can change individual airport times 
     useEffect(() => {
         const interval = setInterval(() => {
             const now = new Date();
-            const formattedDate = `${now.toLocaleDateString('en-us', {day: 'numeric', month: 'numeric', year: 'numeric'})}, ${now.toLocaleTimeString('en-us', {hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false})}`;
+            const formattedDate = now.toLocaleString('en-GB', {
+                timeZone: 'GMT',
+                day: 'numeric',
+                month: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }) + ' GMT';
             setLocalTime(formattedDate);
         }, 1000);
 
@@ -151,7 +116,22 @@ const SimulatorComponent = () => {
         setSelectedFBO(selectedFBO);
     };
 
+    // When a plane from NetJets fleet is selected from dropdown
+    const handleTailNumberChange = (event) => {
+        const selectedTailNumber = event.target.value;
+        setSearchTerm(selectedTailNumber);
+        const selectedPlane = fleetData.find(plane => plane.acid === selectedTailNumber);
+        setSelectedPlaneType(selectedPlane && selectedPlane.plane_type ? selectedPlane.plane_type: 'Unavailable');
+        setSelectedPlaneLocation(selectedPlane && selectedPlane.current_location ? selectedPlane.current_location: 'N/A');
+        setSelectedPlaneSize(selectedPlane && selectedPlane.size ? selectedPlane.size: 'Unavailable');
+        setSelecteedSpots(selectedPlane && selectedPlane.numberSpots ? selectedPlane.numberSpots: '1'); 
+        setSearchTerm(event.target.value); // For autofilling dropdown
+    };
 
+    // Filtered fleet data for dropdown 
+    const filteredFleetData = fleetData.filter(plane =>
+        plane.acid.toLowerCase().includes(searchTerm.toLowerCase())
+    );
     
 
     return (
@@ -197,14 +177,30 @@ const SimulatorComponent = () => {
                         </div>
                     </div>
                     <div className='header-segment-small'>
-                        <label htmlFor="dropdown">Tail Number</label>
-                        <select id="dropdown" name="dropdown">
-                            {/* {fleetData.map((data, index) => (
+                        <input 
+                            type="text" 
+                            id="dropdown" 
+                            name="dropdown" 
+                            value={searchTerm} 
+                            onChange={handleTailNumberChange} 
+                            placeholder="Search Tail Number"
+                            list="tailNumbers"
+                        />
+                        <datalist id="tailNumbers">
+                            {filteredFleetData.map((data, index) => (
+                                <option key={index} value={data.acid}>{data.acid}</option>
+                            ))}
+                        </datalist>
+    
+
+{/*                         
+                        <select id="dropdown" name="dropdown" onChange={handleTailNumberChange}>
+                        
+                            {fleetData.map((data, index) => (
                                 <option key={index}>{data.acid}</option>
-                            ))} */}
-                            <option>N244QS</option>
-                         
-                        </select>
+                            ))}
+                          
+                        </select> */}
                         <label htmlFor="dropdown">FBO</label>
                         <select id="dropdown" name="dropdown" onChange={handleFBOChange} value={selectedFBO ? selectedFBO.FBO_Name : ''}>
                             {fboData.map((data, index) => (
@@ -222,19 +218,19 @@ const SimulatorComponent = () => {
                         <div id="plane-info-wrapper">
                             <div className="plane-info-section">
                                 <div className="plane-section-title">Spots Required</div>
-                                <div className="plane-section-status">1</div>
+                                <div className="plane-section-status">{selectedSpots}</div>
                             </div>
                             <div className="plane-info-section">
                                 <div className="plane-section-title">Type Name</div>
-                                <div className="plane-section-status">CL-650S</div>
+                                <div className="plane-section-status">{selectedPlaneType}</div>
                             </div>
                             <div className="plane-info-section">
                                 <div className="plane-section-title">Cabin Size</div>
-                                <div className="plane-section-status">Large</div>
+                                <div className="plane-section-status">{selectedPlaneSize}</div>
                             </div>
                             <div className="plane-info-section">
                                 <div className="plane-section-title">Current Location</div>
-                                <div className="plane-section-status">KEGE</div>
+                                <div className="plane-section-status">{selectedPlaneLocation}</div>
                             </div>
                         </div>
                     </div>
@@ -252,29 +248,21 @@ const SimulatorComponent = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {arrivingPlanes.map((val, key) => (
+                                {allPlanes.map((val, key) => (
                                     <tr key={key}>
                                         <td className="status-wrapper">
-                                            <div className="status-box blue-color"></div>
+                                            <div className={`status-box ${val.status === 'Arriving' ? 'blue-color' : val.status === 'Departing' ? 'yellow-color' : val.status === 'Parked' ? 'green-color' : 'red-color'}`}></div>
                                         </td>
                                         
                                         <td>{val.acid}</td> {/* Tail # */}
-                                        <td>Arriving</td> {/* Status  */}
-                                        <td>CL-650</td> {/*plane type */}
-                                        <td>{val.eta}</td> {/* next event */}
+                                        <td>{val.status}</td> {/* Status  */}
+                                        <td>{val.plane_type ? val.plane_type: 'Unavailable'}</td> {/*plane type */}
+                                        <td>
+                                        {new Date(val.event).toLocaleDateString('en-us', {day: 'numeric', month: 'numeric', year: 'numeric'})} {new Date(val.event).toLocaleTimeString('en-us', {hour: '2-digit', minute: '2-digit', hour12: false})}
+                                        </td> {/* next event */}
                                     </tr>
                                 ))}
-                                {departingPlanes.map((val, key) => (
-                                    <tr key={key}>
-                                        <td className="status-wrapper">
-                                            <div className="status-box yellow-color"></div>
-                                        </td>
-                                        <td>{val.acid}</td> {/* Tail # */}
-                                        <td>Departing</td> {/* Status  */}
-                                        <td>cc</td> {/*plane type */}
-                                        <td>{new Date(val.etd).toLocaleDateString('en-US', { day: 'numeric', month: 'numeric', year: 'numeric' })}, {new Date(val.etd).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}</td>
-                                    </tr>
-                                ))}
+                                
 
                                 
                             </tbody>
