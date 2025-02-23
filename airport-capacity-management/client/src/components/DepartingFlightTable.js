@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import '../styles/FlightTable.css';
 
 /**
  * Departing flight table
@@ -20,7 +20,8 @@ export default function DepartingFlightTable({id}) {
         // Fetch departing flights by airport
         axios.get(`http://localhost:5001/flightData/getDepartingFlights/${id}`)
             .then((response) => {
-                setDepartingFlights(response.data);
+                const sortedFlights = response.data.sort((a, b) => new Date(a.etd) - new Date(b.etd));
+                setDepartingFlights(sortedFlights);
             })
             .catch((err) => {
                 setError('Error fetching departing flights');
@@ -43,16 +44,16 @@ export default function DepartingFlightTable({id}) {
      */    
  
     return (
-      <div>
-        <table border="1" style={{ width: '100%', textAlign: 'left', padding: '8px' }}>
-          <caption style={{ fontSize: '24px', fontWeight: 'bold', paddingBottom: '10px' }}>
+      <div className='table-container'>
+        <table>
+          <caption>
             Departing Flights
           </caption>
           <thead>
             <tr>
               <th>Tail Number</th>
               <th>Aircraft Type</th>
-              <th>Parking Area</th>
+              <th>Parking Area (ft^2)</th>
               <th>Departing Date/Time</th>
             </tr>
           </thead>
@@ -69,5 +70,5 @@ export default function DepartingFlightTable({id}) {
         </table>
       </div>
     );
-
+    
 }

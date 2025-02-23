@@ -14,6 +14,9 @@ import {
 import { getStatusClass } from "./utils/helpers";
 
 import "./SummaryPage.css";
+import "./components/ArrivingFlightTable";
+import ArrivingFlightTable from "./components/ArrivingFlightTable";
+import DepartingFlightTable from "./components/DepartingFlightTable";
 
 // Map Size
 const containerStyle = {
@@ -343,31 +346,12 @@ export default function SummaryPage() {
         </Card>
         <Card className="card-content flex-3">
           <CardContent>
-            <h3 className="subtitle">Incoming Flights</h3>
-            <table className="info-table">
-              <thead>
-                <tr>
-                  <th>Cabin Size</th>
-                  <th>Tail #</th>
-                  <th>Type</th>
-                  <th colSpan="2">Arrival</th>
-                  <th colSpan="2">Next Event</th>
-                </tr>
-              </thead>
-              <tbody>
-                {flightData.map((flight, index) => (
-                  <tr key={index}>
-                    <td>{flight.cabinSize}</td>
-                    <td>{flight.tail}</td>
-                    <td>{flight.type}</td>
-                    <td>{flight.arrivalDay}</td>
-                    <td>{flight.arrivalTime}</td>
-                    <td>{flight.eventDay}</td>
-                    <td>{flight.eventTime}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <ArrivingFlightTable id={airportCode} />
+          </CardContent>
+        </Card>
+        <Card className="card-content flex-3">
+          <CardContent>
+            <DepartingFlightTable id={airportCode} />
           </CardContent>
         </Card>
         <Card className="card-content flex-3">
