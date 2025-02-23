@@ -279,6 +279,10 @@ export default function SummaryPage() {
     navigate(`/simulator/${airportMetadata.iata_code}`);
   };
 
+  const handleBack = () => {
+    navigate("/");
+  }
+
 
   return (
     <div className="map-container">
@@ -313,6 +317,7 @@ export default function SummaryPage() {
       </GoogleMap>
 
       <div className="info-card">
+        <img onClick={handleBack} className="back-button" src="/back-arrow.png" alt="Back Button"></img>
         <Card className="card-content">
           <CardContent className="text-center flex-1">
             <h2 className="title">{airportCode} - {airportMetadata.name}</h2>
