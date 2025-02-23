@@ -48,11 +48,24 @@ const MapContainer = ({ markers, onMarkerClick, setMapInstance }) => {
           content: `<h3>${markerData.title}</h3>`,
         });
 
-        marker.addListener("click", () => {
-          map.setZoom(15);
-          map.setCenter(marker.getPosition());
+        // Code to remove the close button from the info window
+        infoWindow.addListener("domready", () => {
+          const closeButton = document.querySelector(".gm-ui-hover-effect");
+          if (closeButton) {
+            closeButton.style.display = "none";
+          }
+        });
+
+        // Display airport name on hover
+        marker.addListener("mouseover", () => {
           infoWindow.open(map, marker);
-          if (onMarkerClick) onMarkerClick(markerData);
+        });
+
+        marker.addListener("mouseout", () => {
+          infoWindow.close();
+        });
+
+        marker.addListener("click", () => {
           navigate(`/summary/${markerData.title}`); // Navigate to the summary page
         });
       });
