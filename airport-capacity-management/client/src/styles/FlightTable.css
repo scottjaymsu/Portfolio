@@ -1,0 +1,38 @@
+/* Styles for the arriving/departing flight table components */
+
+.table-container {
+    overflow-x: auto; /* horizonal scrolling */
+    max-width: 100; /* stays within container width */
+}
+
+table {
+    width: 100%;
+    text-align: left;
+    padding: 8px; 
+    border-collapse: collapse;
+}
+
+caption {
+    font-size: 24px;
+    font-weight: bold;
+    padding-bottom: 10px;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+    border-right: 1px solid #ddd; /* Divider line between columns */
+}
+
+th:last-child, td:last-child {
+    border-right: none; /* Remove right border from the last column */
+}
+
+th {
+    background-color: #1e3a8a; 
+}
+
+/* Hover effect for table rows */
+tbody tr:hover {
+    background-color: #f5f5f5; /* Light gray background on hover */
+}

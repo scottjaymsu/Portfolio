@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import '../styles/FlightTable.css';
 
 /**
  * Arriving flight table
@@ -20,7 +20,8 @@ export default function ArrivingFlightTable({id}) {
         // Fetch arriving flights by airport
         axios.get(`http://localhost:5001/flightData/getArrivingFlights/${id}`)
             .then((response) => {
-                setArrivingFlights(response.data);
+                const sortedFlights = response.data.sort((a, b) => new Date(a.eta) - new Date(b.eta));
+                setArrivingFlights(sortedFlights);
             })
             .catch((err) => {
                 setError('Error fetching arriving flights');
@@ -44,16 +45,16 @@ export default function ArrivingFlightTable({id}) {
      */    
  
     return (
-    <div>
-      <table border="1" style={{ width: '100%', textAlign: 'left', padding: '8px' }}>
-        <caption style={{ fontSize: '24px', fontWeight: 'bold', paddingBottom: '10px' }}>
+    <div className = "table-container">
+      <table>
+        <caption>
           Arriving Flights
         </caption>
         <thead>
           <tr>
             <th>Tail Number</th>
             <th>Aircraft Type</th>
-            <th>Parking Area</th>
+            <th>Parking Area (ft^2)</th>
             <th>Arrival Date/Time</th>
           </tr>
         </thead>
