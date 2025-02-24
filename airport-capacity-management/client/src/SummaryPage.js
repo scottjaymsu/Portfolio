@@ -279,7 +279,7 @@ export default function SummaryPage() {
   }, [airportCode]);
 
   const handleSeeMore = () => {
-    navigate(`/simulator/${airportMetadata.iata_code}`);
+    navigate(`/simulator/${airportCode}`);
   };
 
   const handleBack = () => {

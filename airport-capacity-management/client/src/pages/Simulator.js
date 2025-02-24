@@ -3,6 +3,10 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/Simulator.css';
 
+import SimulatorHeader from '../components/SimulatorHeader';
+import SimulatorAllPlanes from '../components/SimulatorAllPlanes';
+import SimulatorAlerts from '../components/SimulatorAlerts';
+
 const SimulatorComponent = () => {
     const { airportCode } = useParams();
     const [expandedRow, setExpandedRow] = useState(null);
@@ -26,6 +30,271 @@ const SimulatorComponent = () => {
     const [localTime, setLocalTime] = useState(new Date().toLocaleString());
 
     const [recs, setRecs] = useState([]);
+
+    // const [allPlanes, setAllPlanes] = useState([
+    //     {
+    //         acid: "N12345",
+    //         status: "Arriving",
+    //         plane_type: "Gulfstream G650",
+    //         event: new Date().toISOString(),
+    //     },
+    //     {
+    //         acid: "N67890",
+    //         status: "Departing",
+    //         plane_type: "Cessna Citation X",
+    //         event: new Date(Date.now() + 3600000).toISOString(), // 1 hour later
+    //     },
+    //     {
+    //         acid: "N54321",
+    //         status: "Parked",
+    //         plane_type: "Embraer Phenom 300",
+    //         event: new Date(Date.now() + 7200000).toISOString(), // 2 hours later
+    //     },
+    //     {
+    //         acid: "N98765",
+    //         status: "Maintenance",
+    //         plane_type: "Bombardier Global 6000",
+    //         event: new Date(Date.now() + 10800000).toISOString(), // 3 hours later
+    //     },
+    //     {
+    //         acid: "N12345",
+    //         status: "Arriving",
+    //         plane_type: "Gulfstream G650",
+    //         event: new Date().toISOString(),
+    //     },
+    //     {
+    //         acid: "N67890",
+    //         status: "Departing",
+    //         plane_type: "Cessna Citation X",
+    //         event: new Date(Date.now() + 3600000).toISOString(), // 1 hour later
+    //     },
+    //     {
+    //         acid: "N54321",
+    //         status: "Parked",
+    //         plane_type: "Embraer Phenom 300",
+    //         event: new Date(Date.now() + 7200000).toISOString(), // 2 hours later
+    //     },
+    //     {
+    //         acid: "N98765",
+    //         status: "Maintenance",
+    //         plane_type: "Bombardier Global 6000",
+    //         event: new Date(Date.now() + 10800000).toISOString(), // 3 hours later
+    //     },
+    //     {
+    //         acid: "N12345",
+    //         status: "Arriving",
+    //         plane_type: "Gulfstream G650",
+    //         event: new Date().toISOString(),
+    //     },
+    //     {
+    //         acid: "N67890",
+    //         status: "Departing",
+    //         plane_type: "Cessna Citation X",
+    //         event: new Date(Date.now() + 3600000).toISOString(), // 1 hour later
+    //     },
+    //     {
+    //         acid: "N54321",
+    //         status: "Parked",
+    //         plane_type: "Embraer Phenom 300",
+    //         event: new Date(Date.now() + 7200000).toISOString(), // 2 hours later
+    //     },
+    //     {
+    //         acid: "N98765",
+    //         status: "Maintenance",
+    //         plane_type: "Bombardier Global 6000",
+    //         event: new Date(Date.now() + 10800000).toISOString(), // 3 hours later
+    //     },
+    //     {
+    //         acid: "N67890",
+    //         status: "Departing",
+    //         plane_type: "Cessna Citation X",
+    //         event: new Date(Date.now() + 3600000).toISOString(), // 1 hour later
+    //     },
+    //     {
+    //         acid: "N54321",
+    //         status: "Parked",
+    //         plane_type: "Embraer Phenom 300",
+    //         event: new Date(Date.now() + 7200000).toISOString(), // 2 hours later
+    //     },
+    //     {
+    //         acid: "N98765",
+    //         status: "Maintenance",
+    //         plane_type: "Bombardier Global 6000",
+    //         event: new Date(Date.now() + 10800000).toISOString(), // 3 hours later
+    //     },
+    //     {
+    //         acid: "N67890",
+    //         status: "Departing",
+    //         plane_type: "Cessna Citation X",
+    //         event: new Date(Date.now() + 3600000).toISOString(), // 1 hour later
+    //     },
+    //     {
+    //         acid: "N54321",
+    //         status: "Parked",
+    //         plane_type: "Embraer Phenom 300",
+    //         event: new Date(Date.now() + 7200000).toISOString(), // 2 hours later
+    //     },
+    //     {
+    //         acid: "N98765",
+    //         status: "Maintenance",
+    //         plane_type: "Bombardier Global 6000",
+    //         event: new Date(Date.now() + 10800000).toISOString(), // 3 hours later
+    //     },
+    //     {
+    //         acid: "N67890",
+    //         status: "Departing",
+    //         plane_type: "Cessna Citation X",
+    //         event: new Date(Date.now() + 3600000).toISOString(), // 1 hour later
+    //     },
+    //     {
+    //         acid: "N54321",
+    //         status: "Parked",
+    //         plane_type: "Embraer Phenom 300",
+    //         event: new Date(Date.now() + 7200000).toISOString(), // 2 hours later
+    //     },
+    //     {
+    //         acid: "N98765",
+    //         status: "Maintenance",
+    //         plane_type: "Bombardier Global 6000",
+    //         event: new Date(Date.now() + 10800000).toISOString(), // 3 hours later
+    //     },
+    //     {
+    //         acid: "N67890",
+    //         status: "Departing",
+    //         plane_type: "Cessna Citation X",
+    //         event: new Date(Date.now() + 3600000).toISOString(), // 1 hour later
+    //     },
+    //     {
+    //         acid: "N54321",
+    //         status: "Parked",
+    //         plane_type: "Embraer Phenom 300",
+    //         event: new Date(Date.now() + 7200000).toISOString(), // 2 hours later
+    //     },
+    //     {
+    //         acid: "N98765",
+    //         status: "Maintenance",
+    //         plane_type: "Bombardier Global 6000",
+    //         event: new Date(Date.now() + 10800000).toISOString(), // 3 hours later
+    //     },{
+    //         acid: "N67890",
+    //         status: "Departing",
+    //         plane_type: "Cessna Citation X",
+    //         event: new Date(Date.now() + 3600000).toISOString(), // 1 hour later
+    //     },
+    //     {
+    //         acid: "N54321",
+    //         status: "Parked",
+    //         plane_type: "Embraer Phenom 300",
+    //         event: new Date(Date.now() + 7200000).toISOString(), // 2 hours later
+    //     },
+    //     {
+    //         acid: "N98765",
+    //         status: "Maintenance",
+    //         plane_type: "Bombardier Global 6000",
+    //         event: new Date(Date.now() + 10800000).toISOString(), // 3 hours later
+    //     }
+        
+    // ]);
+
+    // const [recs, setRecs] = useState([
+    //     {
+    //         tailNumber: "N12345",
+    //         status: "Arriving",
+    //         nextEvent: "02/24/2025 14:30",
+    //         recString: "Move to Gate B3 upon arrival."
+    //     },
+    //     {
+    //         tailNumber: "N67890",
+    //         status: "Departing",
+    //         nextEvent: "02/24/2025 16:00",
+    //         recString: "Prepare for refueling before departure."
+    //     },
+    //     {
+    //         tailNumber: "N54321",
+    //         status: "Parked",
+    //         nextEvent: "02/25/2025 08:00",
+    //         recString: "Relocate to Hangar 5 for maintenance."
+    //     },
+    //     {
+    //         tailNumber: "N09876",
+    //         status: "Maintenance",
+    //         nextEvent: "02/25/2025 10:45",
+    //         recString: "Scheduled engine check at 10:45 AM."
+    //     },
+    //     {
+    //         tailNumber: "N12345",
+    //         status: "Arriving",
+    //         nextEvent: "02/24/2025 14:30",
+    //         recString: "Move to Gate B3 upon arrival."
+    //     },
+    //     {
+    //         tailNumber: "N67890",
+    //         status: "Departing",
+    //         nextEvent: "02/24/2025 16:00",
+    //         recString: "Prepare for refueling before departure."
+    //     },
+    //     {
+    //         tailNumber: "N54321",
+    //         status: "Parked",
+    //         nextEvent: "02/25/2025 08:00",
+    //         recString: "Relocate to Hangar 5 for maintenance."
+    //     },
+    //     {
+    //         tailNumber: "N09876",
+    //         status: "Maintenance",
+    //         nextEvent: "02/25/2025 10:45",
+    //         recString: "Scheduled engine check at 10:45 AM."
+    //     },
+    //     {
+    //         tailNumber: "N12345",
+    //         status: "Arriving",
+    //         nextEvent: "02/24/2025 14:30",
+    //         recString: "Move to Gate B3 upon arrival."
+    //     },
+    //     {
+    //         tailNumber: "N67890",
+    //         status: "Departing",
+    //         nextEvent: "02/24/2025 16:00",
+    //         recString: "Prepare for refueling before departure."
+    //     },
+    //     {
+    //         tailNumber: "N54321",
+    //         status: "Parked",
+    //         nextEvent: "02/25/2025 08:00",
+    //         recString: "Relocate to Hangar 5 for maintenance."
+    //     },
+    //     {
+    //         tailNumber: "N09876",
+    //         status: "Maintenance",
+    //         nextEvent: "02/25/2025 10:45",
+    //         recString: "Scheduled engine check at 10:45 AM."
+    //     },
+    //     {
+    //         tailNumber: "N12345",
+    //         status: "Arriving",
+    //         nextEvent: "02/24/2025 14:30",
+    //         recString: "Move to Gate B3 upon arrival."
+    //     },
+    //     {
+    //         tailNumber: "N67890",
+    //         status: "Departing",
+    //         nextEvent: "02/24/2025 16:00",
+    //         recString: "Prepare for refueling before departure."
+    //     },
+    //     {
+    //         tailNumber: "N54321",
+    //         status: "Parked",
+    //         nextEvent: "02/25/2025 08:00",
+    //         recString: "Relocate to Hangar 5 for maintenance."
+    //     },
+    //     {
+    //         tailNumber: "N09876",
+    //         status: "Maintenance",
+    //         nextEvent: "02/25/2025 10:45",
+    //         recString: "Scheduled engine check at 10:45 AM."
+    //     }
+    // ]);
+    
 
     const toggleRow = (index) => {
         setExpandedRow(expandedRow === index ? null : index);
@@ -74,6 +343,7 @@ const SimulatorComponent = () => {
             try {
                 const response = await axios.get(`http://localhost:5001/simulator/getRecommendations/${airportCode}`);
                 setRecs(response.data);
+
                 console.log('Recommendations:', response.data);
             } catch (error) {
                 console.error('Error fetching recommendations:', error);
@@ -137,174 +407,34 @@ const SimulatorComponent = () => {
     return (
         <div>
             <div id="simulator-grid">
-                <div id="head-dashboard">
-                    <div id="header1">
-                        <div className='header-segment-large'>
-                            <div id="title-wrapper">
-                                <button id="back-button-sim">
-                                    <img src="/back-arrow.png" alt="Back Button"></img>
-                                </button>
-                                <div id="airport-title">{selectedAirport}</div>
-                                <div id="sim-title">Flight Simulator</div>
-                            </div>
-                            <div id='fbo-title-sim'>{selectedFBO ? selectedFBO.FBO_Name : 'Select an FBO'}</div>
-                        </div>
-                    </div>
-                    <div className='header-segment-small'>
-                        <div >{selectedAirport} Capacity</div>
-                        <div>{takenSpace}/{totalSpace}</div>
-                        <div>FBO Capacity</div>
-                        {selectedFBO && (
-                            <div>{selectedFBO.Parking_Space_Taken}/{selectedFBO.Total_Space}</div>
-                        )}
-                    </div>
-                    <div className='header-segment-small'>
-                        <div className='legend-row'>
-                            <div className='legend-square blue-color'></div>
-                            <div>Arriving</div>
-                        </div>
-                        <div className='legend-row'>
-                            <div className='legend-square yellow-color'></div>
-                            <div>Departing</div>
-                        </div>
-                        <div className='legend-row'>
-                            <div className='legend-square green-color'></div>
-                            <div>Parked</div>
-                        </div>
-                        <div className='legend-row'>
-                            <div className='legend-square red-color'></div>
-                            <div>Maintenance</div>
-                        </div>
-                    </div>
-                    <div className='header-segment-small'>
-                        <input 
-                            type="text" 
-                            id="dropdown" 
-                            name="dropdown" 
-                            value={searchTerm} 
-                            onChange={handleTailNumberChange} 
-                            placeholder="Search Tail Number"
-                            list="tailNumbers"
-                        />
-                        <datalist id="tailNumbers">
-                            {filteredFleetData.map((data, index) => (
-                                <option key={index} value={data.acid}>{data.acid}</option>
-                            ))}
-                        </datalist>
-    
+                {/* Top Segment of Dashboard */}
+                <SimulatorHeader
+                    selectedAirport={selectedAirport}
+                    selectedFBO={selectedFBO}
+                    takenSpace={takenSpace}
+                    totalSpace={totalSpace}
+                    searchTerm={searchTerm}
+                    handleTailNumberChange={handleTailNumberChange}
+                    handleFBOChange={handleFBOChange}
+                    filteredFleetData={filteredFleetData}
+                    fboData={fboData}
+                    localTime={localTime}
+                    selectedSpots={selectedSpots}
+                    selectedPlaneType={selectedPlaneType}
+                    selectedPlaneSize={selectedPlaneSize}
+                    selectedPlaneLocation={selectedPlaneLocation}
+                />
 
-{/*                         
-                        <select id="dropdown" name="dropdown" onChange={handleTailNumberChange}>
-                        
-                            {fleetData.map((data, index) => (
-                                <option key={index}>{data.acid}</option>
-                            ))}
-                          
-                        </select> */}
-                        <label htmlFor="dropdown">FBO</label>
-                        <select id="dropdown" name="dropdown" onChange={handleFBOChange} value={selectedFBO ? selectedFBO.FBO_Name : ''}>
-                            {fboData.map((data, index) => (
-                                <option key={index}>{data.FBO_Name}</option>
-                            ))}
-                        </select>
-                    </div>
-                    <div className='header-segment-small'>
-                        <label htmlFor="datetime">Arrival Time</label>
-                        <input type="datetime-local" id="time" name="time"></input>
-                        <label htmlFor="local-datetime">Local Time</label>
-                        <input type="text" id="local-datetime" readOnly value={localTime}></input>
-                    </div>
-                    <div className='header-segment-large'>
-                        <div id="plane-info-wrapper">
-                            <div className="plane-info-section">
-                                <div className="plane-section-title">Spots Required</div>
-                                <div className="plane-section-status">{selectedSpots}</div>
-                            </div>
-                            <div className="plane-info-section">
-                                <div className="plane-section-title">Type Name</div>
-                                <div className="plane-section-status">{selectedPlaneType}</div>
-                            </div>
-                            <div className="plane-info-section">
-                                <div className="plane-section-title">Cabin Size</div>
-                                <div className="plane-section-status">{selectedPlaneSize}</div>
-                            </div>
-                            <div className="plane-info-section">
-                                <div className="plane-section-title">Current Location</div>
-                                <div className="plane-section-status">{selectedPlaneLocation}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <div id="main-wrapper">
-                    <div id="planes-table">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th>Tail Number</th>
-                                    <th>Status</th>
-                                    <th>Type</th>
-                                    <th>Next Event</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {allPlanes.map((val, key) => (
-                                    <tr key={key}>
-                                        <td className="status-wrapper">
-                                            <div className={`status-box ${val.status === 'Arriving' ? 'blue-color' : val.status === 'Departing' ? 'yellow-color' : val.status === 'Parked' ? 'green-color' : 'red-color'}`}></div>
-                                        </td>
-                                        
-                                        <td>{val.acid}</td> {/* Tail # */}
-                                        <td>{val.status}</td> {/* Status  */}
-                                        <td>{val.plane_type ? val.plane_type: 'Unavailable'}</td> {/*plane type */}
-                                        <td>
-                                        {new Date(val.event).toLocaleDateString('en-us', {day: 'numeric', month: 'numeric', year: 'numeric'})} {new Date(val.event).toLocaleTimeString('en-us', {hour: '2-digit', minute: '2-digit', hour12: false})}
-                                        </td> {/* next event */}
-                                    </tr>
-                                ))}
-                                
+                    <SimulatorAllPlanes
+                        allPlanes={allPlanes}
+                    />
 
-                                
-                            </tbody>
-                        </table>
-                    </div>
-                    <div id="alerts-center">
-                        <div id="alerts-title">ALERTS</div>
-                        <div>Move Recommendations</div>
-                        <div id="rec-table">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Tail Number</th>
-                                        <th>Status</th>
-                                        <th>Next Event</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {recs.map((val, key) => (
-                                        <React.Fragment key={key}>
-                                            <tr className="expandable-row">
-                                                <td className="alert-wrapper">
-                                                    <div className="alert-box green-color"></div>
-                                                    <span>{val.tailNumber}</span>
-                                                </td>
-                                                <td>{val.status}</td>
-                                                <td className='alert-wrapper'>
-                                                    <span>{val.nextEvent}</span>
-                                                    <div onClick={() => toggleRow(key)} className={expandedRow === key ? 'up-arrow' : 'down-arrow'}></div>
-                                                </td>
-                                            </tr>
-                                            {expandedRow === key && (
-                                                <tr className="expanded-content active">
-                                                    <td colSpan="5">{val.recString}</td>
-                                                </tr>
-                                            )}
-                                        </React.Fragment>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                    <SimulatorAlerts
+                        recs={recs}
+                        toggleRow={toggleRow}
+                        expandedRow={expandedRow}
+                    />
                 </div>
             </div>
         </div>
