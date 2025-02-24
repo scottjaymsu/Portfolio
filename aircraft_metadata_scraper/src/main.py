@@ -1,4 +1,4 @@
-from src.scraper import scrape_aircraft_data
+from aircraft_metadata_scraper.scraper import scrape_aircraft_data
 
 def main():
     scrape_aircraft_data()
