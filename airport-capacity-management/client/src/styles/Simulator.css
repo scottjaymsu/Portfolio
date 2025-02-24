@@ -212,6 +212,7 @@ select option {
     width: 100%;
     border: 3px solid #444240;
     background-color: #d7d5d3;
+    border-collapse: collapse;
 }
 
 #planes-table-wrapper {
@@ -228,7 +229,11 @@ select option {
     border-collapse: collapse;
     border-radius: 0px;
     background-color: #d7d5d3;
+    border-collapse: collapse;
+    padding: 0px;
+    table-layout: fixed;
 }
+
 
 /* Table header */
 #planes-table thead {
@@ -237,11 +242,13 @@ select option {
     z-index: 2;
     background-color: transparent;
     color: #444240;
+    background-color: transparent;
     border-bottom: 3px solid #444240;
 }
 
 /* Body of table */
 #planes-table tbody {
+
     display: block;
     overflow-y: auto;
     max-height: 577px; /* Adjust height as needed */
@@ -263,7 +270,9 @@ select option {
     font-weight: bolder;
     text-align: left;
     color: #444240;
-
+    background-color: transparent;
+    border-collapse: collapse;
+    border: transparent;
 }
 
 /* 
@@ -274,14 +283,13 @@ select option {
     border-bottom: 1px solid #444240;
     padding: 10px;
     text-align: left;
+    border: transparent;
 }
 
 /* Status box alignment */
 .status-wrapper {
     justify-content: center;
     align-items: center;
-
-
 }
 
 /* 
@@ -329,6 +337,8 @@ select option {
     width: 100%;
     border-radius: 5px;
     border: 2px solid #444240;
+    border-collapse: collapse;
+    background-color: transparent;
 }
 
 /* Main table styling */
@@ -350,7 +360,7 @@ select option {
 
 /* Body of table */
 #rec-table tbody {
-    display: block;
+    /* display: block; */
     overflow-y: auto;
     max-height: 505px; /* Adjust height as needed */
 }
@@ -360,7 +370,7 @@ select option {
     display: table;
     width: 100%;
     table-layout: fixed; /* Keeps column alignment */
-
+    
 }
 
 /* 
@@ -372,7 +382,8 @@ select option {
     font-weight: bolder;
     text-align: left;
     color: #444240;
-
+    background-color: transparent;
+    border: transparent;
 }
 
 
@@ -384,6 +395,8 @@ select option {
     font-size: medium;
     border-bottom: 1px solid #444240;
     padding: 8px;
+    box-sizing: border-box;
+    border: transparent;
 
 } 
 
