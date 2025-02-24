@@ -81,4 +81,3 @@ exports.getDepartingFlights = (req, res) => {
         res.json(results);
     });
 }
-

@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from "recharts";
 
 /**
  * Component to display traffic information in bar graph 
@@ -56,6 +65,7 @@ export default function TrafficOverview({id}) {
         axios.get(`http://localhost:5001/airportData/getParkedPlanes/${id}`)
             .then((response) => {
                 setParkedPlanes(response.data);
+ 
             })
             .catch((err) => {
                 setError('Error fetching parked planes');
@@ -66,24 +76,54 @@ export default function TrafficOverview({id}) {
     // Set random value for maintence (0 - # of parked planes - 2)
     useEffect(() => {
         setPlanesUnder(Math.floor(Math.random() * parkedPlanes.length));        
-    }, []);  
+    }, [parkedPlanes]);  
     
     /**
      * Create bar chart to display quantitive info
      * info = 
      * {
-     *      # of departing flights,
      *      # of arriving flights,
+     *      # of departing flights,
      *      # of parked planes,
      *      # of planes under maintenance
      * }
      */
+
+    // Data in the bar chart
+    const chartData = [
+        {
+            category : "Traffic Overview",
+            Arriving : arrivingFlights.length,
+            Departing : departingFlights.length,
+            Parked : parkedPlanes.length,
+            Maintenance : planesUnder
+        }
+    ];
+
     return (
         <div>
-            <h1>{departingFlights.length}</h1>
-            <h1>{arrivingFlights.length}</h1>
-            <h1>{parkedPlanes.length}</h1>
-            <h1>{planesUnder}</h1>
+            <table style={{width: '100%', marginBottom: '20px', borderCollapse: 'collapse'}}>
+                <thead>
+                    <tr>
+                        <th colSpan={4} style={{textAlign: 'center', padding: '10px', backgroundColor: '#1e3a8a', fontSize: '18px', fontWeight: 'bold'}}>
+                            Traffic Overview
+                        </th>
+                    </tr>
+                </thead>
+            </table>
+
+            <ResponsiveContainer width="100%" height={150}>
+                <BarChart data={chartData}>               
+                    <XAxis dataKey="category" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="Arriving" fill="rgb(88,120,163)" />
+                    <Bar dataKey="Departing" fill="rgb(228,147,67)" />
+                    <Bar dataKey="Parked" fill="rgb(99, 188, 182)" />
+                    <Bar dataKey="Maintenance" fill="rgb(209,96,94)" />
+                </BarChart>
+            </ResponsiveContainer>
         </div>
     );
 }
