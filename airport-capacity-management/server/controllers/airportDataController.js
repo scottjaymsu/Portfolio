@@ -65,4 +65,34 @@ exports.getOverallCapacity = (req, res) => {
     });
 }
 
+// api to provide number of aircrafts currently parked at airport 
+exports.getParkedPlanes = (req, res) => {
+    const airport = req.params.id;
 
+    const query = `
+    SELECT
+        netjets_fleet.acid, plane_type, arrival_airport
+    FROM
+        netjets_fleet 
+    JOIN 
+        flight_plans 
+    ON
+        netjets_fleet.flightRef = flight_plans.flightRef
+    WHERE 
+        arrived = TRUE 
+    AND 
+        arrival_airport = ?
+    `;
+
+    airportDB.query(query, [airport], (err, results) => {
+        if (err) {
+            console.error("Error querying airport data.", err);
+            return res.status(500).json({ error: 'Error parking data.' });
+        }
+
+        // Testing
+        console.log(results);
+        // Send results back as response
+        res.json(results);
+    });
+}
