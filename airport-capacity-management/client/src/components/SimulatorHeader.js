@@ -1,6 +1,6 @@
 import React from 'react';
+import { useNavigate } from "react-router-dom";
 import '../styles/Simulator.css';
-
 
 /**
  * Top segment of the Simulator page 
@@ -9,13 +9,20 @@ const SimulatorHeader = ({selectedAirport, selectedFBO, takenSpace, totalSpace, 
     handleTailNumberChange, handleFBOChange, filteredFleetData, fboData,
     localTime, selectedSpots, selectedPlaneType, selectedPlaneSize, selectedPlaneLocation
 }) => {
+    // Back button navigation
+    const navigate = useNavigate();
+    const handleBackButton = () => {
+        navigate(`/summary/${selectedAirport}`);
+    }
+
+    console.log('selectedAirport', selectedAirport);
     return (
         <div id="head-dashboard">
             <div id="header1">
                 <div className='header-segment-large'>
                     <div id="title-wrapper">
                         <button id="back-button-sim">
-                            <img src="/back-arrow.png" alt="Back Button"></img>
+                            <img onClick={handleBackButton} src="/back-arrow.png" alt="Back Button"></img>
                         </button>
                         <div id="airport-title">{selectedAirport}</div>
                         <div id="sim-title">Flight Simulator</div>
