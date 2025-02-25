@@ -232,8 +232,8 @@ const generateRecommendations = (parkedPlanes, sortedAirports) => {
   const currentTime = new Date();
   closestAirport = sortedAirports[0].ident; // Closest airport 
 
-  const overCapacity = "Airport is currently Over Capacity";
-  const underCapacity = "Airport is currently Under Capacity";
+  const overCapacity = "Airport is currently Over Capacity.";
+  const underCapacity = "Airport is currently Under Capacity. ";
   const noMovement = "No Movement Required";
 
   const longTerm = "can be moved to long term parking";
