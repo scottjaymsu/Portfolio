@@ -11,7 +11,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { getStatusClass } from "./utils/helpers";
+import { getStatusColor, getStatusClass } from "./utils/helpers";
 
 import "./SummaryPage.css";
 import "./components/ArrivingFlightTable";
@@ -212,6 +212,7 @@ export default function SummaryPage() {
 
   const [airportMetadata, setAirportMetadata] = useState([]);
   const [FBOList, setFBOList] = useState([]);
+  const [currentStatus, setCurrentStatus] = useState("Undercapacity");
 
   const navigate = useNavigate();
 
@@ -272,6 +273,42 @@ export default function SummaryPage() {
       }
     }
 
+    async function fetchAirportStatus() {
+      try {
+        // current capacity
+        const currentResponse = await fetch(
+          `http://localhost:5000/airportData/getCurrentCapacity/${airportCode}`
+        );
+        const currentData = await currentResponse.json();
+        const currentCapacity = currentData.capacity;
+   
+        // overall capacity
+        const overallResponse = await fetch(
+          `http://localhost:5000/airportData/getOverallCapacity/${airportCode}`
+        );
+        const overallData = await overallResponse.json();
+        const overallCapacity = overallData.capacity;
+   
+        // Check for valid numbers
+        if (currentCapacity !== null && overallCapacity !== null) {
+          const capacityPercentage = (currentCapacity / overallCapacity) * 100;
+   
+          let status = "Undercapacity";
+   
+          if (capacityPercentage >= 100) {
+            status = "Overcapacity";
+          }
+   
+          setCurrentStatus(status); // Set the calculated status
+        } else {
+          console.error("Invalid capacity data received:", currentData, overallData);
+        }
+      } catch (error) {
+        console.error("Error fetching airport capacity data:", error);
+      }
+    }
+ 
+    fetchAirportStatus();
     fetchParkingCoordinates();
     fetchAirportData();
     console.log("test", chartData);
@@ -324,7 +361,7 @@ export default function SummaryPage() {
         <Card className="card-content">
           <CardContent className="text-center flex-1">
             <h2 className="title">{airportCode} - {airportMetadata.name}</h2>
-            <p className={getStatusClass("Overcapacity")}>Overcapacity</p>
+            <p className={`status-bubble ${getStatusClass(currentStatus)}`}>{currentStatus}</p>
           </CardContent>
         </Card>
         <Card className="card-content flex-2">
