@@ -265,7 +265,7 @@ export default function SummaryPage() {
         const long = parseFloat(longitude_deg);
         setAirportCoordinates({
           lat: lat,
-          lng: long,
+          lng: long - 0.011,
         });
         setAirportMetadata(data[0]);
       } catch (error) {
