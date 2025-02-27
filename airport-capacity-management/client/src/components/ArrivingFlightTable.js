@@ -29,9 +29,17 @@ export default function ArrivingFlightTable({id}) {
             });
     }, []);
 
-    // Format the ETA datetime to a more readable format
-    const formatETA = (eta) => new Date(eta).toLocaleString();
+    // Format the ETA date to a more readable format
+    const formatDate = (eta) => {
+      const date = new Date(eta);
+      return date.toLocaleDateString('en-GB'); // format: day/month/year
+    };
 
+    // Format the ETA time to a more readable format
+    const formatTime = (eta) => {
+      const date = new Date(eta);
+      return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    };
 
     /**
      * Create table for arriving flights.
@@ -54,7 +62,7 @@ export default function ArrivingFlightTable({id}) {
           <tr>
             <th>Tail Number</th>
             <th>Aircraft Type</th>
-            <th>Parking Area (ft^2)</th>
+            <th>Parking Area (ft²)</th>
             <th>Arrival Date/Time</th>
           </tr>
         </thead>
@@ -64,7 +72,7 @@ export default function ArrivingFlightTable({id}) {
               <td>{flight.acid}</td>
               <td>{flight.plane_type ? flight.plane_type : 'N/A'}</td>
               <td>{flight.parkingArea ? flight.parkingArea : 'N/A'}</td>
-              <td>{formatETA(flight.eta)}</td>
+              <td>{formatDate(flight.eta)} {formatTime(flight.eta)}</td>
             </tr>
           ))}
         </tbody>
