@@ -32,13 +32,13 @@ export default function DepartingFlightTable({id}) {
     // Format the ETD date to a more readable format
     const formatDate = (etd) => {
       const date = new Date(etd);
-      return date.toLocaleDateString('en-GB'); // format: day/month/year
+      return etd ? date.toLocaleDateString('en-GB') : "N/A"; // format: day/month/year
     };
 
     // Format the ETD time to a more readable format
     const formatTime = (etd) => {
       const date = new Date(etd);
-      return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      return etd ? date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : "";
     };
 
 

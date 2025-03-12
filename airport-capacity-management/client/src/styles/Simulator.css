@@ -424,7 +424,15 @@ select option {
 .alert-wrapper {
     display: table-cell;
     align-items: center;
+    padding: .5rem;;
 }
+
+.date-toggle-wrapper {
+    display: flex;             
+    justify-content: space-between; 
+    align-items: center;      
+    gap: 1rem;                 
+  }
 
 /* alterts status box */
 .alert-box {

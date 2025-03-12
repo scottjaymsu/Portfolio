@@ -32,13 +32,13 @@ export default function ArrivingFlightTable({id}) {
     // Format the ETA date to a more readable format
     const formatDate = (eta) => {
       const date = new Date(eta);
-      return date.toLocaleDateString('en-GB'); // format: day/month/year
+      return eta ? date.toLocaleDateString('en-GB') : "N/A"; // format: day/month/year
     };
 
     // Format the ETA time to a more readable format
     const formatTime = (eta) => {
       const date = new Date(eta);
-      return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      return eta ? date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : ""; // format: hour:minute
     };
 
     /**
