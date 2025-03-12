@@ -23,6 +23,8 @@ export const getStatusClass = (status) => {
       return "status-bubble full";
     case "Overcapacity":
       return "status-bubble-lg full";
+    case "Undercapacity":
+      return "status-bubble-lg open";
     default:
       return "status-bubble";
   }

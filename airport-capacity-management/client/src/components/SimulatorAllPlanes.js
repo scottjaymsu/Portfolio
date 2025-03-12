@@ -26,7 +26,7 @@ const SimulatorAllPlanes = ({allPlanes}) => {
                             <td>{val.status}</td> {/* Status  */}
                             <td>{val.plane_type ? val.plane_type: 'Unavailable'}</td> {/*plane type */}
                             <td>
-                            {new Date(val.event).toLocaleDateString('en-us', {day: 'numeric', month: 'numeric', year: 'numeric'})} {new Date(val.event).toLocaleTimeString('en-us', {hour: '2-digit', minute: '2-digit', hour12: false})}
+                            {val.event ? new Date(val.event).toLocaleDateString('en-us', {day: 'numeric', month: 'numeric', year: 'numeric'}) : "N/A"} {val.event ? new Date(val.event).toLocaleTimeString('en-us', {hour: '2-digit', minute: '2-digit', hour12: false}) : ""}
                             </td> {/* next event */}
                         </tr>
                     ))}

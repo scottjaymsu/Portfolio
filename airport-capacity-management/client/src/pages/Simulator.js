@@ -31,6 +31,9 @@ const SimulatorComponent = () => {
 
     const [recs, setRecs] = useState([]);
 
+    // 
+    // FOR TESTING WITHOUT USING THE DB
+    // 
     // const [allPlanes, setAllPlanes] = useState([
     //     {
     //         acid: "N12345",

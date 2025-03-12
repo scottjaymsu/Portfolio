@@ -96,11 +96,6 @@ header div */
     padding-top: 70px;
     padding-bottom: 10px;
 }
-/* HEADER BLOCK 1 */
-
-/* HEADER BLOCK 2 */
-
-/* HEADER BLOCK 2 */
 
 /* HEADER LEGEND BLOCK */
 .legend-row {
@@ -190,14 +185,22 @@ select option {
 /* Wrapper for bottom half of screen with 
     table and alerts */
 #main-wrapper {
-    flex-grow: 1;
+    /* flex-grow: 1;
     flex: 8;
     overflow: auto;
     display: flex;
     gap: 20px;
     padding-left: 10px;
     padding-right: 10px;
+    padding-bottom: 20px; */
+    flex: 8;
+    display: flex;
+    gap: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
     padding-bottom: 20px;
+    height: 100%;  /* Ensure it fills available space, without scrolling */
+    overflow: visible;
     
 
 }
@@ -207,31 +210,23 @@ select option {
 /* Wrapper for whole table */
 #planes-table {
     flex: 7;
-    justify-content: center;
-    align-items: center;
+    border-collapse: collapse;
+    display: flex;
+    flex-direction: column;
     width: 100%;
+    height: 100%;
     border: 3px solid #444240;
     background-color: #d7d5d3;
-    border-collapse: collapse;
-}
-
-#planes-table-wrapper {
-    flex-grow: 1;
-    overflow-y: auto; /* Allows only the table body to scroll */
-    max-height: 400px; /* Adjust this based on your layout */
-    background-color: #d7d5d3;
-
+    overflow: hidden;
 }
 
 /* Main table styling */
 #planes-table table {
+    background-color: #d7d5d3;
     width: 100%;
     border-collapse: collapse;
-    border-radius: 0px;
-    background-color: #d7d5d3;
-    border-collapse: collapse;
-    padding: 0px;
     table-layout: fixed;
+    height: 100%;
 }
 
 
@@ -239,19 +234,18 @@ select option {
 #planes-table thead {
     position: sticky;
     top: 0;
-    z-index: 2;
-    background-color: transparent;
-    color: #444240;
+    z-index: 2; /* Keep above tbody content */
     background-color: transparent;
     border-bottom: 3px solid #444240;
 }
 
 /* Body of table */
 #planes-table tbody {
-
     display: block;
     overflow-y: auto;
-    max-height: 577px; /* Adjust height as needed */
+    flex-grow: 1;
+    height: 100%;
+    
 }
 
 /* Rows of table */
@@ -261,29 +255,21 @@ select option {
     table-layout: fixed; /* Keeps column alignment */
 }
 
-/* 
-    Column titles 
- */
- #planes-table th {
-    padding: 10px;
-    font-family: Arial, Helvetica, sans-serif;
-    font-weight: bolder;
-    text-align: left;
-    color: #444240;
-    background-color: transparent;
-    border-collapse: collapse;
-    border: transparent;
+#planes-table tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
 }
 
-/* 
-    Rows of table 
- */
+#planes-table th, 
 #planes-table td {
+    border: transparent;
     font-family: Arial, Helvetica, sans-serif;
-    border-bottom: 1px solid #444240;
     padding: 10px;
     text-align: left;
-    border: transparent;
+    border-bottom: 1px solid #444240;
+    color: #444240;
+    background-color: #d7d5d3;
 }
 
 /* Status box alignment */
@@ -303,24 +289,24 @@ select option {
     border-radius: 2px;
 }
 
-/* Table Window */
 
-
-
-
-
-/* ALERTS CENTER */
 /* 
-    Main wrapper for alerts center 
+    ALERTS CENTER
+    FOR REC ENGINE
  */
 #alerts-center {
- 
     flex: 3;
     display: flex;
     flex-direction: column;
     align-items: center;
     background-color: #d7d5d3;
     border-radius: 5px;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-top: 2px solid #444240;
+    border-left: 2px solid #444240;
+    border-right: 2px solid #444240;
 }
 
 #alerts-title {
@@ -329,77 +315,89 @@ select option {
     font-weight: bold;
 }
 
-
+/* Table wrapper */
 #rec-table {
-    flex: 7;
-    justify-content: center;
-    align-items: left;
+    flex-grow: 1;
     width: 100%;
     border-radius: 5px;
     border: 2px solid #444240;
-    border-collapse: collapse;
     background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
-/* Main table styling */
+/* Scrollable container around the table */
+.table-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    width: 100%;
+    height: 100%; /* Takes up all the space of the container*/
+    position: relative;
+}
+
+/* Main table */
 #rec-table table {
+    width: 100%;
     border-collapse: collapse;
-    border-radius: 0px;
     background-color: transparent;
+    table-layout: fixed;
+    height: 100%; /* table fills container */
 }
 
-/* Table header */
+/* Sticky header */
 #rec-table thead {
     position: sticky;
     top: 0;
     z-index: 2;
-    color: #444240;
-    background-color: transparent;
-    border-bottom: 3px solid #444240;
+    background-color: #d7d5d3;
+    border-bottom: 1px solid #444240;
 }
 
-/* Body of table */
-#rec-table tbody {
-    /* display: block; */
-    overflow-y: auto;
-    max-height: 505px; /* Adjust height as needed */
+
+#rec-table thead tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
 }
-/* 
-/* Rows of table */
+
+/* Scrollable tbody */
+#rec-table tbody {
+    display: block;
+    overflow-y: auto;
+    flex-grow: 1; /* fill available height */
+    width: 100%;
+    height: 100%; /* grow to fill*/
+}
+
+/* Rows */
 #rec-table tr {
     display: table;
     width: 100%;
-    table-layout: fixed; /* Keeps column alignment */
-    
+    table-layout: fixed;
 }
 
-/* 
-    Column titles 
- */
+/* Table Header Styling */
 #rec-table th {
     padding: 10px;
     font-family: Arial, Helvetica, sans-serif;
     font-weight: bolder;
     text-align: left;
     color: #444240;
-    background-color: transparent;
+    background-color: #d7d5d3;
     border: transparent;
+    border-bottom: 3px solid #444240;
 }
 
-
-/* 
-    Rows of table 
- */
+/* Table Cell Styling */
 #rec-table td {
     font-family: Arial, Helvetica, sans-serif;
     font-size: medium;
-    border-bottom: 1px solid #444240;
     padding: 8px;
     box-sizing: border-box;
     border: transparent;
-
-} 
-
+    border-bottom: 1px solid #444240;
+}
 
 
 
@@ -426,7 +424,15 @@ select option {
 .alert-wrapper {
     display: table-cell;
     align-items: center;
+    padding: .5rem;;
 }
+
+.date-toggle-wrapper {
+    display: flex;             
+    justify-content: space-between; 
+    align-items: center;      
+    gap: 1rem;                 
+  }
 
 /* alterts status box */
 .alert-box {

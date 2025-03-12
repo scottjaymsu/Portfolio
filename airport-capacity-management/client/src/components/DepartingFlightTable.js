@@ -29,8 +29,17 @@ export default function DepartingFlightTable({id}) {
             });
     }, []);
 
-    // Format the ETD datetime to a more readable format
-    const formatETD = (etd) => new Date(etd).toLocaleString();
+    // Format the ETD date to a more readable format
+    const formatDate = (etd) => {
+      const date = new Date(etd);
+      return etd ? date.toLocaleDateString('en-GB') : "N/A"; // format: day/month/year
+    };
+
+    // Format the ETD time to a more readable format
+    const formatTime = (etd) => {
+      const date = new Date(etd);
+      return etd ? date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : "";
+    };
 
 
     /**
@@ -57,16 +66,19 @@ export default function DepartingFlightTable({id}) {
               <th>Departing Date/Time</th>
             </tr>
           </thead>
-          <tbody>
-            {departingFlights.map((flight, index) => (
-              <tr key={index}>
-                <td>{flight.acid}</td>
-                <td>{flight.plane_type ? flight.plane_type : 'N/A'}</td>
-                <td>{flight.parkingArea ? flight.parkingArea : 'N/A'}</td>
-                <td>{formatETD(flight.etd)}</td>
-              </tr>
-            ))}
-          </tbody>
+          <div class="flight-table-container">
+            <tbody>
+              {departingFlights.map((flight, index) => (
+                <tr key={index}>
+                  <td>{flight.acid}</td>
+                  <td>{flight.plane_type ? flight.plane_type : 'N/A'}</td>
+                  <td>{flight.parkingArea ? flight.parkingArea : 'N/A'}</td>
+                  <td>{formatDate(flight.etd)} {formatTime(flight.etd)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </div>
+          
         </table>
       </div>
     );
