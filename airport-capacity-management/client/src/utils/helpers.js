@@ -15,17 +15,11 @@ export const getStatusColor = (status) => {
   };
 
 // Get CSS styling class for the status bubble
-export const getStatusClass = (status) => {
-  switch (status) {
-    case "Open":
-      return "status-bubble open";
-    case "Full":
-      return "status-bubble full";
-    case "Overcapacity":
-      return "status-bubble-lg full";
-    case "Undercapacity":
-      return "status-bubble-lg open";
-    default:
-      return "status-bubble";
+export const getStatusClass = (parking_taken, total_parking) => {
+  const status = parking_taken / total_parking;
+  if (status == 1) {
+    return "status-bubble full";
+  } else {
+    return "status-bubble open";
   }
 };
