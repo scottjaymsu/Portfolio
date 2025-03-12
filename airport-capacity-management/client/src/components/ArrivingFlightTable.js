@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import '../styles/FlightTable.css';
 
@@ -10,24 +10,33 @@ import '../styles/FlightTable.css';
  * @returns component 
  */
 export default function ArrivingFlightTable({id}) {
+    // INT for refresh
+    const timeInterval = 3000000; // 5 minutes 
     // State to hold arriving flights
     const [arrivingFlights, setArrivingFlights] = useState([]);
     // State to hold error message
     const [error, setError] = useState('');
 
+    const fetchArrivingFlights = useCallback (() => {
+      // Fetch arriving flights by airport
+      axios.get(`http://localhost:5001/flightData/getArrivingFlights/${id}`)
+      .then((response) => {
+          const sortedFlights = response.data.sort((a, b) => new Date(a.eta) - new Date(b.eta));
+          setArrivingFlights(sortedFlights);
+      })
+      .catch((err) => {
+          setError('Error fetching arriving flights');
+          console.error('Error fetching arriving flights:', err);
+      });
+    }, [id]);
+
     // Fetch arriving flights by faa designator when component mounts
     useEffect(() => {
-        // Fetch arriving flights by airport
-        axios.get(`http://localhost:5001/flightData/getArrivingFlights/${id}`)
-            .then((response) => {
-                const sortedFlights = response.data.sort((a, b) => new Date(a.eta) - new Date(b.eta));
-                setArrivingFlights(sortedFlights);
-            })
-            .catch((err) => {
-                setError('Error fetching arriving flights');
-                console.error('Error fetching arriving flights:', err);
-            });
-    }, []);
+      fetchArrivingFlights();
+      const interval = setInterval(fetchArrivingFlights, timeInterval);
+
+      return () => clearInterval(interval); 
+    }, [fetchArrivingFlights]);
 
     // Format the ETA date to a more readable format
     const formatDate = (eta) => {
@@ -66,18 +75,18 @@ export default function ArrivingFlightTable({id}) {
             <th>Arrival Date/Time</th>
           </tr>
         </thead>
-        <div class="flight-table-container">
-          <tbody>
-            {arrivingFlights.map((flight, index) => (
-              <tr key={index}>
-                <td>{flight.acid}</td>
-                <td>{flight.plane_type ? flight.plane_type : 'N/A'}</td>
-                <td>{flight.parkingArea ? flight.parkingArea : 'N/A'}</td>
-                <td>{formatDate(flight.eta)} {formatTime(flight.eta)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </div>
+   
+        <tbody className="flight-table-container">
+          {arrivingFlights.map((flight, index) => (
+            <tr key={index}>
+              <td>{flight.acid}</td>
+              <td>{flight.plane_type ? flight.plane_type : 'N/A'}</td>
+              <td>{flight.parkingArea ? flight.parkingArea : 'N/A'}</td>
+              <td>{formatDate(flight.eta)} {formatTime(flight.eta)}</td>
+            </tr>
+          ))}
+        </tbody>
+        
         
       </table>
     </div>

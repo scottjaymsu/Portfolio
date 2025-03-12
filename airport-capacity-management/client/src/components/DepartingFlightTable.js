@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import '../styles/FlightTable.css';
 
@@ -10,15 +10,15 @@ import '../styles/FlightTable.css';
  * @returns component 
  */
 export default function DepartingFlightTable({id}) {
+    // INT for refresh
+    const timeInterval = 3000000; // 5 minutes 
     // State to hold departing flights
     const [departingFlights, setDepartingFlights] = useState([]);
     // State to hold error message
     const [error, setError] = useState('');
 
-    // Fetch departing flights by faa designator when component mounts
-    useEffect(() => {
-        // Fetch departing flights by airport
-        axios.get(`http://localhost:5001/flightData/getDepartingFlights/${id}`)
+    const fetchDepartingFlights = useCallback (() => {
+      axios.get(`http://localhost:5001/flightData/getDepartingFlights/${id}`)
             .then((response) => {
                 const sortedFlights = response.data.sort((a, b) => new Date(a.etd) - new Date(b.etd));
                 setDepartingFlights(sortedFlights);
@@ -27,7 +27,16 @@ export default function DepartingFlightTable({id}) {
                 setError('Error fetching departing flights');
                 console.error('Error fetching departing flights:', err);
             });
-    }, []);
+    }, [id]);
+
+    // Fetch departing flights by faa designator when component mounts
+    useEffect(() => {
+        // Refresh every interval of time
+        fetchDepartingFlights();
+        const interval = setInterval(fetchDepartingFlights, timeInterval);
+
+        return () => clearInterval(interval); 
+    }, [fetchDepartingFlights]);
 
     // Format the ETD date to a more readable format
     const formatDate = (etd) => {
@@ -66,18 +75,18 @@ export default function DepartingFlightTable({id}) {
               <th>Departing Date/Time</th>
             </tr>
           </thead>
-          <div class="flight-table-container">
-            <tbody>
-              {departingFlights.map((flight, index) => (
-                <tr key={index}>
-                  <td>{flight.acid}</td>
-                  <td>{flight.plane_type ? flight.plane_type : 'N/A'}</td>
-                  <td>{flight.parkingArea ? flight.parkingArea : 'N/A'}</td>
-                  <td>{formatDate(flight.etd)} {formatTime(flight.etd)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </div>
+
+          <tbody className='flight-table-container'>
+            {departingFlights.map((flight, index) => (
+              <tr key={index}>
+                <td>{flight.acid}</td>
+                <td>{flight.plane_type ? flight.plane_type : 'N/A'}</td>
+                <td>{flight.parkingArea ? flight.parkingArea : 'N/A'}</td>
+                <td>{formatDate(flight.etd)} {formatTime(flight.etd)}</td>
+              </tr>
+            ))}
+          </tbody>
+    
           
         </table>
       </div>
