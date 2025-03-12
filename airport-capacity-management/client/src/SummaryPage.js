@@ -2,76 +2,19 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { GoogleMap, LoadScript, Polygon } from "@react-google-maps/api";
 import { Card, CardContent } from "./components/card";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
-import { getStatusColor, getStatusClass } from "./utils/helpers";
+import { getStatusClass } from "./utils/helpers";
 
 import "./SummaryPage.css";
 import "./components/ArrivingFlightTable";
 import ArrivingFlightTable from "./components/ArrivingFlightTable";
 import DepartingFlightTable from "./components/DepartingFlightTable";
+import TrafficOverview from "./components/TrafficOverview";
 
 // Map Size
 const containerStyle = {
   width: "100vw",
   height: "100vh",
 };
-
-// Flight Data in the table
-const flightData = [
-  {
-    cabinSize: "Large",
-    tail: "N246QS",
-    type: "CL-650S",
-    arrivalDay: "1/29",
-    arrivalTime: "12:29 pm",
-    eventDay: "1/29",
-    eventTime: "9:00 pm",
-  },
-  {
-    cabinSize: "Large",
-    tail: "N22QS",
-    type: "CL-650S",
-    arrivalDay: "1/29",
-    arrivalTime: "2:30 pm",
-    eventDay: "1/30",
-    eventTime: "11:00 am",
-  },
-  {
-    cabinSize: "Large",
-    tail: "N289QS",
-    type: "CL-650S",
-    arrivalDay: "1/29",
-    arrivalTime: "4:01 pm",
-    eventDay: "1/30",
-    eventTime: "12:35 pm",
-  },
-  {
-    cabinSize: "Small",
-    tail: "N25QS",
-    type: "CL-650S",
-    arrivalDay: "1/29",
-    arrivalTime: "4:20 pm",
-    eventDay: "2/5",
-    eventTime: "9:00 am",
-  },
-  {
-    cabinSize: "Medium",
-    tail: "N245QS",
-    type: "CL-650S",
-    arrivalDay: "1/29",
-    arrivalTime: "4:56 pm",
-    eventDay: "1/30",
-    eventTime: "9:30 pm",
-  },
-];
 
 // FBO Data in the table
 const FBOList = [
@@ -95,14 +38,6 @@ const FBOList = [
     name: "Atlantic Aviation",
     status: "Open",
   },
-];
-
-// Data in the bar chart
-const chartData = [
-  { name: "12:00", Arriving: 2, Departing: 1, Parked: 3, "In MX": 4 },
-  { name: "1:00", Arriving: 3, Departing: 1, Parked: 4, "In MX": 1 },
-  { name: "2:00", Arriving: 4, Departing: 2, Parked: 5, "In MX": 2 },
-  { name: "3:00", Arriving: 3, Departing: 1, Parked: 4, "In MX": 3 },
 ];
 
 // Google Map styling options
@@ -311,7 +246,6 @@ export default function SummaryPage() {
     fetchAirportStatus();
     fetchParkingCoordinates();
     fetchAirportData();
-    console.log("test", chartData);
 
   }, [airportCode]);
 
@@ -365,21 +299,7 @@ export default function SummaryPage() {
           </CardContent>
         </Card>
         <Card className="card-content flex-2">
-          <CardContent>
-            <h3 className="subtitle">Traffic Overview</h3>
-            <ResponsiveContainer width="100%" height={120}>
-              <BarChart data={chartData}>
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="Arriving" fill="rgb(88,120,163)" />
-                <Bar dataKey="Departing" fill="rgb(228,147,67)" />
-                <Bar dataKey="Parked" fill="rgb(133,181,178)" />
-                <Bar dataKey="In MX" fill="rgb(209,96,94)" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
+          <TrafficOverview id = {airportCode} />
         </Card>
         <Card className="card-content flex-3">
           <CardContent>
