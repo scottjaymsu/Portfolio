@@ -315,6 +315,10 @@ export default function SummaryPage() {
           </CardContent>
         </Card>
         <Card className="card-content flex-2">
+
+          <div style={{ textAlign: 'center', top: 0}}>
+              <h2>Traffic Overview</h2>
+          </div>
           <TrafficOverview id = {airportCode} />
         </Card>
         <Card className="card-content flex-3">

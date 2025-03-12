@@ -26,10 +26,8 @@ export default function TrafficOverview({id}) {
     const [departingFlights, setDepartingFlights] = useState([]);
     // State to hold arriving flights
     const [arrivingFlights, setArrivingFlights] = useState([]);    
-    // // State to hold parked planes 
-    // const [parkedPlanes, setParkedPlanes] = useState([]);
-    // // State to hold planes under maintenance
-    // const [planesUnder, setPlanesUnder] = useState([]);
+    // State to hold parked planes 
+    const [parkedPlanes, setParkedPlanes] = useState([]);
     // State to hold error message
     const [error, setError] = useState('');
 
@@ -58,6 +56,20 @@ export default function TrafficOverview({id}) {
                 console.error('Error fetching arriving flights:', error);
             });
     }, [id, error]);  
+
+    // Fetch parked planes by faa designator when component mounts
+    useEffect(() => {
+        // Fetch parked planes by airport 
+        axios.get(`http://localhost:5001/airportData/getParkedPlanes/${id}`)
+            .then((response) => {
+                setParkedPlanes(response.data);
+ 
+            })
+            .catch((err) => {
+                setError(err);
+                console.error('Error fetching parked planes:', error);
+            });
+    }, [id, error]);
 
     // Get data in "MM-DD" format from ISO string
     const getFormattedDate = (d) => {
@@ -109,22 +121,6 @@ export default function TrafficOverview({id}) {
      // Count the arriving and departing flights by date
     const departingCount = countDeparting(sortedDepartingFlights);
     const arrivingCount = countArriving(sortedArrivingFlights);
-    
-    
-    
-    // // Fetch parked planes by faa designator when component mounts
-    // useEffect(() => {
-    //     // Fetch parked planes by airport 
-    //     axios.get(`http://localhost:5001/airportData/getParkedPlanes/${id}`)
-    //         .then((response) => {
-    //             setParkedPlanes(response.data);
- 
-    //         })
-    //         .catch((err) => {
-    //             setError('Error fetching parked planes');
-    //             console.error('Error fetching parked planes:', err);
-    //         });
-    // }, []);
     
     /**
      * Create bar chart to display quantitive info
