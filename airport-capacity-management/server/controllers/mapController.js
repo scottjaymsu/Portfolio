@@ -51,7 +51,7 @@ exports.getAirportMarkers = async (req, res) => {
     ELSE 'Reaching Capacity'
     END AS capacity_status
     FROM airport_data ad JOIN airport_parking ap ON ad.ident = ap.Airport_Code
-    LEFT JOIN flight_plans fp ON fp.arrival_airport = ad.ident AND fp.arrived = 1
+    LEFT JOIN flight_plans fp ON fp.arrival_airport = ad.ident AND fp.status = 'ARRIVED'
     AND fp.flightRef = ( SELECT MAX(flightRef) FROM flight_plans AS sub_table WHERE sub_table.acid = fp.acid)
     GROUP BY ad.ident; `
     

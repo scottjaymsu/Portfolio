@@ -49,9 +49,9 @@ exports.getNetjetsFleet = (req, res) => {
     const query = `
         SELECT netjets_fleet.acid, netjets_fleet.plane_type,
         CASE
-            WHEN flight_plans.departed = TRUE AND flight_plans.arrived = TRUE THEN flight_plans.arrival_airport
-            WHEN flight_plans.departed = TRUE AND flight_plans.arrived = FALSE THEN 'In Flight'
-            WHEN flight_plans.departed = FALSE AND flight_plans.arrived = FALSE THEN flight_plans.departing_airport
+            WHEN flight_plans.status = 'ARRIVED' THEN flight_plans.arrival_airport
+            WHEN flight_plans.status = 'FLYING' THEN 'In Flight'
+            WHEN flight_plans.status = 'SCHEDULED' THEN flight_plans.departing_airport
             ELSE 'Unknown'
         END AS current_location
         FROM netjets_fleet
@@ -89,7 +89,7 @@ exports.getAllPlanes = async (req, res) => {
                 SELECT flight_plans.acid, flight_plans.eta AS event, netjets_fleet.plane_type, 'Parked' AS status
                 FROM flight_plans 
                 JOIN netjets_fleet ON flight_plans.acid = netjets_fleet.acid 
-                WHERE flight_plans.arrival_airport = ? AND flight_plans.arrived = TRUE AND flight_plans.departed = TRUE
+                WHERE flight_plans.arrival_airport = ? AND flight_plans.status = 'ARRIVED'
             `;
             db.query(query, [airportCode], (err, results) => {
                 if (err) return reject(err);
@@ -103,8 +103,7 @@ exports.getAllPlanes = async (req, res) => {
                 FROM flight_plans 
                 JOIN netjets_fleet ON flight_plans.acid = netjets_fleet.acid
                 WHERE flight_plans.departing_airport = ? 
-                AND flight_plans.departed = TRUE
-                AND flight_plans.arrived = FALSE
+                AND flight_plans.status = 'ARRIVED'
             `;
             db.query(query, [airportCode], (err, results) => {
                 if (err) return reject(err);
@@ -119,8 +118,7 @@ exports.getAllPlanes = async (req, res) => {
                 FROM flight_plans 
                 JOIN netjets_fleet ON flight_plans.acid = netjets_fleet.acid
                 WHERE flight_plans.arrival_airport = ? 
-                AND flight_plans.departed = TRUE
-                AND flight_plans.arrived = FALSE
+                AND flight_plans.status = 'ARRIVED'
             `;
             db.query(query, [airportCode], (err, results) => {
                 if (err) return reject(err);
@@ -134,7 +132,7 @@ exports.getAllPlanes = async (req, res) => {
                 SELECT flight_plans.acid, flight_plans.etd AS event, netjets_fleet.plane_type, 'Parked' AS status
                 FROM flight_plans 
                 JOIN netjets_fleet ON flight_plans.acid = netjets_fleet.acid
-                WHERE flight_plans.departing_airport = ? AND flight_plans.departed = FALSE
+                WHERE flight_plans.departing_airport = ? AND flight_plans.status = 'SCHEDULED'
             `;
             db.query(query, [airportCode], (err, results) => {
                 if (err) return reject(err);
@@ -166,7 +164,7 @@ exports.getAllPlanes = async (req, res) => {
 exports.getRecommendations = async (req, res) => {
     const { airportCode } = req.params;
     // The plane has completed its flight (1, 1) 
-    const parkedQuery = 'SELECT flight_plans.acid, flight_plans.etd, flight_plans.eta FROM flight_plans WHERE flight_plans.arrival_airport = ? AND flight_plans.arrived = TRUE';
+    const parkedQuery = `SELECT flight_plans.acid, flight_plans.etd, flight_plans.eta FROM flight_plans WHERE flight_plans.arrival_airport = ? AND flight_plans.status = 'ARRIVED'`;
     const currentAirportCoordQuery = 'SELECT latitude_deg AS lat, longitude_deg AS lon FROM airport_data WHERE ident = ?';
     const allAirportCoordQuery = 'SELECT latitude_deg AS lat, longitude_deg AS lon, ident FROM airport_data WHERE ident != ?';
 
