@@ -71,17 +71,21 @@ exports.getParkedPlanes = (req, res) => {
 
     const query = `
     SELECT
-        netjets_fleet.acid, plane_type, arrival_airport
+        netjets_fleet.acid, plane_type, arrival_airport, status
     FROM
         netjets_fleet 
     JOIN 
         flight_plans 
     ON
         netjets_fleet.flightRef = flight_plans.flightRef
-    WHERE 
-        arrived = TRUE 
+	WHERE
+        (
+            (flight_plans.status = 'ARRIVED')
+            OR
+            (flight_plans.status = 'SCHEDULED')
+        )
     AND 
-        arrival_airport = ?
+        arrival_airport = ?    
     `;
 
     airportDB.query(query, [airport], (err, results) => {
