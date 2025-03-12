@@ -125,11 +125,6 @@ export default function TrafficOverview({id}) {
     //             console.error('Error fetching parked planes:', err);
     //         });
     // }, []);
-
-    // // Set random value for maintence (0 - # of parked planes - 2)
-    // useEffect(() => {
-    //     setPlanesUnder(Math.floor(Math.random() * parkedPlanes.length));        
-    // }, [parkedPlanes]);  
     
     /**
      * Create bar chart to display quantitive info
@@ -145,24 +140,17 @@ export default function TrafficOverview({id}) {
     
     // Combine the data for the chart and table
     const dates = [...new Set([...Object.keys(departingCount), ...Object.keys(arrivingCount)])];
+    
     const chartData = dates.map(date => ({
         category: date,
         Arriving: arrivingCount[date],
         Departing: departingCount[date]
     }));
 
-    // // Data in the bar chart
-    // const chartData = [
-    //     {
-    //         category : "Traffic Overview",
-    //         Arriving : arrivingFlights.length,
-    //         Departing : departingFlights.length
-    //     }
-    // ];
-
     return (
-        <div>
-            <ResponsiveContainer width="100%" height={300}>
+        // horizontal scroll
+        <div style={{ overflowX: 'auto', width: '100%' }}>
+            <ResponsiveContainer width="400%" height={300}>
                 <BarChart data={chartData}>               
                     <XAxis dataKey="category" />
                     <YAxis />
