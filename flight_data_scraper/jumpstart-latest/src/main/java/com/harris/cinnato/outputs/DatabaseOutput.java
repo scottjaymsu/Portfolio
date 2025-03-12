@@ -238,6 +238,16 @@ public class DatabaseOutput extends Output {
         }
     }
 
+    /*
+     * The types of flight plans
+     */
+    public enum Status {
+        SCHEDULED,
+        FLYING,
+        ARRIVED,
+        MAINTENANCE;
+    }
+
 
     /*
      * Sifts through a single flight's data dump to find relevant information
@@ -304,7 +314,7 @@ public class DatabaseOutput extends Output {
 
                     // Insert the data into the flight plan database
                     // Message can come through only before takeoff
-                    InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, false, false);
+                    InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, Status.SCHEDULED);
                 }
             break;
 
@@ -355,7 +365,7 @@ public class DatabaseOutput extends Output {
                     else {
                         // Insert the data into the flight plan database
                         // Message can come through before takeoff, and after landing sometimes
-                        InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, null, null);
+                        InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, null);
                     }
                     
                 }
@@ -390,7 +400,7 @@ public class DatabaseOutput extends Output {
                     
                     // Insert the data into the flight plan database
                     // Message only comes through after landing (although the landing time might be estimated sometimes)
-                    InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, true, true);
+                    InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, Status.ARRIVED);
     
                     // We know this is an active flight plan
                     // Make sure the jet is pointing to this flight plan as its active flight plan
@@ -459,7 +469,7 @@ public class DatabaseOutput extends Output {
 
                     // Insert the data into the flight plan database
                     // Message only comes through after takeoff
-                    InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, true, false);
+                    InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, Status.FLYING);
 
                     // Extract the model type
                     model = flightAircraftSpecs_Model(departureInformation);
@@ -507,7 +517,7 @@ public class DatabaseOutput extends Output {
 
                     // Insert the data into the flight plan database
                     // Message only comes through for planes in the air
-                    InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, true, false);
+                    InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, Status.FLYING);
 
                     // We know this is an active flight plan
                     // Make sure the jet is pointing to this flight plan as its active flight plan
@@ -528,7 +538,7 @@ public class DatabaseOutput extends Output {
 
                     // Insert the data into the flight plan database
                     // Message only comes through for planes in the air
-                    InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, true, false);
+                    InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, Status.FLYING);
 
                     // We know this is an active flight plan
                     // Make sure the jet is pointing to this flight plan as its active flight plan
@@ -555,7 +565,14 @@ public class DatabaseOutput extends Output {
                     // Insert the data into the flight plan database
                     // Message is supposed to come through before takeoff, but sometimes it might come after
                     // So, manually check the ETD time to see if it has taken off yet
-                    InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, isBeforeCurrentTime(etd), false);
+                    Status status;
+                    if (isBeforeCurrentTime(etd)) {
+                        status = Status.FLYING;
+                    }
+                    else {
+                        status = Status.SCHEDULED;
+                    }
+                    InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, status);
                     }
 
                 break;
@@ -578,21 +595,18 @@ public class DatabaseOutput extends Output {
                     // Insert the data into the flight plan database
                     // Message can come thorugh at any time, even after landing
                     // So, manually check the ETD time to see if it has taken off yet
-                    Boolean etd_bool = null;
-                    Boolean eta_bool = null;
+                    Status status = null;
                     if (etd != null) {
                         if (isBeforeCurrentTime(etd) == false) {
                             // Plane has not yet taken off
-                            etd_bool = false;
-                            eta_bool = false;
+                            status = Status.SCHEDULED;
                         }
                         else {
                             // Plane has take off
-                            etd_bool = true;
 
                             if (isBeforeCurrentTime(eta) == false) {
                                 // Plane has not yet landed
-                                eta_bool = false;
+                                status = Status.FLYING;
 
                                 // We know this is an active flight plan
                                 // Make sure the jet is pointing to this flight plan as its active flight plan
@@ -601,7 +615,7 @@ public class DatabaseOutput extends Output {
                         }
                     }
                     
-                    InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, etd_bool, eta_bool);
+                    InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, status);
                 }
 
                 break;
@@ -617,7 +631,7 @@ public class DatabaseOutput extends Output {
 
                     // Insert the data into the flight plan database
                     // Message comes through 24 hrs before takeoff
-                    InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, false, false);
+                    InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, Status.SCHEDULED);
                 }
 
                 break;
@@ -633,7 +647,7 @@ public class DatabaseOutput extends Output {
 
                     // Insert the data into the flight plan database
                     // Messgae comes through before takeoff
-                    InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, false, false);
+                    InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, Status.SCHEDULED);
                 }
 
                 break;
@@ -653,7 +667,7 @@ public class DatabaseOutput extends Output {
 
                     // Insert the data into the flight plan database
                     // Messgae comes through before or shortly after etd time to notify of takeoff delay
-                    InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, false, false);
+                    InsertIntoDatabase(flightRef, acid, depArpt, arrArpt, etd, eta, Status.SCHEDULED);
                 }
 
                 break;
@@ -670,7 +684,7 @@ public class DatabaseOutput extends Output {
      * Helper function that inserts data into the flight plan database
      * Input: Each element of the entery
      */
-    private void InsertIntoDatabase(String flightRef, String acid, String depArpt, String arrArpt, String etd, String eta, Boolean departed, Boolean arrived) {
+    private void InsertIntoDatabase(String flightRef, String acid, String depArpt, String arrArpt, String etd, String eta, Status status) {
         if (flightRef != null && acid != null) {
             // Build sql statement dynamically so only the fields that are present are updated
             StringBuilder sql = new StringBuilder("INSERT INTO flight_plans (flightRef");
@@ -710,17 +724,11 @@ public class DatabaseOutput extends Output {
                 updates.append("eta = VALUES(eta), ");
                 params.add(convertZuluToMySQLDateTime(eta));
             }
-            if (departed != null) {
-                sql.append(", departed");
+            if (status != null) {
+                sql.append(", status");
                 values.append(", ?");
-                updates.append("departed = VALUES(departed), ");
-                params.add(departed);
-            }
-            if (arrived != null) {
-                sql.append(", arrived");
-                values.append(", ?");
-                updates.append("arrived = VALUES(arrived), ");
-                params.add(arrived);
+                updates.append("status = VALUES(status), ");
+                params.add(status);
             }
 
             // Close the SQL parts
@@ -741,7 +749,7 @@ public class DatabaseOutput extends Output {
                 stmt.executeUpdate();
 
                 // Print
-                // System.out.println("Inserted: FlightRef=" + flightRef + ", Acid=" + acid + ", arrArpt=" + arrArpt + ", depArtp=" + depArpt + ", etd=" + etd + ", eta=" + eta + ", departed=" + departed + ", arrived=" + arrived);
+                // System.out.println("Inserted: FlightRef=" + flightRef + ", Acid=" + acid + ", arrArpt=" + arrArpt + ", depArtp=" + depArpt + ", etd=" + etd + ", eta=" + eta + ", status=" + status);
                 
             } catch (Exception e) {
                 e.printStackTrace();
