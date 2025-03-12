@@ -66,16 +66,19 @@ export default function DepartingFlightTable({id}) {
               <th>Departing Date/Time</th>
             </tr>
           </thead>
-          <tbody>
-            {departingFlights.map((flight, index) => (
-              <tr key={index}>
-                <td>{flight.acid}</td>
-                <td>{flight.plane_type ? flight.plane_type : 'N/A'}</td>
-                <td>{flight.parkingArea ? flight.parkingArea : 'N/A'}</td>
-                <td>{formatDate(flight.etd)} {formatTime(flight.etd)}</td>
-              </tr>
-            ))}
-          </tbody>
+          <div class="flight-table-container">
+            <tbody>
+              {departingFlights.map((flight, index) => (
+                <tr key={index}>
+                  <td>{flight.acid}</td>
+                  <td>{flight.plane_type ? flight.plane_type : 'N/A'}</td>
+                  <td>{flight.parkingArea ? flight.parkingArea : 'N/A'}</td>
+                  <td>{formatDate(flight.etd)} {formatTime(flight.etd)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </div>
+          
         </table>
       </div>
     );

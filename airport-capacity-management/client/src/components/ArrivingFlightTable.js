@@ -66,16 +66,19 @@ export default function ArrivingFlightTable({id}) {
             <th>Arrival Date/Time</th>
           </tr>
         </thead>
-        <tbody>
-          {arrivingFlights.map((flight, index) => (
-            <tr key={index}>
-              <td>{flight.acid}</td>
-              <td>{flight.plane_type ? flight.plane_type : 'N/A'}</td>
-              <td>{flight.parkingArea ? flight.parkingArea : 'N/A'}</td>
-              <td>{formatDate(flight.eta)} {formatTime(flight.eta)}</td>
-            </tr>
-          ))}
-        </tbody>
+        <div class="flight-table-container">
+          <tbody>
+            {arrivingFlights.map((flight, index) => (
+              <tr key={index}>
+                <td>{flight.acid}</td>
+                <td>{flight.plane_type ? flight.plane_type : 'N/A'}</td>
+                <td>{flight.parkingArea ? flight.parkingArea : 'N/A'}</td>
+                <td>{formatDate(flight.eta)} {formatTime(flight.eta)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </div>
+        
       </table>
     </div>
   );
