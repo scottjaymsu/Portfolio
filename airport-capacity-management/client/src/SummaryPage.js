@@ -135,6 +135,20 @@ function CustomOverlay({ map, position, text }) {
   );
 }
 
+// Calculate total space for the airport 
+function calculateTotalSpace(fboData) {
+  return fboData.reduce((acc, fbo) => {
+    return acc + fbo.total_parking;
+  }, 0);
+}
+
+// Calculate taken space for the airport
+function calculateTakenSpace(fboData) {
+  return fboData.reduce((acc, fbo) => {
+    return acc + fbo.parking_taken;
+  }, 0);
+}
+
 // Summary Page Component
 export default function SummaryPage() {
   const airportCode = useParams().location;
@@ -154,6 +168,7 @@ export default function SummaryPage() {
 
   useEffect(() => {
     console.log(airportCode);
+
     //Fetch all the parking coordinates related to FBO's so that the map can overlay them for viewing
     async function fetchParkingCoordinates() {
       try {
@@ -177,7 +192,8 @@ export default function SummaryPage() {
         const FBOs = data.map((lot) => {
           return {
             name: lot.FBO_Name,
-            status: "Open"
+            parking_taken: lot.Parking_Space_Taken,
+            total_parking: lot.Total_Space,
           };
         });
         setFBOList(FBOs);
@@ -295,7 +311,7 @@ export default function SummaryPage() {
         <Card className="card-content">
           <CardContent className="text-center flex-1">
             <h2 className="title">{airportCode} - {airportMetadata.name}</h2>
-            <p className={`status-bubble ${getStatusClass(currentStatus)}`}>{currentStatus}</p>
+            <p className={`status-bubble ${getStatusClass(calculateTakenSpace(FBOList), calculateTotalSpace(FBOList))}`}>{calculateTakenSpace(FBOList)}/{calculateTotalSpace(FBOList)}</p>
           </CardContent>
         </Card>
         <Card className="card-content flex-2">
@@ -326,8 +342,8 @@ export default function SummaryPage() {
                   <tr key={index}>
                     <td>{fbo.name}</td>
                     <td>
-                      <span className={getStatusClass(fbo.status)}>
-                        {fbo.status}
+                      <span className={getStatusClass(fbo.parking_taken, fbo.total_parking)}>
+                        {fbo.parking_taken}/{fbo.total_parking}
                       </span>
                     </td>
                   </tr>

@@ -434,7 +434,7 @@ select option {
     gap: 1rem;                 
   }
 
-/* alterts status box */
+/* alerts status box */
 .alert-box {
     display: inline-block; /* Makes the alert box behave like inline elements */
     width: 12px;
