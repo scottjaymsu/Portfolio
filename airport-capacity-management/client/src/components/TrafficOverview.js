@@ -25,7 +25,9 @@ export default function TrafficOverview({id}) {
     // State to hold departing flights
     const [departingFlights, setDepartingFlights] = useState([]);
     // State to hold arriving flights
-    const [arrivingFlights, setArrivingFlights] = useState([]);    
+    const [arrivingFlights, setArrivingFlights] = useState([]); 
+    // State to hold maintenance planes
+    const [maintenancePlanes, setMaintenancePlanes] = useState([]);   
     // State to hold parked planes 
     const [parkedPlanes, setParkedPlanes] = useState([]);
     // State to hold error message
@@ -57,17 +59,29 @@ export default function TrafficOverview({id}) {
             });
     }, [id, error]);  
 
-    // Fetch parked planes by faa designator when component mounts
-    useEffect(() => {
-        // Fetch parked planes by airport 
-        axios.get(`http://localhost:5001/airportData/getParkedPlanes/${id}`)
-            .then((response) => {
-                setParkedPlanes(response.data);
+    // // Fetch parked planes by faa designator when component mounts
+    // useEffect(() => {
+    //     // Fetch parked planes by airport 
+    //     axios.get(`http://localhost:5001/airportData/getParkedPlanes/${id}`)
+    //         .then((response) => {
+    //             setParkedPlanes(response.data);
  
+    //         })
+    //         .catch((err) => {
+    //             setError(err);
+    //             console.error('Error fetching parked planes:', error);
+    //         });
+    // }, [id, error]);
+
+    // Fetch maintenace planes by faa designator when component mounts
+    useEffect(() => {
+        axios.get(`http://localhost:5001/flightData/getMaintenancePlanes/${id}`)
+            .then((response) => {
+                setMaintenancePlanes(response.data);
             })
             .catch((err) => {
                 setError(err);
-                console.error('Error fetching parked planes:', error);
+                console.error('Error fetching maintenance planes:', error);
             });
     }, [id, error]);
 
@@ -83,6 +97,7 @@ export default function TrafficOverview({id}) {
     };
 
     // Reverse sort flights by their ETA for arriving flights and ETD for departing flights
+    // Most recent flights are first
     const reverseFlightsByDate = (flights, key) => {
         return flights.sort((a, b) => {
             if (!a[key] || !b[key]) return 0;
@@ -91,6 +106,7 @@ export default function TrafficOverview({id}) {
     };
 
     // Reverse sort the flights
+    // Most recent flights are first    
     const sortedDepartingFlights = reverseFlightsByDate(departingFlights, 'etd');
     const sortedArrivingFlights = reverseFlightsByDate(arrivingFlights, 'eta');    
     
@@ -121,7 +137,67 @@ export default function TrafficOverview({id}) {
      // Count the arriving and departing flights by date
     const departingCount = countDeparting(sortedDepartingFlights);
     const arrivingCount = countArriving(sortedArrivingFlights);
+
+    // total number of parked planes
+    const parkingCount = {};
+    // Initialize the count for overall planes 
+    let count = 0;
     
+    // iterate through arriving count (earliest dates first) and accumulate the count
+    Object.keys(arrivingCount)
+        .sort((a, b) => new Date(a) - new Date(b))
+        .forEach(date => {
+            count += arrivingCount[date];
+            parkingCount[date] = count;
+        });
+
+    
+    let currParked = 0;
+    // iterate through departing count and accumulate count
+    Object.keys(departingCount)
+        .sort((a, b) => new Date(a) - new Date(b))
+        .forEach(date => {
+            if (parkingCount[date] - departingCount[date] >= 0) {
+                currParked += departingCount[date];
+                parkingCount[date] -= currParked;
+            } else {
+                currParked = 0;
+                parkingCount[date] = 0;
+            }
+        });
+
+
+
+    // // Iterate through arriving flights in 
+    // // reverse chronological order
+    // sortedArrivingFlights.reverse().forEach(flight => {
+    //     const eta = getFormattedDate(flight.eta);
+    //     // null eta
+    //     if (!eta) return;
+
+    //     // if the date is different from the previous date
+    //     if (eta !== prevDay) {
+    //         parkingCount[eta] = parkingCount[prevDay] + 1;
+    //         // update the previous date
+    //         prevDay = eta;
+    //     } else {
+    //         parkingCount[eta] += 1;
+    //     }
+    // });
+
+    // // Iterate through departing flights in
+    // // reverse chronological order
+    // sortedDepartingFlights.reverse().forEach(flight => {
+    //     const etd = getFormattedDate(flight.etd);
+    //     // null etd
+    //     if (!etd) return;
+
+    //     // if in parking count and etd stored is greater than 0
+    //     if (flight.etd in parkingCount && parkingCount[flight.etd] > 0) {
+    //         parkingCount[flight.etd] -= 1;
+    //     }
+    // });
+
     /**
      * Create bar chart to display quantitive info
      * info = 
@@ -135,25 +211,26 @@ export default function TrafficOverview({id}) {
 
     
     // Combine the data for the chart and table
-    const dates = [...new Set([...Object.keys(departingCount), ...Object.keys(arrivingCount)])];
+    const dates = [...new Set([...Object.keys(arrivingCount), ...Object.keys(departingCount), ...Object.keys(parkingCount)])];
     
     const chartData = dates.map(date => ({
         category: date,
         Arriving: arrivingCount[date],
-        Departing: departingCount[date]
+        Departing: departingCount[date],
+        Parked: parkingCount[date]
     }));
 
     return (
-        // horizontal scroll
         <div style={{ overflowX: 'auto', width: '100%' }}>
             <ResponsiveContainer width="400%" height={300}>
-                <BarChart data={chartData}>               
+                <BarChart data={chartData}>
                     <XAxis dataKey="category" />
                     <YAxis />
                     <Tooltip />
                     <Legend />
                     <Bar dataKey="Arriving" fill="rgb(88,120,163)" />
                     <Bar dataKey="Departing" fill="rgb(228,147,67)" />
+                    <Bar dataKey="Parked" fill="rgb(67,166,105)" />
                 </BarChart>
             </ResponsiveContainer>
         </div>

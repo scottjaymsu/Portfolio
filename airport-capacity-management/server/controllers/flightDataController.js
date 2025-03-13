@@ -29,8 +29,6 @@ exports.getArrivingFlights = (req, res) => {
             netjets_fleet.plane_type = aircraft_types.type
         WHERE 
             flight_plans.arrival_airport = ?
-            AND flight_plans.eta >= DATE_SUB(CURDATE(), INTERVAL 1 DAY)
-        ORDER BY flight_plans.eta ASC
     `;
 
     flightDB.query(query, [airport], (err, results) => {
@@ -69,8 +67,29 @@ exports.getDepartingFlights = (req, res) => {
             netjets_fleet.plane_type = aircraft_types.type            
         WHERE 
             flight_plans.departing_airport = ?
-            AND flight_plans.etd >= DATE_SUB(CURDATE(), INTERVAL 1 DAY)
-        ORDER BY flight_plans.etd ASC
+    `;
+
+
+
+    flightDB.query(query, [airport], (err, results) => {
+        if (err) {
+            console.error("Error querying airport data.", err);
+            return res.status(500).json({ error: 'Error querying airport data.' });
+        }
+
+        // Testing
+        console.log(results);
+        // Send results back as response
+        res.json(results);
+    });
+}
+
+// Controller to get planes in maintenance
+exports.getMaintenancePlanes = (req, res) => {
+    const airport = req.params.id;
+
+    const query = `
+        SELECT * FROM flight_plans WHERE status = 'MAINTENANCE' AND departing_airport = ?
     `;
 
     flightDB.query(query, [airport], (err, results) => {
