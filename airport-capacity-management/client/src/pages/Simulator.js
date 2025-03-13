@@ -66,16 +66,6 @@ const SimulatorComponent = () => {
             }
         };
 
-        // Get ALL NetJets tail numbers, current location, cabin size, spots required 
-        // const getNetjetsFleet = async () => {
-        //     try {
-        //         const response = await axios.get('http://localhost:5001/simulator/getNetjetsFleet');
-        //         setFleetData(response.data);
-        //     } catch (error) {
-        //         console.error('Error fetching NetJets fleet:', error);
-        //     }
-        // };
-
         const getAllPlanes = async () => {
             try {
                 const response = await axios.get(`http://localhost:5001/simulator/getAllPlanes/${airportCode}`);
@@ -97,9 +87,9 @@ const SimulatorComponent = () => {
             }
         };
 
-        getNetjetsFleet();
+
         getAirportFBOs();
-        // getAllPlanes();
+        getAllPlanes();
         fetchAllPlanes();
         getRecommendations();
 
