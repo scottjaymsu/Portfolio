@@ -22,6 +22,7 @@ export default function DepartingFlightTable({id}) {
             .then((response) => {
                 const sortedFlights = response.data.sort((a, b) => new Date(a.etd) - new Date(b.etd));
                 setDepartingFlights(sortedFlights);
+                console.log("Refreshed Departing flights"); 
             })
             .catch((err) => {
                 setError('Error fetching departing flights');

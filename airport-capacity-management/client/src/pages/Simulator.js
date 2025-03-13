@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/Simulator.css';
@@ -8,6 +8,8 @@ import SimulatorAllPlanes from '../components/SimulatorAllPlanes';
 import SimulatorAlerts from '../components/SimulatorAlerts';
 
 const SimulatorComponent = () => {
+     // INT for refresh
+     const timeInterval = 3000000; // 5 minutes 
     const { airportCode } = useParams();
     const [expandedRow, setExpandedRow] = useState(null);
     const [fboData, setFboData] = useState([]);
@@ -31,273 +33,15 @@ const SimulatorComponent = () => {
 
     const [recs, setRecs] = useState([]);
 
-    // 
-    // FOR TESTING WITHOUT USING THE DB
-    // 
-    // const [allPlanes, setAllPlanes] = useState([
-    //     {
-    //         acid: "N12345",
-    //         status: "Arriving",
-    //         plane_type: "Gulfstream G650",
-    //         event: new Date().toISOString(),
-    //     },
-    //     {
-    //         acid: "N67890",
-    //         status: "Departing",
-    //         plane_type: "Cessna Citation X",
-    //         event: new Date(Date.now() + 3600000).toISOString(), // 1 hour later
-    //     },
-    //     {
-    //         acid: "N54321",
-    //         status: "Parked",
-    //         plane_type: "Embraer Phenom 300",
-    //         event: new Date(Date.now() + 7200000).toISOString(), // 2 hours later
-    //     },
-    //     {
-    //         acid: "N98765",
-    //         status: "Maintenance",
-    //         plane_type: "Bombardier Global 6000",
-    //         event: new Date(Date.now() + 10800000).toISOString(), // 3 hours later
-    //     },
-    //     {
-    //         acid: "N12345",
-    //         status: "Arriving",
-    //         plane_type: "Gulfstream G650",
-    //         event: new Date().toISOString(),
-    //     },
-    //     {
-    //         acid: "N67890",
-    //         status: "Departing",
-    //         plane_type: "Cessna Citation X",
-    //         event: new Date(Date.now() + 3600000).toISOString(), // 1 hour later
-    //     },
-    //     {
-    //         acid: "N54321",
-    //         status: "Parked",
-    //         plane_type: "Embraer Phenom 300",
-    //         event: new Date(Date.now() + 7200000).toISOString(), // 2 hours later
-    //     },
-    //     {
-    //         acid: "N98765",
-    //         status: "Maintenance",
-    //         plane_type: "Bombardier Global 6000",
-    //         event: new Date(Date.now() + 10800000).toISOString(), // 3 hours later
-    //     },
-    //     {
-    //         acid: "N12345",
-    //         status: "Arriving",
-    //         plane_type: "Gulfstream G650",
-    //         event: new Date().toISOString(),
-    //     },
-    //     {
-    //         acid: "N67890",
-    //         status: "Departing",
-    //         plane_type: "Cessna Citation X",
-    //         event: new Date(Date.now() + 3600000).toISOString(), // 1 hour later
-    //     },
-    //     {
-    //         acid: "N54321",
-    //         status: "Parked",
-    //         plane_type: "Embraer Phenom 300",
-    //         event: new Date(Date.now() + 7200000).toISOString(), // 2 hours later
-    //     },
-    //     {
-    //         acid: "N98765",
-    //         status: "Maintenance",
-    //         plane_type: "Bombardier Global 6000",
-    //         event: new Date(Date.now() + 10800000).toISOString(), // 3 hours later
-    //     },
-    //     {
-    //         acid: "N67890",
-    //         status: "Departing",
-    //         plane_type: "Cessna Citation X",
-    //         event: new Date(Date.now() + 3600000).toISOString(), // 1 hour later
-    //     },
-    //     {
-    //         acid: "N54321",
-    //         status: "Parked",
-    //         plane_type: "Embraer Phenom 300",
-    //         event: new Date(Date.now() + 7200000).toISOString(), // 2 hours later
-    //     },
-    //     {
-    //         acid: "N98765",
-    //         status: "Maintenance",
-    //         plane_type: "Bombardier Global 6000",
-    //         event: new Date(Date.now() + 10800000).toISOString(), // 3 hours later
-    //     },
-    //     {
-    //         acid: "N67890",
-    //         status: "Departing",
-    //         plane_type: "Cessna Citation X",
-    //         event: new Date(Date.now() + 3600000).toISOString(), // 1 hour later
-    //     },
-    //     {
-    //         acid: "N54321",
-    //         status: "Parked",
-    //         plane_type: "Embraer Phenom 300",
-    //         event: new Date(Date.now() + 7200000).toISOString(), // 2 hours later
-    //     },
-    //     {
-    //         acid: "N98765",
-    //         status: "Maintenance",
-    //         plane_type: "Bombardier Global 6000",
-    //         event: new Date(Date.now() + 10800000).toISOString(), // 3 hours later
-    //     },
-    //     {
-    //         acid: "N67890",
-    //         status: "Departing",
-    //         plane_type: "Cessna Citation X",
-    //         event: new Date(Date.now() + 3600000).toISOString(), // 1 hour later
-    //     },
-    //     {
-    //         acid: "N54321",
-    //         status: "Parked",
-    //         plane_type: "Embraer Phenom 300",
-    //         event: new Date(Date.now() + 7200000).toISOString(), // 2 hours later
-    //     },
-    //     {
-    //         acid: "N98765",
-    //         status: "Maintenance",
-    //         plane_type: "Bombardier Global 6000",
-    //         event: new Date(Date.now() + 10800000).toISOString(), // 3 hours later
-    //     },
-    //     {
-    //         acid: "N67890",
-    //         status: "Departing",
-    //         plane_type: "Cessna Citation X",
-    //         event: new Date(Date.now() + 3600000).toISOString(), // 1 hour later
-    //     },
-    //     {
-    //         acid: "N54321",
-    //         status: "Parked",
-    //         plane_type: "Embraer Phenom 300",
-    //         event: new Date(Date.now() + 7200000).toISOString(), // 2 hours later
-    //     },
-    //     {
-    //         acid: "N98765",
-    //         status: "Maintenance",
-    //         plane_type: "Bombardier Global 6000",
-    //         event: new Date(Date.now() + 10800000).toISOString(), // 3 hours later
-    //     },{
-    //         acid: "N67890",
-    //         status: "Departing",
-    //         plane_type: "Cessna Citation X",
-    //         event: new Date(Date.now() + 3600000).toISOString(), // 1 hour later
-    //     },
-    //     {
-    //         acid: "N54321",
-    //         status: "Parked",
-    //         plane_type: "Embraer Phenom 300",
-    //         event: new Date(Date.now() + 7200000).toISOString(), // 2 hours later
-    //     },
-    //     {
-    //         acid: "N98765",
-    //         status: "Maintenance",
-    //         plane_type: "Bombardier Global 6000",
-    //         event: new Date(Date.now() + 10800000).toISOString(), // 3 hours later
-    //     }
-        
-    // ]);
+    const fetchAllPlanes = useCallback(async () => {
+        try {
+            const response = await axios.get(`http://localhost:5001/simulator/getAllPlanes/${airportCode}`);
+            setAllPlanes(response.data);
+        } catch (error) {
+            console.error('Error fetching all planes:', error);
+        }
+    }, [airportCode]);
 
-    // const [recs, setRecs] = useState([
-    //     {
-    //         tailNumber: "N12345",
-    //         status: "Arriving",
-    //         nextEvent: "02/24/2025 14:30",
-    //         recString: "Move to Gate B3 upon arrival."
-    //     },
-    //     {
-    //         tailNumber: "N67890",
-    //         status: "Departing",
-    //         nextEvent: "02/24/2025 16:00",
-    //         recString: "Prepare for refueling before departure."
-    //     },
-    //     {
-    //         tailNumber: "N54321",
-    //         status: "Parked",
-    //         nextEvent: "02/25/2025 08:00",
-    //         recString: "Relocate to Hangar 5 for maintenance."
-    //     },
-    //     {
-    //         tailNumber: "N09876",
-    //         status: "Maintenance",
-    //         nextEvent: "02/25/2025 10:45",
-    //         recString: "Scheduled engine check at 10:45 AM."
-    //     },
-    //     {
-    //         tailNumber: "N12345",
-    //         status: "Arriving",
-    //         nextEvent: "02/24/2025 14:30",
-    //         recString: "Move to Gate B3 upon arrival."
-    //     },
-    //     {
-    //         tailNumber: "N67890",
-    //         status: "Departing",
-    //         nextEvent: "02/24/2025 16:00",
-    //         recString: "Prepare for refueling before departure."
-    //     },
-    //     {
-    //         tailNumber: "N54321",
-    //         status: "Parked",
-    //         nextEvent: "02/25/2025 08:00",
-    //         recString: "Relocate to Hangar 5 for maintenance."
-    //     },
-    //     {
-    //         tailNumber: "N09876",
-    //         status: "Maintenance",
-    //         nextEvent: "02/25/2025 10:45",
-    //         recString: "Scheduled engine check at 10:45 AM."
-    //     },
-    //     {
-    //         tailNumber: "N12345",
-    //         status: "Arriving",
-    //         nextEvent: "02/24/2025 14:30",
-    //         recString: "Move to Gate B3 upon arrival."
-    //     },
-    //     {
-    //         tailNumber: "N67890",
-    //         status: "Departing",
-    //         nextEvent: "02/24/2025 16:00",
-    //         recString: "Prepare for refueling before departure."
-    //     },
-    //     {
-    //         tailNumber: "N54321",
-    //         status: "Parked",
-    //         nextEvent: "02/25/2025 08:00",
-    //         recString: "Relocate to Hangar 5 for maintenance."
-    //     },
-    //     {
-    //         tailNumber: "N09876",
-    //         status: "Maintenance",
-    //         nextEvent: "02/25/2025 10:45",
-    //         recString: "Scheduled engine check at 10:45 AM."
-    //     },
-    //     {
-    //         tailNumber: "N12345",
-    //         status: "Arriving",
-    //         nextEvent: "02/24/2025 14:30",
-    //         recString: "Move to Gate B3 upon arrival."
-    //     },
-    //     {
-    //         tailNumber: "N67890",
-    //         status: "Departing",
-    //         nextEvent: "02/24/2025 16:00",
-    //         recString: "Prepare for refueling before departure."
-    //     },
-    //     {
-    //         tailNumber: "N54321",
-    //         status: "Parked",
-    //         nextEvent: "02/25/2025 08:00",
-    //         recString: "Relocate to Hangar 5 for maintenance."
-    //     },
-    //     {
-    //         tailNumber: "N09876",
-    //         status: "Maintenance",
-    //         nextEvent: "02/25/2025 10:45",
-    //         recString: "Scheduled engine check at 10:45 AM."
-    //     }
-    // ]);
-    
 
     const toggleRow = (index) => {
         setExpandedRow(expandedRow === index ? null : index);
@@ -323,14 +67,14 @@ const SimulatorComponent = () => {
         };
 
         // Get ALL NetJets tail numbers, current location, cabin size, spots required 
-        const getNetjetsFleet = async () => {
-            try {
-                const response = await axios.get('http://localhost:5001/simulator/getNetjetsFleet');
-                setFleetData(response.data);
-            } catch (error) {
-                console.error('Error fetching NetJets fleet:', error);
-            }
-        };
+        // const getNetjetsFleet = async () => {
+        //     try {
+        //         const response = await axios.get('http://localhost:5001/simulator/getNetjetsFleet');
+        //         setFleetData(response.data);
+        //     } catch (error) {
+        //         console.error('Error fetching NetJets fleet:', error);
+        //     }
+        // };
 
         const getAllPlanes = async () => {
             try {
@@ -355,10 +99,15 @@ const SimulatorComponent = () => {
 
         getNetjetsFleet();
         getAirportFBOs();
-        getAllPlanes();
+        // getAllPlanes();
+        fetchAllPlanes();
         getRecommendations();
 
-    }, [airportCode]);
+        // For Automatic Refresh 
+        const interval = setInterval(fetchAllPlanes, timeInterval);
+        return () => clearInterval(interval); 
+
+    }, [airportCode, fetchAllPlanes, timeInterval]);
 
     // For updating local time 
     // Currently just our time but can change individual airport times 
