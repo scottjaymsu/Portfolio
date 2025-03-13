@@ -43,6 +43,28 @@ const MapContainer = ({ markers, onMarkerClick, setMapInstance }) => {
           },
           animation: window.google.maps.Animation.DROP,
         });
+        
+        const capacityPercentage = markerData.capacity_percentage || 100;
+        const createSVG = (percentage) => {
+          const width = 30;
+          const height = 10;
+          const filledWidth = width * (percentage/100)
+
+          return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+              <rect width="${width}" height="${height}" fill="white" stroke="rgb(33,48,71)" strokeWidth="1"/>
+              <rect width="${filledWidth}" height="${height}" fill="${getStatusColor(markerData.status)}"/>
+            </svg>`
+        }
+        const healthBarPosition = {
+          lat: markerData.position.lat + 1.5,
+          lng: markerData.position.lng
+        }
+        const healthBar = new window.google.maps.Marker({
+          position: healthBarPosition,
+          map,
+          icon: {
+            url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(createSVG(capacityPercentage)),
+          }})
 
         const infoWindow = new window.google.maps.InfoWindow({
           content: `<h3>${markerData.title}</h3>`,

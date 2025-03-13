@@ -49,7 +49,8 @@ exports.getAirportMarkers = async (req, res) => {
     CASE WHEN (SUM(ap.Total_Space) - SUM(ap.Total_Space/10)) > COUNT(DISTINCT fp.acid) THEN 'Undercapacity'
     WHEN SUM(ap.Total_Space) < COUNT(DISTINCT fp.acid) THEN 'Overcapacity'
     ELSE 'Reaching Capacity'
-    END AS capacity_status
+    END AS capacity_status,
+    COUNT(DISTINCT fp.acid) / SUM(ap.Total_Space) * 100 AS capacity_percentage
     FROM airport_data ad JOIN airport_parking ap ON ad.ident = ap.Airport_Code
     LEFT JOIN flight_plans fp ON fp.arrival_airport = ad.ident AND fp.status = 'ARRIVED'
     AND fp.flightRef = ( SELECT MAX(flightRef) FROM flight_plans AS sub_table WHERE sub_table.acid = fp.acid)
@@ -67,7 +68,8 @@ exports.getAirportMarkers = async (req, res) => {
                     lng: parseFloat(row.longitude_deg)
                 },
                 title: row.ident,
-                status: row.capacity_status
+                status: row.capacity_status,
+                capacity_percentage: row.capacity_percentage
             }))
             res.json(formattedResults);
         }
