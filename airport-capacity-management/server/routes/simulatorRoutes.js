@@ -8,8 +8,7 @@ router.get('/getAirportFBOs/:airportCode', simulatorController.getAirportFBOs);
 router.get('/getNetjetsFleet', simulatorController.getNetjetsFleet);
 
 router.get('/getAllPlanes/:airportCode', simulatorController.getAllPlanes);
-
-
+router.get('/addMaintenance/:acid', simulatorController.addMaintenance);
 
 // Rec Engine
 router.get('/getRecommendations/:airportCode', simulatorController.getRecommendations);

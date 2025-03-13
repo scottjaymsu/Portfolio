@@ -171,6 +171,7 @@ const SimulatorComponent = () => {
                 <div id="main-wrapper">
                     <SimulatorAllPlanes
                         allPlanes={allPlanes}
+                        selectedAirport={selectedAirport}
                     />
 
                     <SimulatorAlerts

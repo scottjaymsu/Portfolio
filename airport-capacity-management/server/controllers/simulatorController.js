@@ -140,11 +140,25 @@ exports.getAllPlanes = async (req, res) => {
             });
         });
 
+        const maintenancePlanes = await new Promise((resolve, reject) => {
+            const query = `
+                SELECT flight_plans.acid, flight_plans.etd AS event, netjets_fleet.plane_type, 'Maintenance' AS status
+                FROM flight_plans 
+                JOIN netjets_fleet ON flight_plans.acid = netjets_fleet.acid
+                WHERE flight_plans.departing_airport = ? AND flight_plans.status = 'MAINTENANCE'
+            `;
+            db.query(query, [airportCode], (err, results) => {
+                if (err) return reject(err);
+                resolve(results);
+            });
+        });
+
         let allPlanes = [
             ...parkedPlanes,
             ...departingPlanes,
             ...arrivingPlanes,
-            ...plannedPlanes
+            ...plannedPlanes,
+            ...maintenancePlanes
         ];
 
         // 
@@ -314,6 +328,28 @@ const sortAirports = (airports, currLat, currLon) => {
 
 
 
-
-// Main map page 
-// generate strings that say no airports are at capacity
+exports.addMaintenance = (req, res) => {
+    const {acid} = req.params;
+    const { airport } = req.query;
+    const recentRef = "SELECT flightRef FROM flight_plans WHERE acid = ? ORDER BY eta DESC LIMIT 1;"
+    db.query(recentRef, [acid], (err, results) => {
+        if(err) {
+            console.error("Error fetching latest flightRef...", err);
+            return res.status(500).json({error: "Error fetching latest flightRef..."})
+        }
+        const latestRef = results[0].flightRef
+        const addRef = latestRef + "M";
+        const query = "INSERT INTO flight_plans (flightRef, acid, departing_airport, status, eta) VALUES (?, ?, ?, 'MAINTENANCE', NOW());";
+    
+    db.query(query, [addRef, acid, airport], (err, results) => {
+        if (err) {
+            console.error("Error updating maintenance status...", err);
+            res.status(500).json({error: "Error updating maintenance status..."});
+        }
+        else {
+            res.json(results);
+        }
+    });
+    })
+    
+};
