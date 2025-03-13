@@ -194,6 +194,8 @@ export default function SummaryPage() {
             name: lot.FBO_Name,
             parking_taken: lot.Parking_Space_Taken,
             total_parking: lot.Total_Space,
+            status: "Open",
+            priority: 1
           };
         });
         setFBOList(FBOs);
@@ -258,7 +260,7 @@ export default function SummaryPage() {
         console.error("Error fetching airport capacity data:", error);
       }
     }
- 
+
     fetchAirportStatus();
     fetchParkingCoordinates();
     fetchAirportData();
@@ -273,6 +275,17 @@ export default function SummaryPage() {
     navigate("/");
   }
 
+  const handlePriorityChange = (index, newPriority) => {
+    setFBOList((prevFBOs) => {
+      // copy of the FBO list
+      const updatedFBOs = [...prevFBOs];
+      updatedFBOs[index] = {
+        ...updatedFBOs[index],
+        priority: newPriority,
+      };
+      return updatedFBOs;
+    });
+  };
 
   return (
     <div className="map-container">
@@ -333,12 +346,13 @@ export default function SummaryPage() {
         </Card>
         <Card className="card-content flex-3">
           <CardContent>
-            <h3 className="subtitle">FBOs</h3>
+          <h3 className="subtitle">FBOs</h3>
             <table className="info-table">
               <thead>
                 <tr>
                   <th>FBO</th>
                   <th>Status</th>
+                  <th>Priority</th>
                 </tr>
               </thead>
               <tbody>
@@ -349,6 +363,18 @@ export default function SummaryPage() {
                       <span className={getStatusClass(fbo.parking_taken, fbo.total_parking)}>
                         {fbo.parking_taken}/{fbo.total_parking}
                       </span>
+                    </td>
+                    <td>
+                      <select
+                        value={fbo.priority}
+                        onChange={(e) => handlePriorityChange(index, e.target.value)}
+                      >
+                        {Array.from({ length: FBOList.length }, (j, i) => i + 1).map((val) => (
+                          <option key={val} value={val}>
+                            {val}
+                          </option>
+                        ))}
+                      </select>
                     </td>
                   </tr>
                 ))}

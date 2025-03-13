@@ -29,6 +29,8 @@ exports.getArrivingFlights = (req, res) => {
             netjets_fleet.plane_type = aircraft_types.type
         WHERE 
             flight_plans.arrival_airport = ?
+            AND flight_plans.eta >= DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+        ORDER BY flight_plans.eta ASC
     `;
 
     flightDB.query(query, [airport], (err, results) => {
@@ -67,6 +69,8 @@ exports.getDepartingFlights = (req, res) => {
             netjets_fleet.plane_type = aircraft_types.type            
         WHERE 
             flight_plans.departing_airport = ?
+            AND flight_plans.etd >= DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+        ORDER BY flight_plans.etd ASC
     `;
 
     flightDB.query(query, [airport], (err, results) => {
