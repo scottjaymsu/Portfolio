@@ -54,6 +54,11 @@
   color: white;
 }
 
+.approaching {
+  background-color: #f2b94c;
+  color: white;
+}
+
 .full {
   background-color: #c76666;
   color: white;

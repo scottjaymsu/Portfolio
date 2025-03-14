@@ -19,6 +19,8 @@ export const getStatusClass = (parking_taken, total_parking) => {
   const status = parking_taken / total_parking;
   if (status == 1) {
     return "status-bubble full";
+  } else if (status >= 0.80) {
+    return "status-bubble approaching";
   } else {
     return "status-bubble open";
   }
