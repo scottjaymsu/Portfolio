@@ -30,18 +30,22 @@ const SimulatorAllPlanes = ({allPlanes, selectedAirport}) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {allPlanes.map((val, key) => (
-                        <tr key={key}>
+                    {allPlanes?.map((val, key) => (
+                        <tr key={val.acid || key}>
                             <td className="status-wrapper">
                                 <div className={`status-box ${val.status === 'Arriving' ? 'blue-color' : val.status === 'Departing' ? 'yellow-color' : val.status === 'Parked' ? 'green-color' : 'red-color'}`}
                                 onClick={() => handleMaintenanceClick(val.acid)}></div>
                             </td>
                             
-                            <td>{val.acid}</td> {/* Tail # */}
+                            <td>{val.acid || "Unknown"}</td> {/* Tail # */}
                             <td>{val.status}</td> {/* Status  */}
                             <td>{val.plane_type ? val.plane_type: 'Unavailable'}</td> {/*plane type */}
                             <td>
-                            {val.event ? new Date(val.event).toLocaleDateString('en-us', {day: 'numeric', month: 'numeric', year: 'numeric'}) : "N/A"} {val.event ? new Date(val.event).toLocaleTimeString('en-us', {hour: '2-digit', minute: '2-digit', hour12: false}) : ""}
+                            {val.event ? new Intl.DateTimeFormat('en-US', {
+                                dateStyle: 'short',
+                                timeStyle: 'short',
+                                hour12: false
+                            }).format(new Date(val.event)) : "N/A"}
                             </td> {/* next event */}
                         </tr>
                     ))}

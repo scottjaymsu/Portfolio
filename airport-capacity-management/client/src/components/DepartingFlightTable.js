@@ -42,7 +42,7 @@ export default function DepartingFlightTable({id}) {
     // Format the ETD date to a more readable format
     const formatDate = (etd) => {
       const date = new Date(etd);
-      return etd ? date.toLocaleDateString('en-GB') : "N/A"; // format: day/month/year
+      return etd ? date.toLocaleDateString('en-GB', {day: '2-digit', month: '2-digit', year:'2-digit'}) : "N/A"; // format: day/month/year
     };
 
     // Format the ETD time to a more readable format

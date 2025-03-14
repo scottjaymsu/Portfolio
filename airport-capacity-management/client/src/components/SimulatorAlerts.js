@@ -41,17 +41,17 @@ const SimulatorAlerts = ({ recs, toggleRow, expandedRow }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {recs.map((val, key) => (
-                                <React.Fragment key={key}>
+                            {recs?.map((val, key) => (
+                                <React.Fragment key={val.tailNumber || key}>
                                     <tr className="expandable-row">
                                         <td className="alert-wrapper">
                                             <div className="alert-box green-color"></div>
-                                            <span>{val.tailNumber}</span>
+                                            <span>{val.tailNumber || "Unknown"}</span>
                                         </td>
-                                        <td>{val.status}</td>
+                                        <td>{val.status || "Unknown"}</td>
                                         <td className="alert-wrapper">
                                             <div className="date-toggle-wrapper">
-                                                <div>{formatDateTime(val.nextEvent)}</div>
+                                                <div>{val.nextEvent ? formatDateTime(val.nextEvent) : "N/A"}</div>
                                                 <div
                                                     onClick={() => toggleRow(key)}
                                                     className={
@@ -63,7 +63,7 @@ const SimulatorAlerts = ({ recs, toggleRow, expandedRow }) => {
                                     </tr>
                                     {expandedRow === key && (
                                         <tr className="expanded-content active">
-                                            <td colSpan="5">{val.recString}</td>
+                                            <td colSpan="5">{val.recString || "No recommendation"}</td>
                                         </tr>
                                     )}
                                 </React.Fragment>

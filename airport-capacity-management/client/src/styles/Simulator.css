@@ -114,7 +114,7 @@ header div */
 }
 /* HEADER LEGEND BLOCK */
 
-#dropdown {
+.dropdown {
     background-color: white; /* White background */
     color: #444240;
     cursor: pointer;

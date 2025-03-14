@@ -41,7 +41,7 @@ export default function ArrivingFlightTable({id}) {
     // Format the ETA date to a more readable format
     const formatDate = (eta) => {
       const date = new Date(eta);
-      return eta ? date.toLocaleDateString('en-GB') : "N/A"; // format: day/month/year
+      return eta ? date.toLocaleDateString('en-GB', {day: '2-digit', month: '2-digit', year:'2-digit'}) : "N/A"; // format: day/month/year
     };
 
     // Format the ETA time to a more readable format
