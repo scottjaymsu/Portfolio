@@ -18,9 +18,6 @@ const Sidebar = ({
         <button id="collapse-button" onClick={toggleVisibility}>
         {visible ? <FaChevronUp size={10} /> : <FaChevronDown size={10} />}
         </button>
-        <button id="back-button" onClick={resetMap}>
-          Zoom
-        </button>
         <input
           id="map-search"
           type="text"
