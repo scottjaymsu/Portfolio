@@ -8,8 +8,8 @@ import SimulatorAllPlanes from '../components/SimulatorAllPlanes';
 import SimulatorAlerts from '../components/SimulatorAlerts';
 
 const SimulatorComponent = () => {
-     // INT for refresh
-     const timeInterval = 3000000; // 5 minutes 
+    // INT for refresh
+    const timeInterval = 3000000; // 5 minutes 
     const { airportCode } = useParams();
     const [expandedRow, setExpandedRow] = useState(null);
     const [fboData, setFboData] = useState([]);
@@ -36,9 +36,16 @@ const SimulatorComponent = () => {
     const fetchAllPlanes = useCallback(async () => {
         try {
             const response = await axios.get(`http://localhost:5001/simulator/getAllPlanes/${airportCode}`);
-            setAllPlanes(response.data);
+            // setAllPlanes(response.data);
+            if (Array.isArray(response.data)) {
+                setAllPlanes(response.data);
+            } else {
+                console.error("Invalid response for getAllPlanes:", response.data);
+                setAllPlanes([]); // Fallback to an empty array
+            }
         } catch (error) {
             console.error('Error fetching all planes:', error);
+            setAllPlanes([]);
         }
     }, [airportCode]);
 
@@ -90,7 +97,6 @@ const SimulatorComponent = () => {
 
         getNetjetsFleet();
         getAirportFBOs();
-        // getAllPlanes();
         fetchAllPlanes();
         getRecommendations();
 

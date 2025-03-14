@@ -2,7 +2,7 @@
 
 .table-container {
     overflow-x: auto; /* horizonal scrolling */
-    max-width: 100; /* stays within container width */
+    max-width: 100%; /* stays within container width */
 }
 
 table {
@@ -22,6 +22,7 @@ th, td {
     padding: 8px;
     text-align: left;
     border-right: 1px solid #ddd; /* Divider line between columns */
+    border: transparent;
 }
 
 th:last-child, td:last-child {
