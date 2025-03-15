@@ -234,24 +234,24 @@ export default function SummaryPage() {
         );
         const currentData = await currentResponse.json();
         const currentCapacity = currentData.capacity;
-   
+
         // overall capacity
         const overallResponse = await fetch(
           `http://localhost:5000/airportData/getOverallCapacity/${airportCode}`
         );
         const overallData = await overallResponse.json();
         const overallCapacity = overallData.capacity;
-   
+
         // Check for valid numbers
         if (currentCapacity !== null && overallCapacity !== null) {
           const capacityPercentage = (currentCapacity / overallCapacity) * 100;
-   
+
           let status = "Undercapacity";
-   
+
           if (capacityPercentage >= 100) {
             status = "Overcapacity";
           }
-   
+
           setCurrentStatus(status); // Set the calculated status
         } else {
           console.error("Invalid capacity data received:", currentData, overallData);
@@ -329,10 +329,10 @@ export default function SummaryPage() {
         </Card>
         <Card className="card-content flex-2">
 
-          <div style={{ textAlign: 'center', top: 0}}>
-              <h2>Traffic Overview</h2>
+          <div style={{ textAlign: 'center', top: 0 }}>
+            <h2>Traffic Overview</h2>
           </div>
-          <TrafficOverview id = {airportCode} />
+          <TrafficOverview id={airportCode} />
         </Card>
         <Card className="card-content flex-3">
           <CardContent>
@@ -346,8 +346,8 @@ export default function SummaryPage() {
         </Card>
         <Card className="card-content flex-3">
           <CardContent>
-          <h3 className="subtitle">FBOs</h3>
             <table className="info-table">
+              <caption className="subtitle">FBOs</caption>
               <thead>
                 <tr>
                   <th>FBO</th>

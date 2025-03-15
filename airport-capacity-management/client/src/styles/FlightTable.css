@@ -10,6 +10,13 @@ table {
     text-align: left;
     padding: 8px; 
     border-collapse: collapse;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+thead {
+    border-radius: 4px 4px 0 0; /* Rounded corners for the header */
+    overflow: hidden;
 }
 
 caption {
@@ -30,7 +37,8 @@ th:last-child, td:last-child {
 }
 
 th {
-    background-color: #1e3a8a; 
+    background-color: #1c3149;
+    color: white;
 }
 
 /* Hover effect for table rows */
