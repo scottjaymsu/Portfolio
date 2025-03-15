@@ -229,3 +229,24 @@
 #location-list.visible {
   opacity: 1;
 }
+
+
+/*
+    Summary page graph styling
+*/
+.graph-nav {
+  border-radius: 5px;
+  background-color: #1c3149;
+  color: white;
+  font-weight: bold;
+  padding: 3px 10px;
+  margin: 0px 2px;
+}
+.graph-nav:hover {
+  opacity: 0.5;
+  cursor: pointer;
+}
+.graph-nav:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
