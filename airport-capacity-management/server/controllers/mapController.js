@@ -75,3 +75,26 @@ exports.getAirportMarkers = async (req, res) => {
         }
     });
 };
+
+exports.getSmallAirportMarkers = async (req, res) => {
+    const query = `SELECT ad.ident, ad.latitude_deg, ad.longitude_deg
+    FROM airport_data ad WHERE type = 'large_airport'
+    AND NOT EXISTS (SELECT 1 FROM airport_parking WHERE airport_parking.Airport_Code = ad.ident)`
+    
+    db.query(query, [], (err, results) => {
+        if (err) {
+            console.error("Error fetching airport data...", err);
+            res.status(500).json({error: "Error fetching airport data..."});
+        }
+        else {
+            const formattedResults = results.map((row) => ({
+                position: {
+                    lat: parseFloat(row.latitude_deg),
+                    lng: parseFloat(row.longitude_deg)
+                },
+                title: row.ident,
+            }))
+            res.json(formattedResults);
+        }
+    });
+};

@@ -9,7 +9,7 @@ const ORIGINAL_CENTER = { lat: 39.8283, lng: -98.5795 };
 // Original Zoom Position
 const ORIGINAL_ZOOM = 5;
 
-const MapContainer = ({ markers, onMarkerClick, setMapInstance }) => {
+const MapContainer = ({ markers, smallMarkers, onMarkerClick, setMapInstance }) => {
   // Store the map instance
   const mapRef = useRef(null);
   // For navigation
@@ -17,6 +17,7 @@ const MapContainer = ({ markers, onMarkerClick, setMapInstance }) => {
 
   useEffect(() => {
     const initializeMap = () => {
+      console.log("Small markers: ", smallMarkers);
       if (!window.google || !window.google.maps) return;
 
       const map = new window.google.maps.Map(document.getElementById("map"), {
@@ -91,10 +92,30 @@ const MapContainer = ({ markers, onMarkerClick, setMapInstance }) => {
           navigate(`/summary/${markerData.title}`); // Navigate to the summary page
         });
       });
+      smallMarkers.forEach((markerData) => {
+        const smallMarker = new window.google.maps.Marker({
+          position: markerData.position,
+          map,
+          title: markerData.title,
+          icon: {
+            path: window.google.maps.SymbolPath.CIRCLE,
+            fillColor: 'red',
+            fillOpacity: 1,
+            strokeColor: "rgb(33,48,71)",
+            strokeWeight: 1,
+            scale: 5,
+          },
+          animation: window.google.maps.Animation.DROP,
+        });
+        smallMarker.addListener("click", () => {
+          navigate(`/summary/${markerData.title}`); // Navigate to the summary page
+        });
+      })
 
       mapRef.current = map;
       setMapInstance(map);
     };
+
 
     if (window.google && window.google.maps) {
       initializeMap();

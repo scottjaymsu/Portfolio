@@ -21,6 +21,7 @@ const MapComponent = () => {
   const [sidebarVisible, setSidebarVisible] = useState(false);
 
   const [markers, setMarkers] = useState([]);
+  const [smallMarkers, setSmallMarkers] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,10 +34,19 @@ const MapComponent = () => {
       }
     }
     getAirportMarkers();
+    const getSmallAirportMarkers = async() => {
+      try {
+        const response = await axios.get(`http://localhost:5001/map/getSmallAirportMarkers`);
+        setSmallMarkers(response.data);
+      } catch (error) {
+        console.error("Error fetching the FBOs at this airport: ", error);
+      }
+    }
+    getSmallAirportMarkers();
   }, []);
 
   // Filter locations based on search input
-  const filteredLocations = markers.filter((loc) =>
+  const filteredLocations = [...markers, ...smallMarkers].filter((loc) =>
     loc.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -95,7 +105,7 @@ const MapComponent = () => {
 
 
       </div>
-      <MapContainer markers={markers} setMapInstance={setMapInstance} />
+      <MapContainer markers={markers} smallMarkers={smallMarkers} setMapInstance={setMapInstance} />
       <button class="data-button" onClick={handleAirportButton}>Add Airports</button>
 
     </div>
