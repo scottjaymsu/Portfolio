@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import './component.css';
 import { getStatusColor } from "../utils/helpers";
@@ -8,12 +8,15 @@ const ORIGINAL_CENTER = { lat: 39.8283, lng: -98.5795 };
 
 // Original Zoom Position
 const ORIGINAL_ZOOM = 5;
+const MEDIUM_AIRPORT_ZOOM_THRESHOLD = 8;
+const SMALL_AIRPORT_ZOOM_THRESHOLD = 10;
 
 const MapContainer = ({ markers, smallMarkers, onMarkerClick, setMapInstance }) => {
   // Store the map instance
   const mapRef = useRef(null);
   // For navigation
   const navigate = useNavigate();
+  const [zoomLevel, setZoomLevel] = useState(ORIGINAL_ZOOM);
 
   useEffect(() => {
     const initializeMap = () => {
@@ -28,6 +31,10 @@ const MapContainer = ({ markers, smallMarkers, onMarkerClick, setMapInstance }) 
         streetViewControl: false,
         fullscreenControl: false, 
       });
+
+      const largeAirportMarkers = [];
+      const mediumAirportMarkers = [];
+      const smallAirportMarkers = [];
 
       markers.forEach((markerData) => {
         const marker = new window.google.maps.Marker({
@@ -92,25 +99,79 @@ const MapContainer = ({ markers, smallMarkers, onMarkerClick, setMapInstance }) 
           navigate(`/summary/${markerData.title}`); // Navigate to the summary page
         });
       });
-      smallMarkers.forEach((markerData) => {
-        const smallMarker = new window.google.maps.Marker({
+      const createMarker = (markerData, icon, scale, map) => {
+        return new window.google.maps.Marker({
           position: markerData.position,
-          map,
           title: markerData.title,
           icon: {
-            path: window.google.maps.SymbolPath.CIRCLE,
+            path: icon,
             fillColor: 'red',
             fillOpacity: 1,
             strokeColor: "rgb(33,48,71)",
             strokeWeight: 1,
-            scale: 5,
+            scale: scale,
           },
           animation: window.google.maps.Animation.DROP,
+          map: map,
         });
-        smallMarker.addListener("click", () => {
-          navigate(`/summary/${markerData.title}`); // Navigate to the summary page
+      };
+
+      map.addListener("zoom_changed", () => {
+        const newZoom = map.getZoom();
+        setZoomLevel(newZoom);
+        updateMarkers();
+      });
+      
+      smallMarkers.forEach((markerData) => {
+        if (markerData.type == "large_airport") { 
+          const smallMarker = createMarker(markerData, window.google.maps.SymbolPath.CIRCLE, 5, map);
+          smallMarker.addListener("click", () => navigate(`/summary/${markerData.title}`));
+          largeAirportMarkers.push(smallMarker); 
+        }
+        else if (markerData.type == "medium_airport") { 
+          const smallMarker = createMarker(markerData, window.google.maps.SymbolPath.CIRCLE, 5, null);
+          smallMarker.addListener("click", () => navigate(`/summary/${markerData.title}`));
+          mediumAirportMarkers.push(smallMarker);}
+        else { 
+          const smallMarker = createMarker(markerData, window.google.maps.SymbolPath.CIRCLE, 5, null);
+           smallMarker.addListener("click", () => navigate(`/summary/${markerData.title}`));
+          smallAirportMarkers.push(smallMarker); 
+        }
+      });
+
+      const updateMarkers = () => {
+        const bounds = map.getBounds();
+        if (!bounds) return;
+
+        smallAirportMarkers.forEach((marker) => {
+          if (bounds.contains(marker.position)) {
+            if (map.getZoom() >= SMALL_AIRPORT_ZOOM_THRESHOLD) {
+              marker.setMap(map);
+            }
+            else {
+              marker.setMap(null);
+            }
+          } else {
+            marker.setMap(null);
+          }
         });
-      })
+        mediumAirportMarkers.forEach((marker) => {
+          if (bounds.contains(marker.position)) {
+            if (map.getZoom() >= MEDIUM_AIRPORT_ZOOM_THRESHOLD) {
+              marker.setMap(map);
+            }
+            else {
+              marker.setMap(null);
+            }
+          } else {
+            marker.setMap(null);
+          }
+        });
+      };
+  
+      updateMarkers();
+      
+      map.addListener("idle", updateMarkers);
 
       mapRef.current = map;
       setMapInstance(map);

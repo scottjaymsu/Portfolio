@@ -77,9 +77,9 @@ exports.getAirportMarkers = async (req, res) => {
 };
 
 exports.getSmallAirportMarkers = async (req, res) => {
-    const query = `SELECT ad.ident, ad.latitude_deg, ad.longitude_deg
-    FROM airport_data ad WHERE type = 'large_airport'
-    AND NOT EXISTS (SELECT 1 FROM airport_parking WHERE airport_parking.Airport_Code = ad.ident)`
+    const query = `SELECT ad.ident, ad.latitude_deg, ad.longitude_deg, ad.type
+    FROM airport_data ad 
+    WHERE NOT EXISTS (SELECT 1 FROM airport_parking WHERE airport_parking.Airport_Code = ad.ident)`
     
     db.query(query, [], (err, results) => {
         if (err) {
@@ -92,6 +92,7 @@ exports.getSmallAirportMarkers = async (req, res) => {
                     lat: parseFloat(row.latitude_deg),
                     lng: parseFloat(row.longitude_deg)
                 },
+                type: row.type,
                 title: row.ident,
             }))
             res.json(formattedResults);
