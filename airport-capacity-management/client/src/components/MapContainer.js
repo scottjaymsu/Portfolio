@@ -21,7 +21,6 @@ const MapContainer = ({ markers, smallMarkers, onMarkerClick, setMapInstance }) 
   useEffect(() => {
     const initializeMap = () => {
       
-      console.log("Small markers: ", smallMarkers);
       if (!window.google || !window.google.maps) return;
 
       const map = new window.google.maps.Map(document.getElementById("map"), {

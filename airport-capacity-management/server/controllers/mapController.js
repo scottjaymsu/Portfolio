@@ -47,7 +47,7 @@ const currStatusStringGen = (status) => {
 exports.getAirportMarkers = async (req, res) => {
     const query = `SELECT ad.ident, ad.latitude_deg, ad.longitude_deg,
     COALESCE(COUNT(DISTINCT netjets_fleet.flightRef), 0) AS total_planes,
-    COALESCE(COUNT(capacity_info.capacity), 0) AS capacity,
+    COALESCE(capacity_info.capacity, 0) AS capacity,
     CASE WHEN COALESCE(COUNT(DISTINCT netjets_fleet.flightRef), 0) >= COALESCE(capacity_info.capacity, 0) THEN 'Overcapacity'
         WHEN COALESCE(COUNT(DISTINCT netjets_fleet.flightRef), 0) >= (0.75 * COALESCE(capacity_info.capacity, 0)) THEN 'Reaching Capacity'
         ELSE 'Undercapacity'
@@ -74,6 +74,8 @@ exports.getAirportMarkers = async (req, res) => {
                     lng: parseFloat(row.longitude_deg)
                 },
                 title: row.ident,
+                capacity: row.capacity,
+                total_planes: row.total_planes,
                 status: row.capacity_status,
                 capacity_percentage: row.capacity_percentage
             }))

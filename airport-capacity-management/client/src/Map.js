@@ -35,7 +35,6 @@ const MapComponent = () => {
           axios.get("http://localhost:5001/map/getAirportMarkers"),
           axios.get("http://localhost:5001/map/getSmallAirportMarkers")
         ]);
-
         setMarkers(markersResponse.data);
         setSmallMarkers(smallMarkersResponse.data);
       } catch (error) {
@@ -49,7 +48,6 @@ const MapComponent = () => {
   const filteredLocations = [...markers, ...smallMarkers].filter((loc) =>
     loc.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
   const resetMap = () => {
     if (mapInstance) {
       mapInstance.setCenter(ORIGINAL_CENTER);
