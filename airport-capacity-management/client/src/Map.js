@@ -79,13 +79,12 @@ const MapComponent = () => {
     <div>
       <NotificationCenter
         notifications={[
-          "KTEB is Overcapacity! Check recommendations to provide room for incoming aircraft.",
-          "KHPN is Overcapacity! Check recommendations to provide room for incoming aircraft.",
-          "KLAS is Overcapacity! Check recommendations to provide room for incoming aircraft.",
-          "KMDW is Overcapacity! Check recommendations to provide room for incoming aircraft.",
-          "KDAL is Overcapacity! Check recommendations to provide room for incoming aircraft.",
-          "KBPI is reaching capacity. On 3/3/2025, KBPI will be over capacity and action will be needed.",
-          "KSDL is reaching capacity. On 3/7/2025, KSDL will be over capacity and action will be needed.",
+          "KBOS is reaching capacity, check recommendations to provide room for incoming aircraft.",
+          "KBOS: Check recommendations to provide room for incoming aircraft.",
+          "KEGE is Undercapacity.",
+          "KTEB is Undercapacity.",
+
+
         ]}
         visible={notificationVisible}
         toggleVisibility={() => setNotificationVisible(!notificationVisible)}

@@ -75,9 +75,10 @@ const SimulatorHeader = ({
 
             {/* make into another component */}
             <div className='header-segment-small'>
+                <label htmlFor="dropdown">Tail Number</label>
                 <input 
                     type="text" 
-                    clasName="dropdown" 
+                    className="dropdown" 
                     name="dropdown" 
                     value={searchTerm} 
                     onChange={handleTailNumberChange} 

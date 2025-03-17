@@ -9,7 +9,7 @@ import SimulatorAlerts from '../components/SimulatorAlerts';
 
 const SimulatorComponent = () => {
     // INT for refresh
-    const timeInterval = 3000000; // 5 minutes 
+    const timeInterval = 30000000; // 5 minutes 
     const { airportCode } = useParams();
     const [expandedRow, setExpandedRow] = useState(null);
     const [fboData, setFboData] = useState([]);
@@ -60,14 +60,21 @@ const SimulatorComponent = () => {
                 console.log(`Fetching data for location: ${airportCode}`);
                 const response = await axios.get(`http://localhost:5001/simulator/getAirportFBOs/${airportCode}`);
                 setFboData(response.data);
-                const totalSpace = response.data.reduce((sum, fbo) => sum + (fbo.Total_Space || 0), 0);
-                setTotalSpace(totalSpace);
-                const takenSpace = response.data.reduce((sum, fbo) => sum + (fbo.Parking_Space_Taken || 0), 0);
-                setTakenSpace(takenSpace);
-                if (response.data.length > 0) {
-                    setSelectedFBO(response.data[0]);
-                    setSelectedAirport(response.data[0].Airport_Code);
-                }
+                const totalRow = response.data[0];
+                setTotalSpace(totalRow.Total_Space || 0);
+                setTakenSpace(totalRow.Parking_Space_Taken || 0);
+
+                // Set default FBO to first one in list
+                setSelectedFBO(response.data[0]);
+                setSelectedAirport(response.data[0].Airport_Code);
+                // const totalSpace = response.data.reduce((sum, fbo) => sum + (fbo.Total_Space || 0), 0);
+                // setTotalSpace(totalSpace);
+                // const takenSpace = response.data.reduce((sum, fbo) => sum + (fbo.Parking_Space_Taken || 0), 0);
+                // setTakenSpace(takenSpace);
+                // if (response.data.length > 0) {
+                //     setSelectedFBO(response.data[0]);
+                //     setSelectedAirport(response.data[0].Airport_Code);
+                // }
             } catch (error) {
                 console.error('Error fetching airport FBOs AHHHHHH:', error);
             }

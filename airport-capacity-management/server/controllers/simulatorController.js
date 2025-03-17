@@ -4,9 +4,27 @@ const db = require('../models/db');
 // Get FBOs from airport_parking table and their capacities 
 exports.getAirportFBOs = (req, res) => {
     const { airportCode } = req.params;
-    const query = 'SELECT Airport_Code, FBO_Name, Parking_Space_Taken, Total_Space FROM airport_parking WHERE Airport_Code = ?';
+    // const query = 'SELECT Airport_Code, FBO_Name, Parking_Space_Taken, Total_Space FROM airport_parking WHERE Airport_Code = ?';
+    const query =
+    `SELECT 
+        ? AS Airport_Code,
+        'All FBOs' AS FBO_Name, 
+        SUM(Parking_Space_Taken) AS Parking_Space_Taken, 
+        SUM(Total_Space) AS Total_Space
+    FROM airport_parking
+    WHERE Airport_Code = ?
+
+    UNION ALL
+
+    SELECT 
+        Airport_Code,
+        FBO_Name, 
+        Parking_Space_Taken, 
+        Total_Space
+    FROM airport_parking
+    WHERE Airport_Code = ?;`;
   
-    db.query(query, [airportCode], (err, results) => {
+    db.query(query, [airportCode, airportCode, airportCode], (err, results) => {
       if (err) {
         console.error('Error fetching airport FBOs:', err);
         res.status(500).send('Error fetching airport FBOs');
@@ -83,27 +101,55 @@ exports.getAllPlanes = async (req, res) => {
     const { airportCode } = req.params;
 
     try {
-        // 1, 1 
+        // Status = Arrived 
         const parkedPlanes = await new Promise((resolve, reject) => {
-            const query = `
-                SELECT flight_plans.acid, flight_plans.eta AS event, netjets_fleet.plane_type, 'Parked' AS status
-                FROM flight_plans 
-                JOIN netjets_fleet ON flight_plans.acid = netjets_fleet.acid 
-                WHERE flight_plans.arrival_airport = ? AND flight_plans.status = 'ARRIVED'
-            `;
-            db.query(query, [airportCode], (err, results) => {
+            const query = 
+            // OLD Query
+            // `
+            //     SELECT flight_plans.acid, flight_plans.eta AS event, netjets_fleet.plane_type, 'Parked' AS status
+            //     FROM flight_plans 
+            //     JOIN netjets_fleet ON flight_plans.acid = netjets_fleet.acid 
+            //     WHERE flight_plans.arrival_airport = ? AND flight_plans.status = 'ARRIVED'
+            // `
+            `SELECT 
+                fp.acid, 
+                COALESCE(
+                    (SELECT MIN(future_fp.etd) 
+                    FROM flight_plans future_fp 
+                    WHERE future_fp.acid = fp.acid 
+                    AND future_fp.departing_airport = ?
+                    AND future_fp.status = 'SCHEDULED'
+                    AND future_fp.etd > NOW()
+                    ), 
+                    NULL
+                ) AS event, 
+                nf.plane_type, 
+                'Parked' AS status
+            FROM flight_plans fp
+            JOIN netjets_fleet nf ON fp.acid = nf.acid 
+            WHERE fp.arrival_airport = ? 
+            AND fp.status = 'ARRIVED'
+            AND NOT EXISTS (
+                -- Exclude planes that have departed from KTEB after arrival
+                SELECT 1 
+                FROM flight_plans departed_fp 
+                WHERE departed_fp.acid = fp.acid 
+                AND departed_fp.departing_airport = ?
+                AND departed_fp.etd > fp.eta
+            )`;
+            db.query(query, [airportCode, airportCode, airportCode], (err, results) => {
                 if (err) return reject(err);
                 resolve(results);
             });
         });
-        // 1, null (departing)
+        // Status = Scheduled
         const departingPlanes = await new Promise((resolve, reject) => {
             const query = `
                 SELECT flight_plans.acid, flight_plans.eta AS event, netjets_fleet.plane_type, 'Departing' AS status
                 FROM flight_plans 
                 JOIN netjets_fleet ON flight_plans.acid = netjets_fleet.acid
                 WHERE flight_plans.departing_airport = ? 
-                AND flight_plans.status = 'ARRIVED'
+                AND flight_plans.status = 'FLYING'
             `;
             db.query(query, [airportCode], (err, results) => {
                 if (err) return reject(err);
@@ -111,14 +157,14 @@ exports.getAllPlanes = async (req, res) => {
             });
         });
         
-        // 1, null arriving
+        // Status = Flying 
         const arrivingPlanes = await new Promise((resolve, reject) => {
             const query = `
                 SELECT flight_plans.acid, flight_plans.eta as event, netjets_fleet.plane_type, 'Arriving' AS status
                 FROM flight_plans 
                 JOIN netjets_fleet ON flight_plans.acid = netjets_fleet.acid
                 WHERE flight_plans.arrival_airport = ? 
-                AND flight_plans.status = 'ARRIVED'
+                AND flight_plans.status = 'FLYING'
             `;
             db.query(query, [airportCode], (err, results) => {
                 if (err) return reject(err);
@@ -126,20 +172,7 @@ exports.getAllPlanes = async (req, res) => {
             });
         });
 
-        // 0, null planned parked 
-        const plannedPlanes = await new Promise((resolve, reject) => {
-            const query = `
-                SELECT flight_plans.acid, flight_plans.etd AS event, netjets_fleet.plane_type, 'Parked' AS status
-                FROM flight_plans 
-                JOIN netjets_fleet ON flight_plans.acid = netjets_fleet.acid
-                WHERE flight_plans.departing_airport = ? AND flight_plans.status = 'SCHEDULED'
-            `;
-            db.query(query, [airportCode], (err, results) => {
-                if (err) return reject(err);
-                resolve(results);
-            });
-        });
-
+        // Status = Maintenance
         const maintenancePlanes = await new Promise((resolve, reject) => {
             const query = `
                 SELECT flight_plans.acid, flight_plans.etd AS event, netjets_fleet.plane_type, 'Maintenance' AS status
@@ -157,12 +190,24 @@ exports.getAllPlanes = async (req, res) => {
             ...parkedPlanes,
             ...departingPlanes,
             ...arrivingPlanes,
-            ...plannedPlanes,
             ...maintenancePlanes
         ];
 
         // 
-        allPlanes = allPlanes.sort((a, b) => new Date(a.event) - new Date(b.event));
+        // allPlanes = allPlanes.sort((a, b) => new Date(a.event) - new Date(b.event));
+        const statusOrder = {
+            'Arriving': 1,
+            'Departing': 2,
+            'Parked': 3,
+            'Maintenance': 4
+        };
+        
+        allPlanes.sort((a, b) => {
+            let statusA = a.status.trim(); // Ensure no leading/trailing spaces
+            let statusB = b.status.trim();
+            
+            return statusOrder[statusA] - statusOrder[statusB];
+        });
 
         res.json(allPlanes);
     } catch (err) {

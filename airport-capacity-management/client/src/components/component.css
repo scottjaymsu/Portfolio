@@ -219,7 +219,7 @@
     Expand the side bar to show current airports 
  */
 #side-bar.visible {
-  max-height: 90vh;
+  max-height: 84vh;
 }
 
 /* 

@@ -45,7 +45,7 @@ const SimulatorAllPlanes = ({allPlanes, selectedAirport}) => {
                                 dateStyle: 'short',
                                 timeStyle: 'short',
                                 hour12: false
-                            }).format(new Date(val.event)) : "N/A"}
+                            }).format(new Date(val.event)) : "TBD"}
                             </td> {/* next event */}
                         </tr>
                     ))}
