@@ -46,15 +46,21 @@ const currStatusStringGen = (status) => {
 //fbo capacity. I put reaching capacity as 90% of the total capacity, it can be changed later. Also returns some metadata related to long and lat
 exports.getAirportMarkers = async (req, res) => {
     const query = `SELECT ad.ident, ad.latitude_deg, ad.longitude_deg,
-    CASE WHEN (SUM(ap.Total_Space) - SUM(ap.Total_Space/10)) > COUNT(DISTINCT fp.acid) THEN 'Undercapacity'
-    WHEN SUM(ap.Total_Space) < COUNT(DISTINCT fp.acid) THEN 'Overcapacity'
-    ELSE 'Reaching Capacity'
+    COALESCE(COUNT(DISTINCT netjets_fleet.flightRef), 0) AS total_planes,
+    COALESCE(COUNT(capacity_info.capacity), 0) AS capacity,
+    CASE WHEN COALESCE(COUNT(DISTINCT netjets_fleet.flightRef), 0) >= COALESCE(capacity_info.capacity, 0) THEN 'Overcapacity'
+        WHEN COALESCE(COUNT(DISTINCT netjets_fleet.flightRef), 0) >= (0.75 * COALESCE(capacity_info.capacity, 0)) THEN 'Reaching Capacity'
+        ELSE 'Undercapacity'
     END AS capacity_status,
-    COUNT(DISTINCT fp.acid) / SUM(ap.Total_Space) * 100 AS capacity_percentage
-    FROM airport_data ad JOIN airport_parking ap ON ad.ident = ap.Airport_Code
-    LEFT JOIN flight_plans fp ON fp.arrival_airport = ad.ident AND fp.status = 'ARRIVED'
-    AND fp.flightRef = ( SELECT MAX(flightRef) FROM flight_plans AS sub_table WHERE sub_table.acid = fp.acid)
-    GROUP BY ad.ident; `
+    CASE WHEN COALESCE(capacity_info.capacity, 0) = 0 THEN 0
+        ELSE COALESCE(COUNT(DISTINCT netjets_fleet.flightRef), 0) / COALESCE(capacity_info.capacity, 0) 
+    END AS capacity_percentage
+    FROM airport_data ad 
+    INNER JOIN airport_parking ap ON ad.ident = ap.Airport_Code
+    LEFT JOIN flight_plans ON flight_plans.arrival_airport = ad.ident AND flight_plans.status = 'ARRIVED'
+    LEFT JOIN netjets_fleet ON netjets_fleet.flightRef = flight_plans.flightRef
+    LEFT JOIN ( SELECT ap.Airport_Code, SUM(ap.Total_Space) AS capacity FROM airport_parking ap GROUP BY ap.Airport_Code) AS capacity_info ON ad.ident = capacity_info.Airport_Code
+    GROUP BY ad.ident, ad.latitude_deg, ad.longitude_deg;`
     
     db.query(query, [], (err, results) => {
         if (err) {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from 'axios';
 import MapContainer from "./components/MapContainer";
 import Sidebar from "./components/SideBar";
@@ -22,9 +22,13 @@ const MapComponent = () => {
 
   const [markers, setMarkers] = useState([]);
   const [smallMarkers, setSmallMarkers] = useState([]);
+
+  const hasLoaded = useRef(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (hasLoaded.current) return;
+    hasLoaded.current = true;
     const getAirportMarkers = async() => {
       try {
         const [markersResponse, smallMarkersResponse] = await Promise.all([
