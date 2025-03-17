@@ -398,3 +398,20 @@ exports.addMaintenance = (req, res) => {
     })
     
 };
+
+
+exports.removeMaintenance = (req, res) => {
+    const {acid} = req.params;
+    const query = "DELETE FROM flight_plans WHERE acid = ? AND status = 'MAINTENANCE';"
+    
+    db.query(query, [acid], (err, results) => {
+        if (err) {
+            console.error("Error updating maintenance status...", err);
+            res.status(500).json({error: "Error updating maintenance status..."});
+        }
+        else {
+            res.json(results);
+        }
+    });
+    
+};

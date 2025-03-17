@@ -27,22 +27,18 @@ const MapComponent = () => {
   useEffect(() => {
     const getAirportMarkers = async() => {
       try {
-        const response = await axios.get(`http://localhost:5001/map/getAirportMarkers`);
-        setMarkers(response.data);
+        const [markersResponse, smallMarkersResponse] = await Promise.all([
+          axios.get("http://localhost:5001/map/getAirportMarkers"),
+          axios.get("http://localhost:5001/map/getSmallAirportMarkers")
+        ]);
+
+        setMarkers(markersResponse.data);
+        setSmallMarkers(smallMarkersResponse.data);
       } catch (error) {
-        console.error("Error fetching the FBOs at this airport: ", error);
+        console.error("Error fetching airport markers: ", error);
       }
-    }
+    };
     getAirportMarkers();
-    const getSmallAirportMarkers = async() => {
-      try {
-        const response = await axios.get(`http://localhost:5001/map/getSmallAirportMarkers`);
-        setSmallMarkers(response.data);
-      } catch (error) {
-        console.error("Error fetching the FBOs at this airport: ", error);
-      }
-    }
-    getSmallAirportMarkers();
   }, []);
 
   // Filter locations based on search input

@@ -9,6 +9,7 @@ router.get('/getNetjetsFleet', simulatorController.getNetjetsFleet);
 
 router.get('/getAllPlanes/:airportCode', simulatorController.getAllPlanes);
 router.get('/addMaintenance/:acid', simulatorController.addMaintenance);
+router.get('/removeMaintenance/:acid', simulatorController.removeMaintenance);
 
 // Rec Engine
 router.get('/getRecommendations/:airportCode', simulatorController.getRecommendations);

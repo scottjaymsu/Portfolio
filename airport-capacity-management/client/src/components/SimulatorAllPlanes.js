@@ -4,16 +4,31 @@ import axios from 'axios';
 
 // List of all planes currently at the airport 
 const SimulatorAllPlanes = ({allPlanes, selectedAirport}) => {
-    const handleMaintenanceClick = async (acid) => {
-        const confirm = window.confirm("Is this plane currently in maintenance?");
-        if (confirm) {
-            try {
-                const response = await axios.get(`http://localhost:5001/simulator/addMaintenance/${acid}?airport=${selectedAirport}`);
-                if (response.status === 200) {
-                    console.log("Plane added to maintenance");
+    const handleMaintenanceClick = async (acid, status) => {
+        console.log(status);
+        if (status !== "Maintenance") {
+            const confirm = window.confirm("Is this plane currently in maintenance?");
+            if (confirm) {
+                try {
+                    const response = await axios.get(`http://localhost:5001/simulator/addMaintenance/${acid}?airport=${selectedAirport}`);
+                    if (response.status === 200) {
+                        console.log("Plane added to maintenance");
+                    }
+                } catch (error) {
+                    console.log(error);
                 }
-            } catch (error) {
-                console.log(error);
+            }
+        } else {
+            const confirmRemove = window.confirm("Do you want to remove this plane from maintenance?");
+            if (confirmRemove) {
+                try {
+                    const response = await axios.get(`http://localhost:5001/simulator/removeMaintenance/${acid}`);
+                    if (response.status === 200) {
+                        console.log("Plane removed from maintenance");
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
             }
         }
     }
@@ -34,7 +49,7 @@ const SimulatorAllPlanes = ({allPlanes, selectedAirport}) => {
                         <tr key={val.acid || key}>
                             <td className="status-wrapper">
                                 <div className={`status-box ${val.status === 'Arriving' ? 'blue-color' : val.status === 'Departing' ? 'yellow-color' : val.status === 'Parked' ? 'green-color' : 'red-color'}`}
-                                onClick={() => handleMaintenanceClick(val.acid)}></div>
+                                onClick={() => handleMaintenanceClick(val.acid, val.status)}></div>
                             </td>
                             
                             <td>{val.acid || "Unknown"}</td> {/* Tail # */}
