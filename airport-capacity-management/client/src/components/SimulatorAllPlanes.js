@@ -45,8 +45,11 @@ const SimulatorAllPlanes = ({allPlanes, selectedAirport}) => {
                     </tr>
                 </thead>
                 <tbody>
+                    
                     {allPlanes?.map((val, key) => (
-                        <tr key={val.acid || key}>
+                        <tr 
+                        key={val.acid || key}
+                        >
                             <td className="status-wrapper">
                                 <div className={`status-box ${val.status === 'Arriving' ? 'blue-color' : val.status === 'Departing' ? 'yellow-color' : val.status === 'Parked' ? 'green-color' : 'red-color'}`}
                                 onClick={() => handleMaintenanceClick(val.acid, val.status)}></div>

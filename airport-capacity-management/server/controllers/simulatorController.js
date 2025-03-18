@@ -130,13 +130,23 @@ exports.getAllPlanes = async (req, res) => {
             WHERE fp.arrival_airport = ? 
             AND fp.status = 'ARRIVED'
             AND NOT EXISTS (
-                -- Exclude planes that have departed from KTEB after arrival
+                -- Exclude planes that have departed from the airport after arrival
                 SELECT 1 
                 FROM flight_plans departed_fp 
                 WHERE departed_fp.acid = fp.acid 
                 AND departed_fp.departing_airport = ?
                 AND departed_fp.etd > fp.eta
-            )`;
+            )
+            AND NOT EXISTS (
+                -- Exclude planes that are currently in maintenance at the same airport
+                SELECT 1 
+                FROM flight_plans maintenance_fp 
+                WHERE maintenance_fp.acid = fp.acid 
+                AND maintenance_fp.departing_airport = fp.arrival_airport 
+                AND maintenance_fp.status = 'MAINTENANCE'
+            )
+            GROUP BY fp.acid
+            `;
             db.query(query, [airportCode, airportCode, airportCode], (err, results) => {
                 if (err) return reject(err);
                 resolve(results);
@@ -223,7 +233,42 @@ exports.getAllPlanes = async (req, res) => {
 exports.getRecommendations = async (req, res) => {
     const { airportCode } = req.params;
     // The plane has completed its flight (1, 1) 
-    const parkedQuery = `SELECT flight_plans.acid, flight_plans.etd, flight_plans.eta FROM flight_plans WHERE flight_plans.arrival_airport = ? AND flight_plans.status = 'ARRIVED'`;
+    // const parkedQuery = `SELECT DISTINCT flight_plans.acid, flight_plans.etd, flight_plans.eta FROM flight_plans WHERE flight_plans.arrival_airport = ? AND flight_plans.status = 'ARRIVED'`;
+    const parkedQuery = 
+    `SELECT 
+        fp.acid, 
+        MIN(
+            (SELECT MIN(future_fp.etd) 
+            FROM flight_plans future_fp 
+            WHERE future_fp.acid = fp.acid 
+            AND future_fp.departing_airport = ?
+            AND future_fp.status = 'SCHEDULED'
+            AND future_fp.etd > NOW()
+            )
+        ) AS event, 
+        'Parked' AS status
+    FROM flight_plans fp
+    JOIN netjets_fleet nf ON fp.acid = nf.acid 
+    WHERE fp.arrival_airport = ? 
+    AND fp.status = 'ARRIVED'
+    AND NOT EXISTS (
+        -- Exclude planes that have departed from the airport after arrival
+        SELECT 1 
+        FROM flight_plans departed_fp 
+        WHERE departed_fp.acid = fp.acid 
+        AND departed_fp.departing_airport = ?
+        AND departed_fp.etd > fp.eta
+    )
+    AND NOT EXISTS (
+        -- Exclude planes that are currently in maintenance at the same airport
+        SELECT 1 
+        FROM flight_plans maintenance_fp 
+        WHERE maintenance_fp.acid = fp.acid 
+        AND maintenance_fp.departing_airport = fp.arrival_airport 
+        AND maintenance_fp.status = 'MAINTENANCE'
+    )
+    GROUP BY fp.acid;
+    `;
     const currentAirportCoordQuery = 'SELECT latitude_deg AS lat, longitude_deg AS lon FROM airport_data WHERE ident = ?';
     const allAirportCoordQuery = 'SELECT latitude_deg AS lat, longitude_deg AS lon, ident FROM airport_data WHERE ident != ?';
 
@@ -233,7 +278,7 @@ exports.getRecommendations = async (req, res) => {
     // Combine Parked at query with getting the current FBO - reccomend moving to different FBO
     try {
         const parkedPlanes = await new Promise((resolve, reject) => {
-        db.query(parkedQuery, [airportCode], (err, results) => {
+        db.query(parkedQuery, [airportCode, airportCode, airportCode], (err, results) => {
             if (err) {
             return reject(err);
             }
@@ -299,7 +344,7 @@ const generateRecommendations = (parkedPlanes, sortedAirports) => {
 
   if (Array.isArray(parkedPlanes) && parkedPlanes.length > 0) {
     parkedPlanes.forEach((plane) => {
-      const etdDate = new Date(plane.etd);
+      const etdDate = new Date(plane.event);
       const formattedDate = `${etdDate.toLocaleDateString('en-US', { day: 'numeric', month: 'numeric', year: 'numeric' })}, ${etdDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}`;
 
       // Difference in time: If event more than 24hrs in advance, could be moved
@@ -313,7 +358,7 @@ const generateRecommendations = (parkedPlanes, sortedAirports) => {
           recString: `${underCapacity}`+`${close}` + `${closestAirport}`
           //`${longTerm}` // Example recommendation string
         };
-        console.log(plane);
+        // console.log(plane);
 
         recommendations.push(recommendation);
       }
@@ -330,6 +375,7 @@ const generateRecommendations = (parkedPlanes, sortedAirports) => {
 
     recommendations.push(recommendation);
   }
+  console.log('Recommendations:', recommendations); // Debugging statement
   return recommendations;   
 };
 
