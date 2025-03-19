@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { GoogleMap, LoadScript, Polygon } from "@react-google-maps/api";
 import { Card, CardContent } from "./components/card";
-import { getStatusClass } from "./utils/helpers";
+import { getStatusClass, getStatusColor } from "./utils/helpers";
 
 import "./SummaryPage.css";
 import "./components/ArrivingFlightTable";
@@ -162,7 +162,7 @@ export default function SummaryPage() {
           return {
             name: lot.FBO_Name,
             coordinates: coordinates,
-            color: "#B9BE80",
+            color: getStatusColor(lot.spots_taken,lot.Total_Space),
             labelPosition: coordinates[0],
           };
         });
