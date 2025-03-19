@@ -19,7 +19,9 @@ exports.getAlert = (req, res) => {
             airport_parking.Priority,
             parked_at.acid,
             netjets_fleet.flightRef,
-            flight_plans.status
+            netjets_fleet.plane_type,
+            flight_plans.status,
+            flight_plans.etd
         FROM
             airport_parking
 		LEFT JOIN
