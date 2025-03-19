@@ -1,20 +1,34 @@
 const db = require('../models/db');
 
 exports.getParkingCoordinates = (req, res) => {
-    const {airport_code} = req.params;
+    const { airport_code } = req.params;
 
-    const query = "SELECT * FROM airport_parking WHERE Airport_Code = ? AND coordinates IS NOT NULL;";
+    const query = `
+        SELECT 
+            ap.*,
+            ap.Total_Space,
+            COUNT(pa.fbo_id) AS spots_taken
+        FROM 
+            airport_parking ap
+        LEFT JOIN 
+            parked_at pa ON pa.fbo_id = ap.id
+        WHERE 
+            ap.Airport_Code = ?
+            AND ap.coordinates IS NOT NULL
+        GROUP BY 
+            ap.id;
+    `;
     
     db.query(query, [airport_code], (err, results) => {
         if (err) {
             console.error("Error fetching departing airport parking...", err);
-            res.status(500).json({error: "Error fetching airport parking..."});
-        }
-        else {
+            res.status(500).json({ error: "Error fetching airport parking..." });
+        } else {
             res.json(results);
         }
     });
 }
+
 
 exports.getAirportData = (req, res) => {
     const {airport_code} = req.params;

@@ -16,30 +16,6 @@ const containerStyle = {
   height: "100vh",
 };
 
-// FBO Data in the table
-const FBOList = [
-  {
-    name: "Signature Aviation - East",
-    status: "Open",
-  },
-  {
-    name: "Signature Aviation - West",
-    status: "Full",
-  },
-  {
-    name: "Signature Aviation - South",
-    status: "Full",
-  },
-  {
-    name: "Jet Aviation",
-    status: "Open",
-  },
-  {
-    name: "Atlantic Aviation",
-    status: "Open",
-  },
-];
-
 // Google Map styling options
 const mapOptions = {
   mapTypeId: "satellite",
@@ -161,7 +137,8 @@ export default function SummaryPage() {
 
   const [airportMetadata, setAirportMetadata] = useState([]);
   const [FBOList, setFBOList] = useState([]);
-  const [currentStatus, setCurrentStatus] = useState("Undercapacity");
+  const [currentPopulation, setCurrentPopulation] = useState(0);
+  const [overallCapacity, setOverallCapacity] = useState(0);
 
   const navigate = useNavigate();
 
@@ -169,14 +146,14 @@ export default function SummaryPage() {
   useEffect(() => {
     console.log(airportCode);
 
-    //Fetch all the parking coordinates related to FBO's so that the map can overlay them for viewing
+    // Fetch FBO data and coordinates for map overlay and FBO list
     async function fetchParkingCoordinates() {
       try {
         const response = await fetch(
           `http://localhost:5001/airports/getParkingCoordinates/${airportCode}`
         );
         const data = await response.json();
-        console.log(data);
+        console.log("Parking Coordinates:", data);
         const parkingLots = data.map((lot) => {
           const coordinates = lot.coordinates[0].map((coord) => ({
             lat: coord.x,
@@ -192,10 +169,9 @@ export default function SummaryPage() {
         const FBOs = data.map((lot) => {
           return {
             name: lot.FBO_Name,
-            parking_taken: lot.Parking_Space_Taken,
+            parking_taken: lot.spots_taken,
             total_parking: lot.Total_Space,
-            status: "Open",
-            priority: 1
+            priority: lot.priority || 1, // Default priority to 1 if not provided
           };
         });
         setFBOList(FBOs);
@@ -206,7 +182,7 @@ export default function SummaryPage() {
       }
     }
 
-    //Fetch the lat long coordinates of each airport, it doesn't center perfectly but I don't think that'll be an issue
+    //Fetch the lat long coordinates of each airport
     async function fetchAirportData() {
       try {
         const response = await fetch(
@@ -228,34 +204,24 @@ export default function SummaryPage() {
 
     async function fetchAirportStatus() {
       try {
-        // current capacity
+        // number of planes currently at the airport
         const currentResponse = await fetch(
-          `http://localhost:5000/airportData/getCurrentCapacity/${airportCode}`
+          `http://localhost:5001/airportData/getParkedPlanes/${airportCode}`
         );
         const currentData = await currentResponse.json();
-        const currentCapacity = currentData.capacity;
+        const currentPopulation = currentData.length;
+        setCurrentPopulation(currentPopulation);
+        console.log("Current Population:", currentPopulation);
 
-        // overall capacity
+        // overall capacity of the airport
         const overallResponse = await fetch(
-          `http://localhost:5000/airportData/getOverallCapacity/${airportCode}`
+          `http://localhost:5001/airportData/getOverallCapacity/${airportCode}`
         );
         const overallData = await overallResponse.json();
-        const overallCapacity = overallData.capacity;
+        const overallCapacity = overallData.totalCapacity; 
+        setOverallCapacity(overallCapacity);
+        console.log("Overall Capacity:", overallCapacity);
 
-        // Check for valid numbers
-        if (currentCapacity !== null && overallCapacity !== null) {
-          const capacityPercentage = (currentCapacity / overallCapacity) * 100;
-
-          let status = "Undercapacity";
-
-          if (capacityPercentage >= 100) {
-            status = "Overcapacity";
-          }
-
-          setCurrentStatus(status); // Set the calculated status
-        } else {
-          console.error("Invalid capacity data received:", currentData, overallData);
-        }
       } catch (error) {
         console.error("Error fetching airport capacity data:", error);
       }
@@ -267,13 +233,21 @@ export default function SummaryPage() {
 
   }, [airportCode]);
 
+
+  //
+  // Navigation Handlers
+  // 
+
+  // This function handles the navigation to the simulator page when the "see more" button is clicked
   const handleSeeMore = () => {
     navigate(`/simulator/${airportCode}`);
   };
 
+  // This function handles the navigation back to the home page when the back button is clicked
   const handleBack = () => {
     navigate("/");
   }
+
 
   const handlePriorityChange = (index, newPriority) => {
     setFBOList((prevFBOs) => {
@@ -296,6 +270,7 @@ export default function SummaryPage() {
         zoom={15}
         onLoad={(mapInstance) => setMap(mapInstance)}
       >
+        {/* Draws the FBO outlines on the map */}
         {parkingLots.map((lot, index) => (
           <Polygon
             key={index}
@@ -324,7 +299,7 @@ export default function SummaryPage() {
         <Card className="card-content">
           <CardContent className="text-center flex-1">
             <h2 className="title">{airportCode} - {airportMetadata.name}</h2>
-            <p className={`status-bubble ${getStatusClass(calculateTakenSpace(FBOList), calculateTotalSpace(FBOList))}`}>{calculateTakenSpace(FBOList)}/{calculateTotalSpace(FBOList)}</p>
+            <p className={`status-bubble ${getStatusClass(currentPopulation, overallCapacity)}`}>{currentPopulation}/{overallCapacity}</p>
           </CardContent>
         </Card>
         <Card className="card-content flex-2">
