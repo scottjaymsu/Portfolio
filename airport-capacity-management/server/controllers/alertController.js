@@ -9,6 +9,7 @@ const db = require('../models/db');
 // Record = {airport code (faa designator), fbo name, primary key, priority}
 exports.getFboInfo = (req, res) => {
     const airport = req.params.id;
+    const fbo = req.params.fbo;
 
     const query = `
         SELECT 
@@ -21,10 +22,10 @@ exports.getFboInfo = (req, res) => {
         WHERE 
             Airport_Code = ?
         AND 
-            FBO_Name = 'Jet Aviation'
+            FBO_Name = ?
     `;
 
-    db.query(query, [airport], (err, results) => {
+    db.query(query, [airport, fbo], (err, results) => {
         if (err) {
             console.error("Error querying alert data.", err);
             return res.status(500).json({ error: 'Error querying alert data.' });
