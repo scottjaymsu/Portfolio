@@ -5,6 +5,5 @@ const express = require('express');
 const router = express.Router();
 const alertController = require('../controllers/alertController');
 
-router.get('/getFboInfo/:id/:fbo', alertController.getFboInfo);
-
+router.get('/getAlert/:id/:fbo', alertController.getAlert);
 module.exports = router;
