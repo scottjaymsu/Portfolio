@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import './component.css';
 import { getStatusColor } from "../utils/helpers";
@@ -16,7 +16,8 @@ const MapContainer = ({ markers, smallMarkers, onMarkerClick, setMapInstance }) 
   const mapRef = useRef(null);
   // For navigation
   const navigate = useNavigate();
-  const [zoomLevel, setZoomLevel] = useState(ORIGINAL_ZOOM);
+  // from the zoom button
+  // const [zoomLevel, setZoomLevel] = useState(ORIGINAL_ZOOM);
 
   useEffect(() => {
     const initializeMap = () => {
@@ -35,6 +36,7 @@ const MapContainer = ({ markers, smallMarkers, onMarkerClick, setMapInstance }) 
       const largeAirportMarkers = [];
       const mediumAirportMarkers = [];
       const smallAirportMarkers = [];
+      const markersWithHealthBars = [];
 
       markers.forEach((markerData) => {
         const marker = new window.google.maps.Marker({
@@ -53,6 +55,7 @@ const MapContainer = ({ markers, smallMarkers, onMarkerClick, setMapInstance }) 
         });
         
         const capacityPercentage = markerData.capacity_percentage || 100;
+
         const createSVG = (percentage) => {
           const width = 30;
           const height = 10;
@@ -63,16 +66,15 @@ const MapContainer = ({ markers, smallMarkers, onMarkerClick, setMapInstance }) 
               <rect width="${filledWidth}" height="${height}" fill="${getStatusColor(markerData.status)}"/>
             </svg>`
         }
-        const healthBarPosition = {
-          lat: markerData.position.lat + 1.5,
-          lng: markerData.position.lng
-        }
+
         const healthBar = new window.google.maps.Marker({
-          position: healthBarPosition,
+          position: markerData.position,
           map,
           icon: {
             url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(createSVG(capacityPercentage)),
-          }})
+          },
+        });
+        markersWithHealthBars.push({ marker, healthBar });
 
         const infoWindow = new window.google.maps.InfoWindow({
           content: `<h3>${markerData.title}</h3>`,
@@ -86,19 +88,60 @@ const MapContainer = ({ markers, smallMarkers, onMarkerClick, setMapInstance }) 
           }
         });
 
-        // Display airport name on hover
-        marker.addListener("mouseover", () => {
-          infoWindow.open(map, marker);
-        });
-
-        marker.addListener("mouseout", () => {
-          infoWindow.close();
-        });
-
-        marker.addListener("click", () => {
-          navigate(`/summary/${markerData.title}`); // Navigate to the summary page
-        });
+        marker.addListener("mouseover", () => infoWindow.open(map, marker));
+        marker.addListener("mouseout", () => infoWindow.close());
+        marker.addListener("click", () => navigate(`/summary/${markerData.title}`));
       });
+
+      // Dynamically change the health bar's position based on the marker's position
+      const updateHealthBarPositions = () => {
+        const projection = map.getProjection();
+        if (!projection) return;
+
+        markersWithHealthBars.forEach(({ marker, healthBar }) => {
+          const latLng = marker.getPosition();
+          if (!latLng) return;
+
+          const point = projection.fromLatLngToPoint(latLng);
+          const zoomFactor = Math.pow(2, map.getZoom()); 
+          const offsetY = 45 / zoomFactor; 
+
+          const newLatLng = projection.fromPointToLatLng(
+            new window.google.maps.Point(point.x, point.y - offsetY)
+          );
+
+          smoothTransition(healthBar, newLatLng);
+        });
+      };
+      
+      // Transition Smoothly between zoom
+      const smoothTransition = (marker, newPosition) => {
+        const currPos = marker.getPosition();
+        if (!currPos) return;
+        const steps = 25; 
+        const deltaLat = (newPosition.lat() - currPos.lat()) / steps;
+        const deltaLng = (newPosition.lng() - currPos.lng()) / steps;
+
+        let step = 0;
+
+        const animate = () => {
+          if (step < steps) {
+            const lat = currPos.lat() + deltaLat * step;
+            const lng = currPos.lng() + deltaLng * step;
+            marker.setPosition(new window.google.maps.LatLng(lat, lng));
+            step++;
+            requestAnimationFrame(animate);
+          } else {
+            marker.setPosition(newPosition);
+          }
+        };
+
+        animate();
+      };
+
+      map.addListener("zoom_changed", updateHealthBarPositions);
+      map.addListener("idle", updateHealthBarPositions);
+
       const createMarker = (markerData, icon, scale, map) => {
         return new window.google.maps.Marker({
           position: markerData.position,
@@ -117,18 +160,19 @@ const MapContainer = ({ markers, smallMarkers, onMarkerClick, setMapInstance }) 
       };
 
       map.addListener("zoom_changed", () => {
-        const newZoom = map.getZoom();
-        setZoomLevel(newZoom);
+        // from the zoom button
+        // const newZoom = map.getZoom();
+        // setZoomLevel(newZoom);
         updateMarkers();
       });
       
       smallMarkers.forEach((markerData) => {
-        if (markerData.type == "large_airport") { 
+        if (markerData.type === "large_airport") { 
           const smallMarker = createMarker(markerData, window.google.maps.SymbolPath.CIRCLE, 5, map);
           smallMarker.addListener("click", () => navigate(`/summary/${markerData.title}`));
           largeAirportMarkers.push(smallMarker); 
         }
-        else if (markerData.type == "medium_airport") { 
+        else if (markerData.type === "medium_airport") { 
           const smallMarker = createMarker(markerData, window.google.maps.SymbolPath.CIRCLE, 5, null);
           smallMarker.addListener("click", () => navigate(`/summary/${markerData.title}`));
           mediumAirportMarkers.push(smallMarker);}
@@ -188,9 +232,10 @@ const MapContainer = ({ markers, smallMarkers, onMarkerClick, setMapInstance }) 
       script.onload = initializeMap;
       document.body.appendChild(script);
     }
-  }, [markers, onMarkerClick, navigate, setMapInstance]);
+  }, [markers, onMarkerClick, navigate, setMapInstance, smallMarkers]);
 
   return <div id="map" style={{ height: "100vh", width: "100%" }} />;
 };
+
 
 export default MapContainer;
