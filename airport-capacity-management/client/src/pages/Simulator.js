@@ -27,7 +27,7 @@ const SimulatorComponent = () => {
 //  SPACES CHANGING THAT NEED TO CHANGE WITH NEW DATA?
     const [totalSpace, setTotalSpace] = useState(0);
     const [takenSpace, setTakenSpace] = useState(0);
-    const [selectedFBO, setSelectedFBO] = useState(null);
+    const [selectedFBO, setSelectedFBO] = useState("All FBOs");
     const [selectedAirport, setSelectedAirport] = useState(null);
     const [localTime, setLocalTime] = useState(new Date().toLocaleString());
 
@@ -65,16 +65,8 @@ const SimulatorComponent = () => {
                 setTakenSpace(totalRow.Parking_Space_Taken || 0);
 
                 // Set default FBO to first one in list
-                setSelectedFBO(response.data[0]);
+                setSelectedFBO("All FBOs");
                 setSelectedAirport(response.data[0].Airport_Code);
-                // const totalSpace = response.data.reduce((sum, fbo) => sum + (fbo.Total_Space || 0), 0);
-                // setTotalSpace(totalSpace);
-                // const takenSpace = response.data.reduce((sum, fbo) => sum + (fbo.Parking_Space_Taken || 0), 0);
-                // setTakenSpace(takenSpace);
-                // if (response.data.length > 0) {
-                //     setSelectedFBO(response.data[0]);
-                //     setSelectedAirport(response.data[0].Airport_Code);
-                // }
             } catch (error) {
                 console.error('Error fetching airport FBOs AHHHHHH:', error);
             }
@@ -135,12 +127,21 @@ const SimulatorComponent = () => {
     }, []);
 
     // When FBO is selected from dropdown
-    // Changes var to selected one that changes other divs on page 
+    // Changes selected FBO
+    // When different FBOs are slected they show the given planes  
     const handleFBOChange = (event) => {
         const selectedFBOName = event.target.value;
-        const selectedFBO = fboData.find(fbo => fbo.FBO_Name === selectedFBOName);
-        setSelectedFBO(selectedFBO);
+        if (selectedFBOName === "All FBOs") {
+            setSelectedFBO("All FBOs"); 
+        } else {
+            const selectedFBO = fboData.find(fbo => fbo.FBO_Name === selectedFBOName);
+            setSelectedFBO(selectedFBO ? selectedFBO.FBO_Name : "All FBOs"); 
+        }
     };
+    // Filter planes based on selected FBO
+    const filteredPlanes = selectedFBO === "All FBOs" 
+        ? allPlanes 
+        : allPlanes.filter(plane => plane.FBO_name === selectedFBO);
 
     // When a plane from NetJets fleet is selected from dropdown
     const handleTailNumberChange = (event) => {
@@ -183,7 +184,7 @@ const SimulatorComponent = () => {
 
                 <div id="main-wrapper">
                     <SimulatorAllPlanes
-                        allPlanes={allPlanes}
+                        allPlanes={filteredPlanes}
                         selectedAirport={selectedAirport}
                     />
 

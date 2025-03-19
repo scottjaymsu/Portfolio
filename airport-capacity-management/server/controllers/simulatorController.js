@@ -103,14 +103,9 @@ exports.getAllPlanes = async (req, res) => {
     try {
         // Status = Arrived 
         const parkedPlanes = await new Promise((resolve, reject) => {
+            // TODO change from parked_at_mock to parked_at when we have more data in actual parked_at
+            // Also: parked_at uses slightly different names - somehow alter to match on db or 
             const query = 
-            // OLD Query
-            // `
-            //     SELECT flight_plans.acid, flight_plans.eta AS event, netjets_fleet.plane_type, 'Parked' AS status
-            //     FROM flight_plans 
-            //     JOIN netjets_fleet ON flight_plans.acid = netjets_fleet.acid 
-            //     WHERE flight_plans.arrival_airport = ? AND flight_plans.status = 'ARRIVED'
-            // `
             `SELECT 
                 fp.acid, 
                 COALESCE(
@@ -124,9 +119,12 @@ exports.getAllPlanes = async (req, res) => {
                     NULL
                 ) AS event, 
                 nf.plane_type, 
-                'Parked' AS status
+                'Parked' AS status,
+                ap.FBO_name  -- Added FBO name from airport_parking
             FROM flight_plans fp
             JOIN netjets_fleet nf ON fp.acid = nf.acid 
+            LEFT JOIN parked_at_mock pa ON fp.acid = pa.acid  --  Join parked_at_mock to get fbo_id --
+            LEFT JOIN airport_parking ap ON pa.fbo_id = ap.id  --  Join airport_parking to get FBO_name
             WHERE fp.arrival_airport = ? 
             AND fp.status = 'ARRIVED'
             AND NOT EXISTS (
@@ -145,21 +143,32 @@ exports.getAllPlanes = async (req, res) => {
                 AND maintenance_fp.departing_airport = fp.arrival_airport 
                 AND maintenance_fp.status = 'MAINTENANCE'
             )
-            GROUP BY fp.acid
+            GROUP BY fp.acid, ap.FBO_name
             `;
             db.query(query, [airportCode, airportCode, airportCode], (err, results) => {
                 if (err) return reject(err);
                 resolve(results);
             });
         });
+
+        // TODO: for arriving and departing planes - not filtered out ones that have an arrival time in the past 
+        // But are still marked as arriving -- add to parked at that time? leave be? 
         // Status = Scheduled
         const departingPlanes = await new Promise((resolve, reject) => {
             const query = `
-                SELECT flight_plans.acid, flight_plans.eta AS event, netjets_fleet.plane_type, 'Departing' AS status
-                FROM flight_plans 
-                JOIN netjets_fleet ON flight_plans.acid = netjets_fleet.acid
-                WHERE flight_plans.departing_airport = ? 
-                AND flight_plans.status = 'FLYING'
+                SELECT 
+                    fp.acid, 
+                    fp.eta AS event, 
+                    nf.plane_type, 
+                    'Departing' AS status,
+                    ap.FBO_name  -- Added FBO name from airport_parking
+                FROM flight_plans fp
+                JOIN netjets_fleet nf ON fp.acid = nf.acid 
+                LEFT JOIN parked_at_mock pa ON fp.acid = pa.acid  
+                LEFT JOIN airport_parking ap ON pa.fbo_id = ap.id 
+                WHERE fp.departing_airport = ? 
+                AND fp.status = 'FLYING'
+                GROUP BY fp.acid, ap.FBO_name
             `;
             db.query(query, [airportCode], (err, results) => {
                 if (err) return reject(err);
@@ -170,11 +179,19 @@ exports.getAllPlanes = async (req, res) => {
         // Status = Flying 
         const arrivingPlanes = await new Promise((resolve, reject) => {
             const query = `
-                SELECT flight_plans.acid, flight_plans.eta as event, netjets_fleet.plane_type, 'Arriving' AS status
-                FROM flight_plans 
-                JOIN netjets_fleet ON flight_plans.acid = netjets_fleet.acid
-                WHERE flight_plans.arrival_airport = ? 
-                AND flight_plans.status = 'FLYING'
+                SELECT 
+                    fp.acid, 
+                    fp.eta AS event, 
+                    nf.plane_type, 
+                    'Arriving' AS status,
+                    ap.FBO_name  -- Added FBO name from airport_parking
+                FROM flight_plans fp
+                JOIN netjets_fleet nf ON fp.acid = nf.acid 
+                LEFT JOIN parked_at_mock pa ON fp.acid = pa.acid  
+                LEFT JOIN airport_parking ap ON pa.fbo_id = ap.id 
+                WHERE fp.arrival_airport = ? 
+                AND fp.status = 'FLYING'
+                GROUP BY fp.acid, ap.FBO_name
             `;
             db.query(query, [airportCode], (err, results) => {
                 if (err) return reject(err);
@@ -185,10 +202,19 @@ exports.getAllPlanes = async (req, res) => {
         // Status = Maintenance
         const maintenancePlanes = await new Promise((resolve, reject) => {
             const query = `
-                SELECT flight_plans.acid, flight_plans.etd AS event, netjets_fleet.plane_type, 'Maintenance' AS status
-                FROM flight_plans 
-                JOIN netjets_fleet ON flight_plans.acid = netjets_fleet.acid
-                WHERE flight_plans.departing_airport = ? AND flight_plans.status = 'MAINTENANCE'
+            SELECT 
+                fp.acid, 
+                fp.etd AS event, 
+                nf.plane_type, 
+                'Maintenance' AS status,
+                ap.FBO_name  
+            FROM flight_plans fp
+            JOIN netjets_fleet nf ON fp.acid = nf.acid 
+            LEFT JOIN parked_at_mock pa ON fp.acid = pa.acid 
+            LEFT JOIN airport_parking ap ON pa.fbo_id = ap.id
+            WHERE fp.departing_airport = ? 
+            AND fp.status = 'MAINTENANCE'
+            GROUP BY fp.acid, ap.FBO_name;
             `;
             db.query(query, [airportCode], (err, results) => {
                 if (err) return reject(err);
@@ -235,40 +261,40 @@ exports.getRecommendations = async (req, res) => {
     // The plane has completed its flight (1, 1) 
     // const parkedQuery = `SELECT DISTINCT flight_plans.acid, flight_plans.etd, flight_plans.eta FROM flight_plans WHERE flight_plans.arrival_airport = ? AND flight_plans.status = 'ARRIVED'`;
     const parkedQuery = 
-    `SELECT 
-        fp.acid, 
-        MIN(
-            (SELECT MIN(future_fp.etd) 
-            FROM flight_plans future_fp 
-            WHERE future_fp.acid = fp.acid 
-            AND future_fp.departing_airport = ?
-            AND future_fp.status = 'SCHEDULED'
-            AND future_fp.etd > NOW()
-            )
-        ) AS event, 
-        'Parked' AS status
-    FROM flight_plans fp
-    JOIN netjets_fleet nf ON fp.acid = nf.acid 
-    WHERE fp.arrival_airport = ? 
-    AND fp.status = 'ARRIVED'
-    AND NOT EXISTS (
-        -- Exclude planes that have departed from the airport after arrival
-        SELECT 1 
-        FROM flight_plans departed_fp 
-        WHERE departed_fp.acid = fp.acid 
-        AND departed_fp.departing_airport = ?
-        AND departed_fp.etd > fp.eta
-    )
-    AND NOT EXISTS (
-        -- Exclude planes that are currently in maintenance at the same airport
-        SELECT 1 
-        FROM flight_plans maintenance_fp 
-        WHERE maintenance_fp.acid = fp.acid 
-        AND maintenance_fp.departing_airport = fp.arrival_airport 
-        AND maintenance_fp.status = 'MAINTENANCE'
-    )
-    GROUP BY fp.acid;
-    `;
+        `SELECT 
+            fp.acid, 
+            MIN(
+                (SELECT MIN(future_fp.etd) 
+                FROM flight_plans future_fp 
+                WHERE future_fp.acid = fp.acid 
+                AND future_fp.departing_airport = ?
+                AND future_fp.status = 'SCHEDULED'
+                AND future_fp.etd > NOW()
+                )
+            ) AS event, 
+            'Parked' AS status
+        FROM flight_plans fp
+        JOIN netjets_fleet nf ON fp.acid = nf.acid 
+        WHERE fp.arrival_airport = ? 
+        AND fp.status = 'ARRIVED'
+        AND NOT EXISTS (
+            -- Exclude planes that have departed from the airport after arrival
+            SELECT 1 
+            FROM flight_plans departed_fp 
+            WHERE departed_fp.acid = fp.acid 
+            AND departed_fp.departing_airport = ?
+            AND departed_fp.etd > fp.eta
+        )
+        AND NOT EXISTS (
+            -- Exclude planes that are currently in maintenance at the same airport
+            SELECT 1 
+            FROM flight_plans maintenance_fp 
+            WHERE maintenance_fp.acid = fp.acid 
+            AND maintenance_fp.departing_airport = fp.arrival_airport 
+            AND maintenance_fp.status = 'MAINTENANCE'
+        )
+        GROUP BY fp.acid;
+        `;
     const currentAirportCoordQuery = 'SELECT latitude_deg AS lat, longitude_deg AS lon FROM airport_data WHERE ident = ?';
     const allAirportCoordQuery = 'SELECT latitude_deg AS lat, longitude_deg AS lon, ident FROM airport_data WHERE ident != ?';
 
