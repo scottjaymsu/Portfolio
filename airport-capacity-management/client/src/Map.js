@@ -12,6 +12,27 @@ const ORIGINAL_CENTER = { lat: 39.8283, lng: -98.5795 };
 // Original Zoom Position
 const ORIGINAL_ZOOM = 5;
 
+// Function to create notifications based on markers
+const createNotifications = (markers) => {
+  const notifications = [];
+  [...markers].forEach((marker) => {
+    const { title, status } = marker;
+    if (status === "Overcapacity") {
+      notifications.push({
+        title: marker.title,
+        message: `${title} is at ${status}. Please redirect incoming flights.`,
+      });
+    }
+  });
+
+  if (notifications.length === 0) {
+    notifications.push("All airports are operating within capacity.");
+  }
+
+  return notifications;
+};
+
+
 const MapComponent = () => {
   // State for search input
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,7 +50,7 @@ const MapComponent = () => {
   useEffect(() => {
     if (hasLoaded.current) return;
     hasLoaded.current = true;
-    const getAirportMarkers = async() => {
+    const getAirportMarkers = async () => {
       try {
         const [markersResponse, smallMarkersResponse] = await Promise.all([
           axios.get("http://localhost:5001/map/getAirportMarkers"),
@@ -55,19 +76,12 @@ const MapComponent = () => {
     }
   };
 
-  //
-  // TODO: When the map is switched to a single implementation, this zoom location should be the off center
-  // location of the airport. 
-  //
-  const handleLocationClick = (location) => {
-    if (mapInstance) {
-      mapInstance.setCenter(location.position);
-      mapInstance.setZoom(12);
-    }
-    // Navigate to the summary page for this airport/location
-    navigate(`/summary/${location.title}`);
+  // Handle location click to navigate to the summary page
+  const handleLocationClick = (locationTitle) => {
+    navigate(`/summary/${locationTitle}`);
   };
 
+  // Handle button click to navigate to the batch page
   const handleAirportButton = () => {
     navigate(`/batch`);
   };
@@ -76,18 +90,12 @@ const MapComponent = () => {
   return (
     <div>
       <NotificationCenter
-        notifications={[
-          "KBOS is reaching capacity, check recommendations to provide room for incoming aircraft.",
-          "KBOS: Check recommendations to provide room for incoming aircraft.",
-          "KEGE is Undercapacity.",
-          "KTEB is Undercapacity.",
-
-
-        ]}
+        notifications={createNotifications(markers)}
         visible={notificationVisible}
         toggleVisibility={() => setNotificationVisible(!notificationVisible)}
+        handleLocationClick={handleLocationClick}
       />
-          
+
 
       <Sidebar
         searchTerm={searchTerm}
