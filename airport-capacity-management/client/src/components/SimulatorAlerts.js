@@ -3,84 +3,123 @@ import axios from "axios";
 import "../styles/Simulator.css";
 
 // For Alerts Center on right of Simulator Page
-const SimulatorAlerts = ({ toggleRow, expandedRow, fbo, id }) => {
-
-    // state for alert records 
+const SimulatorAlerts = ({ fbo, id }) => {
+    // State for alert records
     const [alerts, setAlerts] = useState([]);
-
     // State to hold error message
     const [error, setError] = useState("");
+    // State to hold fbo data
+    const [fboData, setFboData] = useState([]);
 
-    // Fetch alert records by airport code and fbo name when component mounts
+    // Fetch alert records by airport code and FBO name when component mounts
     useEffect(() => {
-        // Fetch alert by airport code and fbo name
+        // Fetch alert by airport code and FBO name
         axios
             .get(`http://localhost:5001/alerts/getAlert/${id}/${fbo}`)
             .then((response) => {
-                setAlerts(response.data);
+                // Remove planes that are departing or in maintenance from recommendations
+                const filteredAlerts = response.data.filter(
+                    (alert) =>
+                        alert.status !== "SCHEDULED" && alert.status !== "MAINTENANCE"
+                );
+                setAlerts(filteredAlerts);
             })
             .catch((err) => {
                 setError(err);
-                console.error("Error fetching alert information:", error);
+                console.error("Error fetching alert information:", err);
             });
-    }, [id, fbo, error]);    
+    }, [id, fbo, error]);
 
+    // Fetch all fbos for this airport
+    useEffect(() => {
+        axios
+            .get(`http://localhost:5001/alerts/getFBOs/${id}`)
+            .then((response) => {   
+                setFboData(response.data);
+            })
+            .catch((err) => {
+                setError(err);
+                console.error("Error fetching FBO data:", err);
+            });
+    }, [id, error]);
 
-    const getNextEvent = (status) => {
-        if (status === null || status === "ARRIVED") {
-            return "Parked";
-        } else if (status === "SCHEDULED") {
-            return "Departing";
-        } else if (status === "FLYING") {
-            return "In Air";
+    // Priorty of fbo input
+    const fboPriority = fboData.find((fboItem) => fboItem.FBO_Name === fbo)?.Priority;
+
+    // FBO for move recommendation
+    let fboRec = null;
+
+    for (const fboItem of fboData) {
+    // Check if the FBO has available parking and priority is larger than fboPriority
+    if (fboItem.parked_planes_count < fboItem.Total_Space && fboItem.Priority > fboPriority) {
+        fboRec = fboItem.FBO_Name;
+        // Break after finding the first valid FBO
+        break; 
+    }
+    }
+
+    // Format the date and time to prevent null timestamps
+    function formatDateTime(date) {
+        const newDate = new Date(date);
+
+        if (newDate.getFullYear() === 1969) {
+            return "N/A";
         }
-        return "Unknown"; // Default case if status doesn't match any of the expected values
-    };
 
-     // Function to handle the color-coded status box based on plane status
-    const getStatusClass = (status) => {
-        if (status === "ARRIVING") return "blue-color";
-        if (status === "DEPARTING") return "yellow-color";
-        if (status === "PARKED") return "green-color";
-        return "red-color"; // Default case for unknown or unexpected status
-    };
+        return (
+            newDate.toLocaleDateString("en-us", {
+                day: "numeric",
+                month: "numeric",
+                year: "numeric",
+            }) +
+            " " +
+            newDate.toLocaleTimeString("en-us", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+            })
+        );
+    }
 
     return (
-        <div id="alerts-table">
-            <table>
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>Tail Number</th>
-                        <th>Status</th>
-                        <th>Type</th>
-                        <th>Next Event</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {alerts?.map((val, key) => (
-                        <tr key={val.id || key}>
-                            <td className="status-wrapper">
-                                <div
-                                    className={`status-box ${getStatusClass(val.status)}`}
-                                ></div>
-                            </td>
-                            <td>{val.acid || "Unknown"}</td> {/* Tail Number */}
-                            <td>{val.status || "No Status"}</td> {/* Status */}
-                            <td>{val.plane_type ? val.plane_type : "Unavailable"}</td> {/* Plane Type */}
-                            <td>
-                                {val.etd
-                                    ? new Intl.DateTimeFormat("en-US", {
-                                          dateStyle: "short",
-                                          timeStyle: "short",
-                                          hour12: false,
-                                      }).format(new Date(val.etd))
-                                    : "TBD"}
-                            </td> {/* Next Event Date */}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+        <div id="alerts-center">
+            <div id="alerts-title">ALERTS</div>
+            <div>Move Recommendations</div>
+            <div id="rec-table">
+                <div className="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tail Number</th>
+                                <th>Jet Type</th>
+                                <th>Status</th>
+                                <th>Next Event</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {alerts.length > 0 ? (
+                                alerts.map((alert) => (
+                                    <React.Fragment key={alert.id}>
+                                        <tr className="expandable-row">
+                                            <td className="alert-wrapper">
+                                                <div className="alert-box green-color"></div>
+                                                <span>{alert.acid || "Unknown"}</span>
+                                            </td>
+                                            <td>{alert.plane_type || "Unknown"}</td>
+                                            <td>{alert.status || "N/A"}</td>
+                                            <td>{alert.etd ? formatDateTime(alert.etd) : "N/A"}</td>
+                                        </tr>
+                                    </React.Fragment>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="4" style={{ textAlign: "center" }}>No recommendations available</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     );
 };

@@ -54,3 +54,40 @@ exports.getAlert = (req, res) => {
         res.json(results);
     });
 }   
+
+// Get all fbo data for a given airport 
+// {fbo name, priority, id, total space, parked planes count}
+exports.getFBOs = (req, res) => {
+    const airport = req.params.id;
+
+    const query = `
+        SELECT 
+            airport_parking.FBO_Name,
+            airport_parking.Priority,
+            airport_parking.id,
+            airport_parking.Total_Space,
+            COUNT(parked_at.fbo_id) AS parked_planes_count
+        FROM
+            airport_parking
+        LEFT JOIN
+            parked_at ON airport_parking.id = parked_at.fbo_id
+        WHERE 
+            airport_parking.Airport_Code = ?
+        GROUP BY
+            airport_parking.FBO_Name,
+            airport_parking.Priority,
+            airport_parking.id
+    `;
+
+    db.query(query, [airport], (err, results) => {
+        if (err) {
+            console.error("Error querying FBO data.", err);
+            return res.status(500).json({ error: 'Error querying FBO data.' });
+        }
+
+        // Testing
+        console.log(results);
+        // Send results back as response
+        res.json(results);
+    });
+}

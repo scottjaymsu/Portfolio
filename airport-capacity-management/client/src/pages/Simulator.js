@@ -189,12 +189,8 @@ const SimulatorComponent = () => {
                     />
 
                     <SimulatorAlerts
-            
-                        toggleRow={toggleRow}
-                        expandedRow={expandedRow}
                         fbo={selectedFBO}
                         id={airportCode}
-                        
                     />
                 </div>
             </div>
