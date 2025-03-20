@@ -1,35 +1,56 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
-    BarChart,
-    Bar,
+    ReferenceLine,
+    AreaChart,
+    Area,
     XAxis,
     YAxis,
     Tooltip,
-    Legend,
+    CartesianGrid,
     ResponsiveContainer,
 } from "recharts";
 
-import { AreaChart, Area, CartesianGrid } from "recharts";
 
-// Helper to generate 24-hour mock data for a given date
-const generateMockDataForDay = (date) => {
-    const data = [];
-    // show the hour in the X-axis label.
-    for (let hour = 0; hour < 24; hour++) {
-        const hourLabel = hour.toString().padStart(2, "0") + ":00";
-        data.push({
-            category: hourLabel,
-            Arriving: Math.floor(Math.random() * 10),
-            Departing: Math.floor(Math.random() * 10),
-            Parked: Math.floor(Math.random() * 10),
-        });
+// Round down the minutes and seconds of a date to the start of the hour
+const roundDownHour = (date) => {
+    const d = new Date(date);
+    d.setMinutes(0, 0, 0);
+    return d;
+};
+
+// Add hours to a date
+const addHours = (date, hours) => new Date(date.getTime() + hours * 60 * 60 * 1000);
+// Generate a timeline (array of hourly Date objects) between start and end
+const generateTimeline = (start, end) => {
+    const timeline = [];
+    let current = new Date(start);
+    while (current <= end) {
+        timeline.push(new Date(current));
+        current = addHours(current, 1);
     }
-    return data;
+    return timeline;
+};
+
+// Filter flights that fall between start and end
+const filterFlightsByRange = (flights, dateKey, start, end) => {
+    return flights.filter((flight) => {
+        if (!flight[dateKey]) return false;
+        const flightDate = new Date(flight[dateKey]);
+        return flightDate >= start && flightDate <= end;
+    });
+};
+
+// Get the effective time (rounded down) for a flight
+// For departures, use the logged time; for arrivals, add 1 hour
+const getEffectiveTime = (flight, key, isArrival = false) => {
+    const date = new Date(flight[key]);
+    const effective = isArrival ? addHours(date, 1) : date;
+    return roundDownHour(effective).toISOString();
 };
 
 /**
- * Component to display traffic information in bar graph
+ * Component to display traffic information in a graph
  * x-axis displays time intervals
  * y-axis displays quantitative information for
  * departing/arriving flights, planes in maintenance, and
@@ -38,23 +59,19 @@ const generateMockDataForDay = (date) => {
  * flights are departing from
  * @returns component
  */
-
 export default function TrafficOverview({ id }) {
-    // The slider offset in days relative to today. 0 = today.
+    // The day selection offset in days relative to today - 0 = today
     const [dayOffset, setDayOffset] = useState(0);
-    // Calculate the currently selected date
-    const selectedDate = new Date();
-    selectedDate.setDate(selectedDate.getDate() + dayOffset);
-    // State to hold departing flights
     const [departingFlights, setDepartingFlights] = useState([]);
-    // State to hold arriving flights
     const [arrivingFlights, setArrivingFlights] = useState([]);
-    // State to hold maintenance planes
     const [maintenancePlanes, setMaintenancePlanes] = useState([]);
-    // State to hold parked planes
     const [parkedPlanes, setParkedPlanes] = useState([]);
-    // State to hold error message
     const [error, setError] = useState("");
+    const [capacityLimit, setCapacityLimit] = useState(0);
+
+        // Calculate the currently selected date
+        const selectedDate = new Date();
+        selectedDate.setDate(selectedDate.getDate() + dayOffset);
 
     // Fetch departing flights by faa designator when component mounts
     useEffect(() => {
@@ -63,12 +80,13 @@ export default function TrafficOverview({ id }) {
             .get(`http://localhost:5001/flightData/getDepartingFlights/${id}`)
             .then((response) => {
                 setDepartingFlights(response.data);
+                console.log("Departing flights:", response.data);
             })
             .catch((err) => {
                 setError(err);
                 console.error("Error fetching departing flights:", error);
             });
-    }, [id, error]);
+    }, [id]);
 
     // Fetch arriving flights by faa designator when component mounts
     useEffect(() => {
@@ -77,26 +95,42 @@ export default function TrafficOverview({ id }) {
             .get(`http://localhost:5001/flightData/getArrivingFlights/${id}`)
             .then((response) => {
                 setArrivingFlights(response.data);
+                console.log("Arriving flights:", response.data);
             })
             .catch((err) => {
                 setError(err);
                 console.error("Error fetching arriving flights:", error);
             });
-    }, [id, error]);
+    }, [id]);
 
-    // // Fetch parked planes by faa designator when component mounts
-    // useEffect(() => {
-    //     // Fetch parked planes by airport
-    //     axios.get(`http://localhost:5001/airportData/getParkedPlanes/${id}`)
-    //         .then((response) => {
-    //             setParkedPlanes(response.data);
+    // Fetch airport capacity limit
+    useEffect(() => {
+        axios
+            .get(`http://localhost:5001/airportData/getOverallCapacity/${id}`)
+            .then((response) => {
+                console.log("Airport capacity limit:", response.data);
+                setCapacityLimit(response.data.totalCapacity);
+            })
+            .catch((err) => {
+                setError(err);
+                console.error("Error fetching airport capacity limit:", error);
+            });
+    }, [id]);
 
-    //         })
-    //         .catch((err) => {
-    //             setError(err);
-    //             console.error('Error fetching parked planes:', error);
-    //         });
-    // }, [id, error]);
+    // Fetch parked planes by faa designator when component mounts
+    useEffect(() => {
+        // Fetch parked planes by airport
+        axios
+            .get(`http://localhost:5001/airportData/getParkedPlanes/${id}`)
+            .then((response) => {
+                setParkedPlanes(response.data);
+                console.log("Parked planes:", response.data);
+            })
+            .catch((err) => {
+                setError(err);
+                console.error("Error fetching parked planes:", error);
+            });
+    }, [id]);
 
     // Fetch maintenance planes by faa designator when component mounts
     useEffect(() => {
@@ -109,183 +143,134 @@ export default function TrafficOverview({ id }) {
                 setError(err);
                 console.error("Error fetching maintenance planes:", error);
             });
-    }, [id, error]);
+    }, [id]);
 
-    // Navigation handlers
+
+    // --- Navigation Handlers ---
     const handlePrev = () => {
         if (dayOffset > -1) {
             setDayOffset((prev) => prev - 1);
         }
     };
-
     const handleNext = () => {
         if (dayOffset < 1) {
             setDayOffset((prev) => prev + 1);
         }
     };
-
     const handleToday = () => {
         setDayOffset(0);
     };
-    // Get data in "MM-DD" format from ISO string
-    const getFormattedDate = (d) => {
-        // null values
-        if (!d) return "";
 
-        const date = new Date(d);
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const day = String(date.getDate()).padStart(2, "0");
-        return `${month}-${day}`;
-    };
+    // --- Simulation Setup ---
+    // Define start and end of the selected day
+    const startOfSelectedDay = new Date(selectedDate);
+    startOfSelectedDay.setHours(0, 0, 0, 0);
+    const endOfSelectedDay = new Date(selectedDate);
+    endOfSelectedDay.setHours(23, 0, 0, 0);
 
-    // Reverse sort flights by their ETA for arriving flights and ETD for departing flights
-    // Most recent flights are first
-    const reverseFlightsByDate = (flights, key) => {
-        return flights.sort((a, b) => {
-            if (!a[key] || !b[key]) return 0;
-            return new Date(b[key]) - new Date(a[key]);
+    // Use current time (rounded down) as the baseline
+    const baselineTime = roundDownHour(new Date());
+    const baselineParkedCount = parkedPlanes.length; // current parked count at time of load
+
+    // To simulate accurately for the selected day, simulation range covers both the baseline and the full day
+    const simulationStart =
+        baselineTime < startOfSelectedDay ? baselineTime : startOfSelectedDay;
+    const simulationEnd =
+        baselineTime > endOfSelectedDay ? baselineTime : endOfSelectedDay;
+
+    // Generate a timeline for the simulation range (hourly intervals)
+    const timeline = generateTimeline(simulationStart, simulationEnd);
+
+    // --- Compute Effective Adjustments ---
+    // Initialize objects to hold effective departures and arrivals for each time slot
+    // in the timeline. Each key is an ISO string of the time, and the value is the count.
+    const effectiveDepartures = {};
+    const effectiveArrivals = {};
+    timeline.forEach((time) => {
+        effectiveDepartures[time.toISOString()] = 0;
+        effectiveArrivals[time.toISOString()] = 0;
+    });
+
+    // Get all departures and arrivals within the simulation range.
+    const simDepartures = filterFlightsByRange(
+        departingFlights,
+        "etd",
+        simulationStart,
+        simulationEnd
+    );
+    const simArrivals = filterFlightsByRange(
+        arrivingFlights,
+        "eta",
+        simulationStart,
+        simulationEnd
+    );
+
+    // Group departures and arrivals into our timeline buckets
+    simDepartures.forEach((flight) => {
+        const timeStr = getEffectiveTime(flight, "etd", false);
+        if (effectiveDepartures[timeStr] !== undefined) {
+            effectiveDepartures[timeStr] += 1;
+        }
+    });
+    simArrivals.forEach((flight) => {
+        const timeStr = getEffectiveTime(flight, "eta", true);
+        if (effectiveArrivals[timeStr] !== undefined) {
+            effectiveArrivals[timeStr] += 1;
+        }
+    });
+
+    // Now compute adjustments per hour as: (arrivals - departures)
+    const adjustments = {};
+    timeline.forEach((time) => {
+        const iso = time.toISOString();
+        adjustments[iso] =
+            (effectiveArrivals[iso] || 0) - (effectiveDepartures[iso] || 0);
+    });
+
+    // --- Compute Cumulative Parked Count ---
+    // Propagate forward and backward along the timeline
+    const cumulativeParked = {};
+    // Find baseline index in timeline.
+    const baselineIndex = timeline.findIndex(
+        (time) => time.toISOString() === baselineTime.toISOString()
+    );
+    // Forward simulation
+    let cumulative = baselineParkedCount;
+    for (let i = baselineIndex; i < timeline.length; i++) {
+        const timeStr = timeline[i].toISOString();
+        cumulative += adjustments[timeStr] || 0;
+        cumulativeParked[timeStr] = cumulative;
+    }
+    // Backward simulation
+    cumulative = baselineParkedCount;
+    for (let i = baselineIndex - 1; i >= 0; i--) {
+        const nextTimeStr = timeline[i + 1].toISOString();
+        cumulative -= adjustments[nextTimeStr] || 0;
+        cumulativeParked[timeline[i].toISOString()] = cumulative;
+    }
+
+    // --- Build Chart Data ---
+    const chartData = timeline
+        .filter((time) => time.toDateString() === selectedDate.toDateString())
+        .map((time) => {
+            const iso = time.toISOString();
+            const hourLabel = time.getHours().toString().padStart(2, "0") + ":00";
+            return {
+                category: hourLabel,
+                Arriving: effectiveArrivals[iso] || 0,
+                Departing: effectiveDepartures[iso] || 0,
+                Parked: cumulativeParked[iso] || 0,
+            };
         });
-    };
 
-    // Reverse sort the flights
-    // Most recent flights are first
-    const sortedDepartingFlights = reverseFlightsByDate(departingFlights, "etd");
-    const sortedArrivingFlights = reverseFlightsByDate(arrivingFlights, "eta");
-
-    // Count the number of arriving flights by date
-    const countArriving = (flights) => {
-        return flights.reduce((count, flight) => {
-            // null eta
-            if (!flight.eta) return count;
-
-            const date = getFormattedDate(flight.eta);
-            count[date] = count[date] ? count[date] + 1 : 1;
-            return count;
-        }, {});
-    };
-
-    // Count the number of departing flights by date
-    const countDeparting = (flights) => {
-        return flights.reduce((count, flight) => {
-            // null etd
-            if (!flight.etd) return count;
-
-            const date = getFormattedDate(flight.etd);
-            count[date] = count[date] ? count[date] + 1 : 1;
-            return count;
-        }, {});
-    };
-
-    // Count the arriving and departing flights by date
-    const departingCount = countDeparting(sortedDepartingFlights);
-    const arrivingCount = countArriving(sortedArrivingFlights);
-
-    // total number of parked planes
-    const parkingCount = {};
-    // Initialize the count for overall planes
-    let count = 0;
-
-    // iterate through arriving count (earliest dates first) and accumulate the count
-    Object.keys(arrivingCount)
-        .sort((a, b) => new Date(a) - new Date(b))
-        .forEach((date) => {
-            count += arrivingCount[date];
-            parkingCount[date] = count;
-        });
-
-    let currParked = 0;
-    // iterate through departing count and accumulate count
-    Object.keys(departingCount)
-        .sort((a, b) => new Date(a) - new Date(b))
-        .forEach((date) => {
-            if (parkingCount[date] - departingCount[date] >= 0) {
-                currParked += departingCount[date];
-                parkingCount[date] -= currParked;
-            } else {
-                currParked = 0;
-                parkingCount[date] = 0;
-            }
-        });
-
-    // // Iterate through arriving flights in
-    // // reverse chronological order
-    // sortedArrivingFlights.reverse().forEach(flight => {
-    //     const eta = getFormattedDate(flight.eta);
-    //     // null eta
-    //     if (!eta) return;
-
-    //     // if the date is different from the previous date
-    //     if (eta !== prevDay) {
-    //         parkingCount[eta] = parkingCount[prevDay] + 1;
-    //         // update the previous date
-    //         prevDay = eta;
-    //     } else {
-    //         parkingCount[eta] += 1;
-    //     }
-    // });
-
-    // // Iterate through departing flights in
-    // // reverse chronological order
-    // sortedDepartingFlights.reverse().forEach(flight => {
-    //     const etd = getFormattedDate(flight.etd);
-    //     // null etd
-    //     if (!etd) return;
-
-    //     // if in parking count and etd stored is greater than 0
-    //     if (flight.etd in parkingCount && parkingCount[flight.etd] > 0) {
-    //         parkingCount[flight.etd] -= 1;
-    //     }
-    // });
-
-    /**
-     * Create bar chart to display quantitive info
-     * info =
-     * {
-     *      # of arriving flights,
-     *      # of departing flights,
-     *      # of parked planes,
-     *      # of planes under maintenance
-     * }
-     */
-
-    // Combine the data for the chart and table
-    const dates = [
-        ...new Set([
-            ...Object.keys(arrivingCount),
-            ...Object.keys(departingCount),
-            ...Object.keys(parkingCount),
-        ]),
-    ];
-
-    const chartData = dates.map((date) => ({
-        category: date,
-        Arriving: arrivingCount[date],
-        Departing: departingCount[date],
-        Parked: parkingCount[date],
-    }));
-
-    // Generate the 24-hour mock data for the selected day
-    const mockChartData = generateMockDataForDay(selectedDate);
-
-    // return (
-    //     <div style={{ overflowX: 'auto', width: '100%' }}>
-    //         <ResponsiveContainer width="400%" height={300}>
-    //             <BarChart data={mockChartData}>
-    //                 <XAxis dataKey="category" />
-    //                 <YAxis />
-    //                 <Tooltip />
-    //                 <Legend />
-    //                 <Bar dataKey="Arriving" fill="rgb(88,120,163)" />
-    //                 <Bar dataKey="Departing" fill="rgb(228,147,67)" />
-    //                 <Bar dataKey="Parked" fill="rgb(67,166,105)" />
-    //             </BarChart>
-    //         </ResponsiveContainer>
-    //     </div>
-    // );
-
-    // Title: "Today" if current day, otherwise show the date string.
+    // Title: "Today" if current day, otherwise show the date string
     const title = dayOffset === 0 ? "Today" : selectedDate.toDateString();
 
+    // Round the capacity limit to the nearest 10 for better readability
+    // This is used to set the upper limit of the Y-axis
+    const roundedCapacityLimit = Math.round((capacityLimit + 5) / 10) * 10;
+
+    // Render the chart with navigation buttons and title
     return (
         <div>
             {/* Navigation buttons */}
@@ -304,10 +289,7 @@ export default function TrafficOverview({ id }) {
                 >
                     &lt;
                 </button>
-                <button
-                    onClick={handleToday}
-                    className="graph-nav"
-                >
+                <button onClick={handleToday} className="graph-nav">
                     Today
                 </button>
                 <button
@@ -316,24 +298,35 @@ export default function TrafficOverview({ id }) {
                     className="graph-nav"
                 >
                     &gt;
-                </button></div>
+                </button>
+            </div>
             <div style={{ textAlign: "center", marginBottom: "1rem" }}>
                 <strong>{title}</strong>
             </div>
             <ResponsiveContainer width="100%" height={300}>
                 <AreaChart
-                    data={mockChartData}
-                    margin={{
-                        top: 10,
-                        right: 30,
-                        left: 0,
-                        bottom: 0,
-                    }}
+                    data={chartData}
+                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                 >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="category" />
-                    <YAxis />
+                    <YAxis domain={[0, roundedCapacityLimit]} />
                     <Tooltip />
+
+                    {/* Add a dotted blue reference line at the capacity limit */}
+                    <ReferenceLine
+                        y={capacityLimit}
+                        stroke="#010F31"
+                        strokeDasharray="3 3"
+                        label={{
+                            value: `Capacity Limit: ${capacityLimit}`,
+                            position: "top",
+                            fontWeight: "bold",
+                            fill: "#010F31",
+                        }}
+                        strokeWidth={3}
+                    />
+
                     <Area
                         type="monotone"
                         dataKey="Departing"

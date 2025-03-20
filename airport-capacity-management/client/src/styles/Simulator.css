@@ -193,7 +193,6 @@ select option {
     padding-left: 10px;
     padding-right: 10px;
     padding-bottom: 20px; */
-    flex: 8;
     display: flex;
     gap: 20px;
     padding-left: 10px;
@@ -201,8 +200,18 @@ select option {
     padding-bottom: 20px;
     height: 100%;  /* Ensure it fills available space, without scrolling */
     overflow: visible;
-    
+    flex: 8;
 
+}
+
+/* SimulatorAllPlanes width*/
+#main-wrapper > div:first-child {
+    flex: 0 0 65%; /* Take 65% of the width */
+}
+
+/* Alerts width */
+#main-wrapper > div:last-child {
+    flex: 0 0 35%; /* Take 35% of the width */
 }
 
 /* Table Window */
