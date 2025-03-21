@@ -11,7 +11,7 @@ const Header = () => {
             <div className="header-links">
                 <a href="#">Resume</a>
                 <a href="#">Projects</a>
-                <a href="#">Email</a>
+                <a href="mailto:jayscottdevelops@gmail.com">jayscottdevelops@gmail.com</a>
             </div>       
         </div>
     );
