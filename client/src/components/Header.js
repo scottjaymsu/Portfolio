@@ -9,7 +9,6 @@ const Header = () => {
                 <p style={{ fontSize: "20px" }}>Software Engineer</p>
             </div>               
             <div className="header-links">
-                <a href="#">Resume</a>
                 <a href="#">Projects</a>
                 <a href="mailto:jayscottdevelops@gmail.com">jayscottdevelops@gmail.com</a>
             </div>       
