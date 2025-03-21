@@ -1,3 +1,33 @@
-body {
-    background-color: #FFF2F2;
+.header {
+    background-color: #9FD4A3; /* Apply only to the header */
+    text-align: center;
+    overflow: hidden;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-name {
+    color: #18453B;
+    font-size: 24px;
+    font-weight: bold; 
+    margin-left: 10%;
+    white-space: nowrap;
+}
+
+.header-name p {
+    margin: 0;
+}
+
+.header-links {
+    display: flex;
+    gap: 20px;
+    margin-right: 10%;
+}
+
+.header-links a {
+    color: #18453B;
+    font-size: 24px;
+
 }
