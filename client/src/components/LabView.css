@@ -1,0 +1,35 @@
+.columns {
+    display: flex;
+    margin: auto;
+    justify-content: center;
+    min-width: max-content; /* Ensures content does not shrink */
+    overflow: visible; /* Allows content to overflow instead of wrapping */
+    gap: 50px;
+}
+
+.column {
+    flex: none; /* Prevents columns from shrinking */
+    width: 420px; /* Ensures a fixed width */
+    text-align: center;
+}
+
+.column img {
+    width: 400px;
+    height: 400px;
+    margin-top: 10%;
+}
+
+.column p {
+    max-width: 400px;
+    margin: 2% auto;    
+    color: #18453B;
+    font-size: 20px;
+}
+
+#left {
+    margin-left: 10%;
+}
+
+#right {
+    margin-right: 10%;
+}
