@@ -17,7 +17,7 @@ const createNotifications = (markers) => {
   const notifications = [];
   [...markers].forEach((marker) => {
     const { title, status } = marker;
-    if (status === "Overcapacity") {
+    if (status === "Overcapacity" || status === "Reaching Capacity") {
       notifications.push({
         title: marker.title,
         message: `${title} is at ${status}. Please redirect incoming flights.`,
