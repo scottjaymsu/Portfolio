@@ -41,6 +41,7 @@ const SimulatorAllPlanes = ({allPlanes, selectedAirport}) => {
                         <th>Tail Number</th>
                         <th>Status</th>
                         <th>Type</th>
+                        <th>Size</th>
                         <th>Next Event</th>
                     </tr>
                 </thead>
@@ -55,13 +56,18 @@ const SimulatorAllPlanes = ({allPlanes, selectedAirport}) => {
                                 onClick={() => handleMaintenanceClick(val.acid, val.status)}></div>
                             </td>
                             
-                            <td>{val.acid || "Unknown"}</td> {/* Tail # */}
+                            <td>
+                                
+                                {val.acid || "Unknown"}</td> {/* Tail # */}
                             <td>{val.status}</td> {/* Status  */}
                             <td>{val.plane_type ? val.plane_type: 'Unavailable'}</td> {/*plane type */}
+                            <td>{val.size ? val.size: 'Unknown'}</td>
                             <td>
                             {val.event ? new Intl.DateTimeFormat('en-US', {
-                                dateStyle: 'short',
-                                timeStyle: 'short',
+                                month: 'numeric',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
                                 hour12: false
                             }).format(new Date(val.event)) : "TBD"}
                             </td> {/* next event */}
