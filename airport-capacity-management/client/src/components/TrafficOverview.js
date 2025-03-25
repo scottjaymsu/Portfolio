@@ -11,6 +11,9 @@ import {
     ResponsiveContainer,
 } from "recharts";
 
+import "../styles/TrafficOverview.css";
+import "../styles/colors.css";
+
 
 // Round down the minutes and seconds of a date to the start of the hour
 const roundDownHour = (date) => {
@@ -68,10 +71,17 @@ export default function TrafficOverview({ id }) {
     const [parkedPlanes, setParkedPlanes] = useState([]);
     const [error, setError] = useState("");
     const [capacityLimit, setCapacityLimit] = useState(0);
+    const [showLegend, setShowLegend] = useState(false);
 
-        // Calculate the currently selected date
-        const selectedDate = new Date();
-        selectedDate.setDate(selectedDate.getDate() + dayOffset);
+
+    // Calculate the currently selected date
+    const selectedDate = new Date();
+    selectedDate.setDate(selectedDate.getDate() + dayOffset);
+
+    // Toggle legend visibility
+    const toggleLegend = () => {
+        setShowLegend(prev => !prev);
+    };
 
     // Fetch departing flights by faa designator when component mounts
     useEffect(() => {
@@ -350,6 +360,19 @@ export default function TrafficOverview({ id }) {
                     />
                 </AreaChart>
             </ResponsiveContainer>
+            <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+                <button onClick={toggleLegend} className="graph-nav">
+                    {showLegend ? "Hide Legend" : "Show Legend"}
+                </button>
+            </div>
+
+            {showLegend && (
+                <div className="legend" style={{ textAlign: "center", marginBottom: "1rem", fontSize: "0.9rem", fontWeight: "bold" }}>
+                    <span style={{ color: "rgb(228,147,67)", marginRight: "10px" }}>Departing (Orange)</span>
+                    <span style={{ color: "rgb(133,181,178)", marginRight: "10px" }}>Parked (Teal)</span>
+                    <span style={{ color: "rgb(88,120,163)", marginRight: "10px" }}>Arriving (Blue)</span>
+                </div>
+            )}
         </div>
     );
 }

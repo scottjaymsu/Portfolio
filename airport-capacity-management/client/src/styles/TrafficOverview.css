@@ -1,0 +1,15 @@
+.legend {
+    text-align: "center";
+    margin-bottom: "1rem";
+    font-size: "0.9rem";
+
+    .entry {
+        margin-right: "10px";
+        font-size: "20px"
+    }
+}
+
+.toggle-legend {
+    text-align: "center";
+    margin-bottom: "1rem";
+}

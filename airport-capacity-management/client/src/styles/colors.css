@@ -1,0 +1,9 @@
+/* Define color variables */
+:root {
+    --departing-color: rgb(228,147,67); /* Orange */
+    --parked-color: rgb(133,181,178); /* Teal */
+    --arriving-color: rgb(88,120,163); /* Blue */
+    --capacity-limit-color: #010F31; /* Navy */
+    --tooltip-background: #ffffff; /* White */
+    --tooltip-text: #333333; /* Dark Grey */
+}
