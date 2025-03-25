@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import axios from 'axios';
-import SimulatorComponent from './pages/Simulator';
+import SimulatorComponent from '../pages/Simulator';
 
 
 // Mock useParams

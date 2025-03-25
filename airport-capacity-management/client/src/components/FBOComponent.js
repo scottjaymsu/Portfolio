@@ -3,7 +3,7 @@ import axios from "axios";
 import { Card, CardContent } from "./card";
 import { getStatusClass } from "../utils/helpers";
 import { useNavigate } from "react-router-dom";
-import "../SummaryPage.css";
+import "../styles/SummaryPage.css";
 
 export default function FBOSection({id}) {
   const [FBOList, setFBOList] = useState([]);
