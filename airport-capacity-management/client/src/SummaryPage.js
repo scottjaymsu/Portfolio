@@ -6,9 +6,7 @@ import { getStatusClass, getStatusColor } from "./utils/helpers";
 
 import "./SummaryPage.css";
 import "../src/styles/Scrollable.css";
-import "./components/ArrivingFlightTable";
-import ArrivingFlightTable from "./components/ArrivingFlightTable";
-import DepartingFlightTable from "./components/DepartingFlightTable";
+import FlightTable from "./components/FlightTable";
 import TrafficOverview from "./components/TrafficOverview";
 
 // Map Size
@@ -312,12 +310,12 @@ export default function SummaryPage() {
         </Card>
         <Card className="card-content flex-3">
           <CardContent>
-            <ArrivingFlightTable id={airportCode} />
+            <FlightTable id={airportCode} flightType="arriving" />
           </CardContent>
         </Card>
         <Card className="card-content flex-3">
           <CardContent>
-            <DepartingFlightTable id={airportCode} />
+          <FlightTable id={airportCode} flightType="departing" />
           </CardContent>
         </Card>
         <Card className="card-content flex-3">
