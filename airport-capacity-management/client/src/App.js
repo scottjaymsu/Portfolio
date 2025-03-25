@@ -6,6 +6,7 @@ import RecEngine from './pages/RecEngine';
 import SimulatorComponent from './pages/Simulator';
 import MapComponent from './Map';
 import SummaryPage from './SummaryPage';
+import FBOPage from './pages/AddFBO';
 
 
 
@@ -18,6 +19,7 @@ function App() {
           <Route path="/batch" element={<BatchFile />} />
           <Route path="/rec/:iata_code" element={<RecEngine />} />
           <Route path="/simulator/:airportCode" element={<SimulatorComponent />} />
+          <Route path="/fbopage/:airportCode" element = {<FBOPage/>} />
   
         </Routes>
     </BrowserRouter> 
