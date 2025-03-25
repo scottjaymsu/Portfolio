@@ -1,10 +1,23 @@
 const db = require('../models/db');
 
+// Size mapping for plane types and their sizes
+const sizeMapping = {
+    'E55P': 'Light',
+    'C56X': 'Mid-Size',
+    'C680': 'Mid-Size',
+    'C68A': 'Mid-Size',
+    'C700': 'Super Mid-Size',
+    'CL35': 'Super Mid-Size',
+    'CL60': 'Large',
+    'GL5T': 'Long Range Large',
+    'GLEX': 'Long Range Large',
+    'GL7T': 'Long Range Large'
+}
 
-// Get FBOs from airport_parking table and their capacities 
+// Get all FBOs at an airport from airport_parking table
+// And the total parking space taken and availbale at the airport
 exports.getAirportFBOs = (req, res) => {
     const { airportCode } = req.params;
-    // const query = 'SELECT Airport_Code, FBO_Name, Parking_Space_Taken, Total_Space FROM airport_parking WHERE Airport_Code = ?';
     const query =
     `SELECT 
         ? AS Airport_Code,
@@ -30,25 +43,15 @@ exports.getAirportFBOs = (req, res) => {
         res.status(500).send('Error fetching airport FBOs');
         return;
       }
-    //   console.log('Query results:', results); 
       res.json(results);
     });
   };
 
 // Get NetJets fleet from netjets_fleet table
+// Map the plane type to the size of the plane
+// Map the plane type to the number of spots required
 exports.getNetjetsFleet = (req, res) => {
-    const sizeMapping = {
-        'E55P': 'Light',
-        'C56X': 'Mid-Size',
-        'C680': 'Mid-Size',
-        'C68A': 'Mid-Size',
-        'C700': 'Super Mid-Size',
-        'CL35': 'Super Mid-Size',
-        'CL60': 'Large',
-        'GL5T': 'Long Range Large Jet',
-        'GLEX': 'Long Range Large Jet',
-        'GL7T': 'Long Range Large Jet'
-    }
+    
     const spotsMapping = {
         'E55P': 1,
         'C56X': 1,
@@ -62,8 +65,7 @@ exports.getNetjetsFleet = (req, res) => {
         'GL7T': 2
     };
 
-    // May make in future only airplanes not involved with the selected airport
-    // selecting the tail number, type of plane, and curr location calculation
+    // Selecting the tail number, type of plane, and curr location calculation
     const query = `
         SELECT netjets_fleet.acid, netjets_fleet.plane_type,
         CASE
@@ -83,12 +85,12 @@ exports.getNetjetsFleet = (req, res) => {
             return;
         }
 
+        // Map the plane type to the size of the plane and number of spots 
         const fleetWithSize = results.map(plane => ({
             ...plane, 
             size: sizeMapping[plane.plane_type] || 'Unknown',
             numberSpots: spotsMapping[plane.plane_type] || 1
         }));
-        // console.log('Netjets Fleet results:', results); // Debugging statement
 
         res.json(fleetWithSize);
     });
@@ -96,7 +98,8 @@ exports.getNetjetsFleet = (req, res) => {
 
 
 
-
+// Get all planes at an airport from flight_plans table
+// Old planes no longer at this location are filtered out 
 exports.getAllPlanes = async (req, res) => {
     const { airportCode } = req.params;
 
@@ -228,6 +231,10 @@ exports.getAllPlanes = async (req, res) => {
             ...arrivingPlanes,
             ...maintenancePlanes
         ];
+        const planesWithSize = allPlanes.map(plane => ({
+            ...plane,
+            size: sizeMapping[plane.plane_type] || 'Unknown'
+        }));
 
         // 
         // allPlanes = allPlanes.sort((a, b) => new Date(a.event) - new Date(b.event));
@@ -238,14 +245,14 @@ exports.getAllPlanes = async (req, res) => {
             'Maintenance': 4
         };
         
-        allPlanes.sort((a, b) => {
+        planesWithSize.sort((a, b) => {
             let statusA = a.status.trim(); // Ensure no leading/trailing spaces
             let statusB = b.status.trim();
             
             return statusOrder[statusA] - statusOrder[statusB];
         });
 
-        res.json(allPlanes);
+        res.json(planesWithSize);
     } catch (err) {
         console.error('Error fetching planes:', err);
         res.status(500).send('Error fetching planes');
