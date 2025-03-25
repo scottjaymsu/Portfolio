@@ -3,7 +3,7 @@ import '../styles/Simulator.css';
 import axios from 'axios';
 
 // List of all planes currently at the airport 
-const SimulatorAllPlanes = ({allPlanes, selectedAirport}) => {
+const SimulatorAllPlanes = ({ allPlanes, selectedAirport }) => {
     const handleMaintenanceClick = async (acid, status) => {
         console.log(status);
         if (status !== "Maintenance") {
@@ -46,34 +46,30 @@ const SimulatorAllPlanes = ({allPlanes, selectedAirport}) => {
                     </tr>
                 </thead>
                 <tbody>
-                    
                     {allPlanes?.map((val, key) => (
-                        <tr 
-                        key={val.acid || key}
+                        <tr
+                            key={val.acid || key}
                         >
                             <td className="status-wrapper">
                                 <div className={`status-box ${val.status === 'Arriving' ? 'blue-color' : val.status === 'Departing' ? 'yellow-color' : val.status === 'Parked' ? 'green-color' : 'red-color'}`}
-                                onClick={() => handleMaintenanceClick(val.acid, val.status)}></div>
+                                    onClick={() => handleMaintenanceClick(val.acid, val.status)}></div>
                             </td>
-                            
                             <td>
-                                
                                 {val.acid || "Unknown"}</td> {/* Tail # */}
                             <td>{val.status}</td> {/* Status  */}
-                            <td>{val.plane_type ? val.plane_type: 'Unavailable'}</td> {/*plane type */}
-                            <td>{val.size ? val.size: 'Unknown'}</td>
+                            <td>{val.plane_type ? val.plane_type : 'Unavailable'}</td> {/*plane type */}
+                            <td>{val.size ? val.size : 'Unknown'}</td>
                             <td>
-                            {val.event ? new Intl.DateTimeFormat('en-US', {
-                                month: 'numeric',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                hour12: false
-                            }).format(new Date(val.event)) : "TBD"}
+                                {val.event ? new Intl.DateTimeFormat('en-US', {
+                                    month: 'numeric',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: false
+                                }).format(new Date(val.event)) : "TBD"}
                             </td> {/* next event */}
                         </tr>
                     ))}
-                    
                 </tbody>
             </table>
         </div>

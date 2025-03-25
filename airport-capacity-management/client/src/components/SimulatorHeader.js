@@ -29,7 +29,6 @@ const SimulatorHeader = ({
 
     const handleBackClick = () => handleBackButton();
 
-    console.log('selectedAirport', selectedAirport);
     return (
         <div id="head-dashboard">
             <div id="header1">

@@ -46,7 +46,7 @@ function FlightTable({ id, flightType }) {
     // Format the date to a more readable format
     const formatDate = (dateStr) => {
         const date = new Date(dateStr);
-        return dateStr ? date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' }) : "N/A";
+        return dateStr ? date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit'}) : "N/A";
     };
 
     // Format the time to a more readable format
@@ -65,9 +65,10 @@ function FlightTable({ id, flightType }) {
                 <caption>{flightType === 'arriving' ? 'Arriving Flights' : 'Departing Flights'}</caption>
                 <thead>
                     <tr>
-                        <th>Tail Number</th>
-                        <th>Aircraft Type</th>
-                        <th>Parking Area (ft²)</th>
+                        <th>Tail #</th>
+                        <th>Type</th>
+                        <th>Area (ft²)</th>
+                        <th>Size</th>
                         <th>{flightType === 'arriving' ? 'Arrival' : 'Departure'} Date/Time</th>
                     </tr>
                 </thead>
@@ -77,8 +78,13 @@ function FlightTable({ id, flightType }) {
                         <tr key={index}>
                             <td>{flight.acid}</td>
                             <td>{flight.plane_type ? flight.plane_type : 'N/A'}</td>
-                            <td>{flight.parkingArea ? flight.parkingArea : 'N/A'}</td>
-                            <td>{formatDate(flight[dateTimeKey])} {formatTime(flight[dateTimeKey])}</td>
+                            <td>{flight.parkingArea ? Math.round(flight.parkingArea) : 'N/A'}</td>
+                            <td>{flight.size ? flight.size : 'N/A'}</td>
+                            <td>
+                                <span className="date">{formatDate(flight[dateTimeKey])}</span>
+                                <br/>
+                                <span className="time">{formatTime(flight[dateTimeKey])}</span>
+                            </td>
                         </tr>
                     ))}
                 </tbody>
