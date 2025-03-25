@@ -31,6 +31,11 @@
   justify-content: space-between;
 }
 
+
+.info-card::-webkit-scrollbar {
+  display: none;
+}
+
 .status-bubble {
   display: inline-block;
   padding: 5px 10px;

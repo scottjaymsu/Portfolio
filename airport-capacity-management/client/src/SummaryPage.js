@@ -5,6 +5,7 @@ import { Card, CardContent } from "./components/card";
 import { getStatusClass, getStatusColor } from "./utils/helpers";
 
 import "./SummaryPage.css";
+import "../src/styles/Scrollable.css";
 import "./components/ArrivingFlightTable";
 import ArrivingFlightTable from "./components/ArrivingFlightTable";
 import DepartingFlightTable from "./components/DepartingFlightTable";
@@ -294,7 +295,7 @@ export default function SummaryPage() {
         ))}
       </GoogleMap>
 
-      <div className="info-card">
+      <div className="info-card scrollable-content">
         <img onClick={handleBack} className="back-button" src="/back-arrow.png" alt="Back Button"></img>
         <Card className="card-content">
           <CardContent className="text-center flex-1">
