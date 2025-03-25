@@ -457,4 +457,14 @@ export default function TrafficOverview({ id }) {
 
         </div>
     );
+
 }
+
+export { 
+    roundDownHour, 
+    addHours, 
+    generateTimeline, 
+    filterFlightsByRange, 
+    getEffectiveTime, 
+    getChartArrivalTime 
+  };
