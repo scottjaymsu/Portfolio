@@ -26,9 +26,9 @@ const Sidebar = ({
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
-      <ul id="location-list" className={visible ? 'visible' : ''}>
+      <ul id="location-list" className={`scrollable-content ${visible ? 'visible' : ''}`}>
         {locations.map((loc) => (
-          <li className="list-ele" key={loc.title} onClick={() => onLocationClick(loc)}>
+          <li className="list-ele" key={loc.title} onClick={() => onLocationClick(loc.title)}>
             {loc.title}
             <div
               className="status-icon"

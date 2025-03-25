@@ -9,6 +9,8 @@ const fboCapacityRoutes = require('./routes/fboCapacityRoutes');
 const batchFileRoutes = require('./routes/batchFileRoutes');
 const alertRoutes = require('./routes/alertRoutes');
 const mapRoutes = require('./routes/mapRoutes');
+const parkingPriorityRoutes = require('./routes/parkingpriorityRoutes');
+const fboRoutes = require('./routes/fboRoutes');
 
 const port = process.env.PORT || 5001;
 
@@ -23,6 +25,8 @@ app.use('/fboinfo', fboCapacityRoutes);
 app.use('/batch', batchFileRoutes);
 app.use('/map', mapRoutes);
 app.use('/alerts', alertRoutes);
+app.use('/airportsPriority', parkingPriorityRoutes);
+app.use('/airports/fbo', fboRoutes);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');

@@ -1,0 +1,6 @@
+/* For making scroll bars not appear */
+.scrollable-content {
+    overflow-y: scroll;
+    -ms-overflow-style: none;  /* Edge */
+    scrollbar-width: none;  /* Firefox */
+}

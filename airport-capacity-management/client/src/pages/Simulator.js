@@ -24,24 +24,28 @@ const SimulatorComponent = () => {
     // Data for all flight plans this airport 
     const [allPlanes, setAllPlanes] = useState([]);
 
-//  SPACES CHANGING THAT NEED TO CHANGE WITH NEW DATA?
+    //
     const [totalSpace, setTotalSpace] = useState(0);
     const [takenSpace, setTakenSpace] = useState(0);
     const [selectedFBO, setSelectedFBO] = useState("All FBOs");
     const [selectedAirport, setSelectedAirport] = useState(null);
     const [localTime, setLocalTime] = useState(new Date().toLocaleString());
 
+    // Recommendation Data being stored
+    // Processed in Controller
     const [recs, setRecs] = useState([]);
 
+    // Fetch all planes at the airport
+    // To pupulate the table with all planes associated with this airport
     const fetchAllPlanes = useCallback(async () => {
         try {
             const response = await axios.get(`http://localhost:5001/simulator/getAllPlanes/${airportCode}`);
-            // setAllPlanes(response.data);
             if (Array.isArray(response.data)) {
                 setAllPlanes(response.data);
             } else {
                 console.error("Invalid response for getAllPlanes:", response.data);
-                setAllPlanes([]); // Fallback to an empty array
+                // Fallback to an empty array
+                setAllPlanes([]);
             }
         } catch (error) {
             console.error('Error fetching all planes:', error);
@@ -54,7 +58,9 @@ const SimulatorComponent = () => {
         setExpandedRow(expandedRow === index ? null : index);
     };
 
+    // Fetching all static data for the simulator
     useEffect(() => {
+        // Get all FBOs at the airport
         const getAirportFBOs = async () => {
             try {
                 console.log(`Fetching data for location: ${airportCode}`);
@@ -68,7 +74,7 @@ const SimulatorComponent = () => {
                 setSelectedFBO("All FBOs");
                 setSelectedAirport(response.data[0].Airport_Code);
             } catch (error) {
-                console.error('Error fetching airport FBOs AHHHHHH:', error);
+                console.error('Error fetching airport FBOs:', error);
             }
         };
 
@@ -105,15 +111,16 @@ const SimulatorComponent = () => {
 
     }, [airportCode, fetchAllPlanes, timeInterval]);
 
-    // For updating local time 
+    // Constant Updates time in GMT
     // Currently just our time but can change individual airport times 
     useEffect(() => {
         const interval = setInterval(() => {
             const now = new Date();
-            const formattedDate = now.toLocaleString('en-GB', {
+            // Month/Day/YEAR Hour:Minute:Second GMT
+            const formattedDate = now.toLocaleString('en-US', {
                 timeZone: 'GMT',
-                day: 'numeric',
                 month: 'numeric',
+                day: 'numeric',
                 year: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit',
@@ -126,9 +133,8 @@ const SimulatorComponent = () => {
         return () => clearInterval(interval);
     }, []);
 
-    // When FBO is selected from dropdown
-    // Changes selected FBO
-    // When different FBOs are slected they show the given planes  
+    // Switches to selected FBO when selected from the dropdown
+    // Planes assigned to that FBO will only be shown when selected
     const handleFBOChange = (event) => {
         const selectedFBOName = event.target.value;
         if (selectedFBOName === "All FBOs") {
@@ -152,7 +158,8 @@ const SimulatorComponent = () => {
         setSelectedPlaneLocation(selectedPlane && selectedPlane.current_location ? selectedPlane.current_location: 'N/A');
         setSelectedPlaneSize(selectedPlane && selectedPlane.size ? selectedPlane.size: 'Unavailable');
         setSelecteedSpots(selectedPlane && selectedPlane.numberSpots ? selectedPlane.numberSpots: '1'); 
-        setSearchTerm(event.target.value); // For autofilling dropdown
+        // For autofilling dropdown
+        setSearchTerm(event.target.value); 
     };
 
     // Filtered fleet data for dropdown 
@@ -164,7 +171,10 @@ const SimulatorComponent = () => {
     return (
         <div>
             <div id="simulator-grid">
-                {/* Top Segment of Dashboard */}
+                {/* 
+                    Top Segment of Dashboard With capacity info
+                    and dropdowns for selecting planes and FBOs
+                */}
                 <SimulatorHeader
                     selectedAirport={selectedAirport}
                     selectedFBO={selectedFBO}
@@ -181,13 +191,19 @@ const SimulatorComponent = () => {
                     selectedPlaneSize={selectedPlaneSize}
                     selectedPlaneLocation={selectedPlaneLocation}
                 />
-
+    
                 <div id="main-wrapper">
+                    {/* 
+                        Table of all planes at the airport
+                     */}
                     <SimulatorAllPlanes
                         allPlanes={filteredPlanes}
                         selectedAirport={selectedAirport}
                     />
-
+                    {/* 
+                        Our Reccomendations for the Aiport 
+                        and Capacity Movement 
+                     */}
                     <SimulatorAlerts
                         fbo={selectedFBO}
                         id={airportCode}

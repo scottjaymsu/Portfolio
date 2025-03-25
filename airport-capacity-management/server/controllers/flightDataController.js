@@ -4,6 +4,21 @@
  */
 const flightDB = require('../models/db');
 
+// Size mapping for plane types and their sizes
+const sizeMapping = {
+    'E55P': 'Light',
+    'C56X': 'Mid-Size',
+    'C680': 'Mid-Size',
+    'C68A': 'Mid-Size',
+    'C700': 'Super Mid-Size',
+    'CL35': 'Super Mid-Size',
+    'CL60': 'Large',
+    'GL5T': 'Long Range Large',
+    'GLEX': 'Long Range Large',
+    'GL7T': 'Long Range Large'
+}
+
+
 // Controller to get flight data by airport that it is arriving to
 exports.getArrivingFlights = (req, res) => {
     const airport = req.params.id;
@@ -39,10 +54,16 @@ exports.getArrivingFlights = (req, res) => {
             return res.status(500).json({ error: 'Error querying airport data.' });
         }
 
+        // Map the plane type to the size of the plane and number of spots 
+        const planesWithSize = results.map(plane => ({
+            ...plane, 
+            size: sizeMapping[plane.plane_type] || 'Unknown'
+        }));
+
         // Testing
-        console.log(results);
+        console.log(planesWithSize);
         // Send results back as response
-        res.json(results);
+        res.json(planesWithSize);
     });
 }
 
@@ -81,10 +102,17 @@ exports.getDepartingFlights = (req, res) => {
             return res.status(500).json({ error: 'Error querying airport data.' });
         }
 
+        // Map the plane type to the size of the plane and number of spots 
+        const planesWithSize = results.map(plane => ({
+            ...plane, 
+            size: sizeMapping[plane.plane_type] || 'Unknown'
+        }));
+
+
         // Testing
-        console.log(results);
+        console.log(planesWithSize); 
         // Send results back as response
-        res.json(results);
+        res.json(planesWithSize);
     });
 }
 

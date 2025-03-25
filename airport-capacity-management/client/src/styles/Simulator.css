@@ -199,7 +199,8 @@ select option {
     padding-right: 10px;
     padding-bottom: 20px;
     height: 100%;  /* Ensure it fills available space, without scrolling */
-    overflow: visible;
+    overflow: hidden;
+
     flex: 8;
 
 }
@@ -254,15 +255,16 @@ select option {
     overflow-y: auto;
     flex-grow: 1;
     height: 100%;
+    max-height: calc(100vh - 210px);
     
 }
 
+/* For the Scollbar of the body*/
+
+
+
 /* Rows of table */
-#planes-table tr {
-    display: table;
-    width: 100%;
-    table-layout: fixed; /* Keeps column alignment */
-}
+
 
 #planes-table tr {
     display: table;
@@ -279,6 +281,10 @@ select option {
     border-bottom: 1px solid #444240;
     color: #444240;
     background-color: #d7d5d3;
+}
+
+.tr:hover {
+    background-color: #f0f0f0; /* Change this to your desired hover color */
 }
 
 /* Status box alignment */

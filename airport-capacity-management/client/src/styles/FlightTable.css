@@ -51,3 +51,9 @@ tbody tr:hover {
     max-height: 250px;
     overflow-y: auto;
 }
+
+.time {
+    display: block; 
+    color: #555; 
+    margin-top: 2px; 
+}

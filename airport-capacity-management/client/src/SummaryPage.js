@@ -5,10 +5,10 @@ import { Card, CardContent } from "./components/card";
 import { getStatusClass, getStatusColor } from "./utils/helpers";
 
 import "./SummaryPage.css";
-import "./components/ArrivingFlightTable";
-import ArrivingFlightTable from "./components/ArrivingFlightTable";
-import DepartingFlightTable from "./components/DepartingFlightTable";
+import "../src/styles/Scrollable.css";
+import FlightTable from "./components/FlightTable";
 import TrafficOverview from "./components/TrafficOverview";
+import FBOComponent from "./components/FBOComponent";
 
 // Map Size
 const containerStyle = {
@@ -294,7 +294,7 @@ export default function SummaryPage() {
         ))}
       </GoogleMap>
 
-      <div className="info-card">
+      <div className="info-card scrollable-content">
         <img onClick={handleBack} className="back-button" src="/back-arrow.png" alt="Back Button"></img>
         <Card className="card-content">
           <CardContent className="text-center flex-1">
@@ -311,52 +311,15 @@ export default function SummaryPage() {
         </Card>
         <Card className="card-content flex-3">
           <CardContent>
-            <ArrivingFlightTable id={airportCode} />
+            <FlightTable id={airportCode} flightType="arriving" />
           </CardContent>
         </Card>
         <Card className="card-content flex-3">
           <CardContent>
-            <DepartingFlightTable id={airportCode} />
+          <FlightTable id={airportCode} flightType="departing" />
           </CardContent>
         </Card>
-        <Card className="card-content flex-3">
-          <CardContent>
-            <table className="info-table">
-              <caption className="subtitle">FBOs</caption>
-              <thead>
-                <tr>
-                  <th>FBO</th>
-                  <th>Status</th>
-                  <th>Priority</th>
-                </tr>
-              </thead>
-              <tbody>
-                {FBOList.map((fbo, index) => (
-                  <tr key={index}>
-                    <td>{fbo.name}</td>
-                    <td>
-                      <span className={getStatusClass(fbo.parking_taken, fbo.total_parking)}>
-                        {fbo.parking_taken}/{fbo.total_parking}
-                      </span>
-                    </td>
-                    <td>
-                      <select
-                        value={fbo.priority}
-                        onChange={(e) => handlePriorityChange(index, e.target.value)}
-                      >
-                        {Array.from({ length: FBOList.length }, (j, i) => i + 1).map((val) => (
-                          <option key={val} value={val}>
-                            {val}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </CardContent>
-        </Card>
+        <FBOComponent id={airportCode}/>
         <button className="see-more flex-1" onClick={handleSeeMore}>see more</button>
       </div>
     </div>
