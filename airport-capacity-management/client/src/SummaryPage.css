@@ -142,6 +142,25 @@ caption.subtitle {
   background-color: #142236;
 }
 
+.edit-button,
+.fbo-action-button {
+  background-color: #3b536c;
+  color: white;
+  font-weight: 600;
+  font-size: large;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.edit-button:hover,
+.fbo-action-button:hover {
+  background-color: #142236;
+}
+
+
 .flex-1 {
   flex: 1;
 }

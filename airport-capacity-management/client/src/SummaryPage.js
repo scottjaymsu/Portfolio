@@ -10,6 +10,7 @@ import "./components/ArrivingFlightTable";
 import ArrivingFlightTable from "./components/ArrivingFlightTable";
 import DepartingFlightTable from "./components/DepartingFlightTable";
 import TrafficOverview from "./components/TrafficOverview";
+import FBOComponent from "./components/FBOComponent";
 
 // Map Size
 const containerStyle = {
@@ -320,44 +321,7 @@ export default function SummaryPage() {
             <DepartingFlightTable id={airportCode} />
           </CardContent>
         </Card>
-        <Card className="card-content flex-3">
-          <CardContent>
-            <table className="info-table">
-              <caption className="subtitle">FBOs</caption>
-              <thead>
-                <tr>
-                  <th>FBO</th>
-                  <th>Status</th>
-                  <th>Priority</th>
-                </tr>
-              </thead>
-              <tbody>
-                {FBOList.map((fbo, index) => (
-                  <tr key={index}>
-                    <td>{fbo.name}</td>
-                    <td>
-                      <span className={getStatusClass(fbo.parking_taken, fbo.total_parking)}>
-                        {fbo.parking_taken}/{fbo.total_parking}
-                      </span>
-                    </td>
-                    <td>
-                      <select
-                        value={fbo.priority}
-                        onChange={(e) => handlePriorityChange(index, e.target.value)}
-                      >
-                        {Array.from({ length: FBOList.length }, (j, i) => i + 1).map((val) => (
-                          <option key={val} value={val}>
-                            {val}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </CardContent>
-        </Card>
+        <FBOComponent id={airportCode}/>
         <button className="see-more flex-1" onClick={handleSeeMore}>see more</button>
       </div>
     </div>
