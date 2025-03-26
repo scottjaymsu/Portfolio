@@ -13,6 +13,8 @@ router.get('/removeMaintenance/:acid', simulatorController.removeMaintenance);
 
 // Rec Engine
 router.get('/getRecommendations/:airportCode', simulatorController.getRecommendations);
+router.post('/runSimulation', simulatorController.runSimulation);
+
 
 
 

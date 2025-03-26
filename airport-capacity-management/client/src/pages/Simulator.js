@@ -6,6 +6,7 @@ import '../styles/Simulator.css';
 import SimulatorHeader from '../components/SimulatorHeader';
 import SimulatorAllPlanes from '../components/SimulatorAllPlanes';
 import SimulatorAlerts from '../components/SimulatorAlerts';
+import SimulationTab from '../components/SimulationTab';
 
 const SimulatorComponent = () => {
     // INT for refresh
@@ -34,6 +35,11 @@ const SimulatorComponent = () => {
     // Recommendation Data being stored
     // Processed in Controller
     const [recs, setRecs] = useState([]);
+    const [showSimulationTab, setShowSimulationTab] = useState(false);
+
+    const handleSimulationTabClick = () => {
+        setShowSimulationTab((prevState) => !prevState);
+    }
 
     // Fetch all planes at the airport
     // To pupulate the table with all planes associated with this airport
@@ -200,14 +206,26 @@ const SimulatorComponent = () => {
                         allPlanes={filteredPlanes}
                         selectedAirport={selectedAirport}
                     />
+
                     {/* 
                         Our Reccomendations for the Aiport 
                         and Capacity Movement 
                      */}
+                     <div>
+                     <button onClick={handleSimulationTabClick} id="simulation-tab-button">
+                        {showSimulationTab ? "Hide Simulation Tab": "Show Simulation Tab"}
+                    </button>
+                    {showSimulationTab ? (
+                        <SimulationTab
+                        fbo={selectedFBO}
+                        id={airportCode}
+                    />) : (
                     <SimulatorAlerts
                         fbo={selectedFBO}
                         id={airportCode}
-                    />
+                    />)
+                }
+                     </div>
                 </div>
             </div>
         </div>

@@ -494,3 +494,78 @@ exports.removeMaintenance = (req, res) => {
     });
     
 };
+
+function runSimulationRequest(selectedPlanes, airportCode, db, res) {
+    /*const fboQuery = `
+        SELECT 
+            ap.*,
+            ap.Total_Space,
+            COUNT(pa.fbo_id) AS spots_taken
+        FROM 
+            airport_parking ap
+        LEFT JOIN 
+            parked_at pa ON pa.fbo_id = ap.id
+        WHERE 
+            ap.Airport_Code = ?
+            AND ap.coordinates IS NOT NULL
+        GROUP BY 
+            ap.id;
+    `;*/
+
+    const fboQuery = `
+        SELECT 
+            ap.*,
+            ap.Total_Space,
+            FLOOR(Parking_Space_Taken / 3) AS spots_taken
+        FROM 
+            airport_parking ap
+        LEFT JOIN 
+            parked_at pa ON pa.fbo_id = ap.id
+        WHERE 
+            ap.Airport_Code = ?
+            AND ap.coordinates IS NOT NULL
+        GROUP BY 
+            ap.id;
+    `;
+
+    db.query(fboQuery, [airportCode], (err, fboData) => {
+        if (err) {
+            console.error('Error fetching FBO data:', err);
+            res.status(500).json({ error: 'Error fetching FBO data' });
+            return;
+        }
+        const simulationResult = {};
+        let remainingPlanes = [...selectedPlanes];
+        fboData.forEach(fbo => {
+            const availableSpots = fbo.Total_Space - fbo.spots_taken;
+
+            const planesForFBO = remainingPlanes.splice(0, availableSpots);
+            
+            planesForFBO.forEach(plane => {
+                simulationResult[plane] = {
+                    fbo_id: fbo.id,
+                    fbo_name: fbo.FBO_Name
+                };
+            });
+        });
+        remainingPlanes.forEach(plane => {
+            simulationResult[plane] = {
+                fbo_id: null,
+                fbo_name: "None Available"
+            };
+        });
+        res.status(200).json({ success: true, data: simulationResult });
+    });
+}
+
+
+
+exports.runSimulation = (req, res) => {
+    try {
+        const { selectedPlanes, airportCode } = req.body;
+        runSimulationRequest(selectedPlanes, airportCode, db, res);
+    } catch (error) {
+        console.error('Error running simulation:', error);
+        res.status(500).json({ success: false, message: 'Error running simulation' });
+    }
+};
