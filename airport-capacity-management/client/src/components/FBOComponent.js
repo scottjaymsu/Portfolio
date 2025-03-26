@@ -97,6 +97,9 @@ export default function FBOSection({id}) {
   };
 
   const handleRemoveFBO = (fboId) =>{
+    if (!window.confirm("Are you sure you want to remove this FBO?")){
+      return;
+    }
     axios
       .delete(`http://localhost:5001/airports/fbo/deleteFBO/${fboId}`)
       .then((response) => {
