@@ -159,6 +159,7 @@ export default function SummaryPage() {
             lat: coord.x,
             lng: coord.y,
           }));
+          
           return {
             name: lot.FBO_Name,
             coordinates: coordinates,
