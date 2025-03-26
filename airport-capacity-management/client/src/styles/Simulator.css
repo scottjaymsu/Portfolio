@@ -44,7 +44,18 @@
     gap: 10px;
     /* border: .5px solid #444240; */
 }
-
+@media (max-width: 768px) {
+    #head-dashboard {
+        flex-direction: column;
+    }
+    .header-segment-large {
+        flex: 1;
+    }
+    .header-segment-small {
+        flex: 1;
+    }
+    
+}
 /* HEADER BLOCK 1 */
 
 #header1 {
@@ -165,6 +176,8 @@ select option {
     align-items: center; /* Centers horizontally */
     text-align: center;
     position: relative;
+    overflow: hidden;
+    word-wrap: break-word;
 
 }
 
@@ -179,20 +192,30 @@ select option {
     font-size: large;
     font-weight: bold;
 }
+
+/* Adjust the font when screen is smaller */
+@media (max-width: 1300px) {
+
+    .plane-info-section {
+        padding: 10px; /* Smaller padding */
+    }
+    .plane-section-title {
+        font-size: x-small; /* Smaller font */
+    }
+    .plane-section-status {
+        font-size: medium; /* Medium font */
+    }
+}
 /* HEADER */
 
+
+/* 
+    MAIN TABLE SECTION 
+ */
 
 /* Wrapper for bottom half of screen with 
     table and alerts */
 #main-wrapper {
-    /* flex-grow: 1;
-    flex: 8;
-    overflow: auto;
-    display: flex;
-    gap: 20px;
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-bottom: 20px; */
     display: flex;
     gap: 20px;
     padding-left: 10px;
@@ -200,7 +223,6 @@ select option {
     padding-bottom: 20px;
     height: 100%;  /* Ensure it fills available space, without scrolling */
     overflow: hidden;
-
     flex: 8;
 
 }
@@ -212,14 +234,14 @@ select option {
 
 /* Alerts width */
 #main-wrapper > div:last-child {
-    flex: 0 0 35%; /* Take 35% of the width */
+    flex: 0 0 33%; /* Take 35% of the width */
 }
 
 /* Table Window */
 
 /* Wrapper for whole table */
 #planes-table {
-    flex: 7;
+    /* flex: 7; */
     border-collapse: collapse;
     display: flex;
     flex-direction: column;
@@ -229,49 +251,46 @@ select option {
     background-color: #d7d5d3;
     overflow: hidden;
 }
-
-/* Main table styling */
-#planes-table table {
-    background-color: #d7d5d3;
+/* 
+    Static table header
+    Stays in place when body scrolls
+*/
+#planes-table > table {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
-    height: 100%;
+    background-color: #d7d5d3;
 }
-
 
 /* Table header */
 #planes-table thead {
-    position: sticky;
-    top: 0;
-    z-index: 2; /* Keep above tbody content */
     background-color: transparent;
     border-bottom: 3px solid #444240;
 }
 
-/* Body of table */
-#planes-table tbody {
-    display: block;
+/* 
+    Second Table Section where 
+    only the body scolls
+ */
+.scrollable-tbody {
     overflow-y: auto;
-    flex-grow: 1;
-    height: 100%;
-    max-height: calc(100vh - 210px);
-    
+    max-height: 100vh;
 }
 
-/* For the Scollbar of the body*/
-
-
+.scrollable-tbody table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
 
 /* Rows of table */
-
-
 #planes-table tr {
     display: table;
     width: 100%;
     table-layout: fixed;
 }
 
+/* Elements in rows */
 #planes-table th, 
 #planes-table td {
     border: transparent;
@@ -283,8 +302,9 @@ select option {
     background-color: #d7d5d3;
 }
 
+/* Change Color of rows when hovered */
 .tr:hover {
-    background-color: #f0f0f0; /* Change this to your desired hover color */
+    background-color: #fff; 
 }
 
 /* Status box alignment */
@@ -303,6 +323,11 @@ select option {
     background-color: #c76666;
     border-radius: 2px;
 }
+
+
+/* 
+    REC ENGINE SECTION
+ */
 
 
 /* 
