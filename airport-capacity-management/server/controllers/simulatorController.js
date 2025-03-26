@@ -126,7 +126,7 @@ exports.getAllPlanes = async (req, res) => {
                 ap.FBO_name  -- Added FBO name from airport_parking
             FROM flight_plans fp
             JOIN netjets_fleet nf ON fp.acid = nf.acid 
-            LEFT JOIN parked_at_mock pa ON fp.acid = pa.acid  --  Join parked_at_mock to get fbo_id --
+            LEFT JOIN parked_at pa ON fp.acid = pa.acid  --  Join parked_at to get fbo_id --
             LEFT JOIN airport_parking ap ON pa.fbo_id = ap.id  --  Join airport_parking to get FBO_name
             WHERE fp.arrival_airport = ? 
             AND fp.status = 'ARRIVED'

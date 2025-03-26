@@ -11,7 +11,7 @@ function convertToPolygonWKT(coordinates){
   if (firstPoint.lat !== lastPoint.lat || firstPoint.lng !== lastPoint.lng){
     coords.push(firstPoint);
   }
-  const pointsStr = coords.map(point => `${point.lng} ${point.lat}`).join(', ');
+  const pointsStr = coords.map(point => `${point.lat} ${point.lng}`).join(', ');
   return `POLYGON((${pointsStr}))`;
 }
 

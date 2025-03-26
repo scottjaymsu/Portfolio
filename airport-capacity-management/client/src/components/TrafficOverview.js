@@ -52,6 +52,11 @@ const getEffectiveTime = (flight, key, isArrival = false) => {
     return roundDownHour(effective).toISOString();
 };
 
+const getChartArrivalTime = (flight) => {
+    const date = new Date(flight.eta);
+    return roundDownHour(date).toISOString();
+};
+
 /**
  * Component to display traffic information in a graph
  * x-axis displays time intervals
@@ -176,7 +181,7 @@ export default function TrafficOverview({ id }) {
     const startOfSelectedDay = new Date(selectedDate);
     startOfSelectedDay.setHours(0, 0, 0, 0);
     const endOfSelectedDay = new Date(selectedDate);
-    endOfSelectedDay.setHours(23, 0, 0, 0);
+    endOfSelectedDay.setHours(24, 0, 0, 0);
 
     // Use current time (rounded down) as the baseline
     const baselineTime = roundDownHour(new Date());
@@ -195,10 +200,15 @@ export default function TrafficOverview({ id }) {
     // Initialize objects to hold effective departures and arrivals for each time slot
     // in the timeline. Each key is an ISO string of the time, and the value is the count.
     const effectiveDepartures = {};
-    const effectiveArrivals = {};
+    const effectiveArrivals = {}; // used for parked adjustments (delayed by 1 hour)
+    const chartArrivals = {}; // used for chart display (actual arrival time)
+
     timeline.forEach((time) => {
-        effectiveDepartures[time.toISOString()] = 0;
-        effectiveArrivals[time.toISOString()] = 0;
+        const iso = time.toISOString();
+
+        effectiveDepartures[iso] = 0;
+        effectiveArrivals[iso] = 0;
+        chartArrivals[iso] = 0;
     });
 
     // Get all departures and arrivals within the simulation range.
@@ -222,10 +232,20 @@ export default function TrafficOverview({ id }) {
             effectiveDepartures[timeStr] += 1;
         }
     });
+
+    // FOR PARKED ADJUSTMENTS: Group arrivals into our timeline buckets
     simArrivals.forEach((flight) => {
         const timeStr = getEffectiveTime(flight, "eta", true);
         if (effectiveArrivals[timeStr] !== undefined) {
             effectiveArrivals[timeStr] += 1;
+        }
+    });
+
+    // For chart "Arriving" count, use the actual arrival time (no delay)
+    simArrivals.forEach((flight) => {
+        const chartTimeStr = getChartArrivalTime(flight);
+        if (chartArrivals[chartTimeStr] !== undefined) {
+            chartArrivals[chartTimeStr] += 1;
         }
     });
 
@@ -261,17 +281,37 @@ export default function TrafficOverview({ id }) {
 
     // --- Build Chart Data ---
     const chartData = timeline
-        .filter((time) => time.toDateString() === selectedDate.toDateString())
+        .filter((time) => time >= startOfSelectedDay && time <= endOfSelectedDay)
         .map((time) => {
             const iso = time.toISOString();
-            const hourLabel = time.getHours().toString().padStart(2, "0") + ":00";
+            let hourLabel;
+            if (time.getTime() === endOfSelectedDay.getTime()) {
+                hourLabel = "24:00";
+            } else {
+                hourLabel = time.getHours().toString().padStart(2, "0") + ":00";
+            }
             return {
                 category: hourLabel,
-                Arriving: effectiveArrivals[iso] || 0,
+                Arriving: chartArrivals[iso] || 0,
                 Departing: effectiveDepartures[iso] || 0,
                 Parked: cumulativeParked[iso] || 0,
             };
         });
+
+    // --- Generate tick labels for the x-axis (every 4 hours) ---
+    const tickTimes = timeline
+        .filter((time) => time >= startOfSelectedDay && time <= endOfSelectedDay)
+        .filter((time) =>
+            time.getTime() === endOfSelectedDay.getTime() || time.getHours() % 4 === 0
+        )
+        .map((time) => {
+            if (time.getTime() === endOfSelectedDay.getTime()) {
+                return "24:00";
+            } else {
+                return time.getHours().toString().padStart(2, "0") + ":00";
+            }
+        });
+
 
     // Title: "Today" if current day, otherwise show the date string
     const title = dayOffset === 0 ? "Today" : selectedDate.toDateString();
@@ -319,7 +359,7 @@ export default function TrafficOverview({ id }) {
                     margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                 >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="category" />
+                    <XAxis dataKey="category" ticks={tickTimes} />
                     <YAxis domain={[0, roundedCapacityLimit]} />
                     <Tooltip />
 
@@ -367,12 +407,64 @@ export default function TrafficOverview({ id }) {
             </div>
 
             {showLegend && (
-                <div className="legend" style={{ textAlign: "center", marginBottom: "1rem", fontSize: "0.9rem", fontWeight: "bold" }}>
-                    <span style={{ color: "rgb(228,147,67)", marginRight: "10px" }}>Departing (Orange)</span>
-                    <span style={{ color: "rgb(133,181,178)", marginRight: "10px" }}>Parked (Teal)</span>
-                    <span style={{ color: "rgb(88,120,163)", marginRight: "10px" }}>Arriving (Blue)</span>
+                <div
+                    className="legend"
+                    style={{
+                        textAlign: "center",
+                        marginBottom: "1rem",
+                        fontSize: "0.9rem",
+                        fontWeight: "bold",
+                    }}
+                >
+                    <span style={{ marginRight: "10px", display: "inline-flex", alignItems: "center" }}>
+                        <span
+                            style={{
+                                display: "inline-block",
+                                width: "12px",
+                                height: "12px",
+                                backgroundColor: "rgb(228,147,67)",
+                                marginRight: "5px",
+                            }}
+                        ></span>
+                        Departing
+                    </span>
+                    <span style={{ marginRight: "10px", display: "inline-flex", alignItems: "center" }}>
+                        <span
+                            style={{
+                                display: "inline-block",
+                                width: "12px",
+                                height: "12px",
+                                backgroundColor: "rgb(133,181,178)",
+                                marginRight: "5px",
+                            }}
+                        ></span>
+                        Parked
+                    </span>
+                    <span style={{ marginRight: "10px", display: "inline-flex", alignItems: "center" }}>
+                        <span
+                            style={{
+                                display: "inline-block",
+                                width: "12px",
+                                height: "12px",
+                                backgroundColor: "rgb(88,120,163)",
+                                marginRight: "5px",
+                            }}
+                        ></span>
+                        Arriving
+                    </span>
                 </div>
             )}
+
         </div>
     );
+
 }
+
+export { 
+    roundDownHour, 
+    addHours, 
+    generateTimeline, 
+    filterFlightsByRange, 
+    getEffectiveTime, 
+    getChartArrivalTime 
+  };

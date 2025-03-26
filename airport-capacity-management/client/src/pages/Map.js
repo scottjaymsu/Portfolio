@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from 'axios';
-import MapContainer from "./components/MapContainer";
-import Sidebar from "./components/SideBar";
-import NotificationCenter from "./components/NotificationCenter";
+import MapContainer from "../components/MapContainer";
+import Sidebar from "../components/SideBar";
+import NotificationCenter from "../components/NotificationCenter";
 import { useNavigate } from "react-router-dom";
-import './styles/Map.css';
+import '../styles/Map.css';
 
 // Center of the U.S. Position
 const ORIGINAL_CENTER = { lat: 39.8283, lng: -98.5795 };

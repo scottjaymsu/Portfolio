@@ -1,11 +1,10 @@
 import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import './App.css';
 import BatchFile from './pages/BatchFile'; 
 import RecEngine from './pages/RecEngine'; 
 import SimulatorComponent from './pages/Simulator';
-import MapComponent from './Map';
-import SummaryPage from './SummaryPage';
+import MapComponent from './pages/Map';
+import SummaryPage from './pages/SummaryPage';
 import FBOPage from './pages/AddFBO';
 
 

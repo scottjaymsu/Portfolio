@@ -3,7 +3,7 @@ import axios from "axios";
 import { Card, CardContent } from "./card";
 import { getStatusClass } from "../utils/helpers";
 import { useNavigate } from "react-router-dom";
-import "../SummaryPage.css";
+import "../styles/SummaryPage.css";
 
 export default function FBOSection({id}) {
   const [FBOList, setFBOList] = useState([]);
@@ -97,6 +97,9 @@ export default function FBOSection({id}) {
   };
 
   const handleRemoveFBO = (fboId) =>{
+    if (!window.confirm("Are you sure you want to remove this FBO?")){
+      return;
+    }
     axios
       .delete(`http://localhost:5001/airports/fbo/deleteFBO/${fboId}`)
       .then((response) => {

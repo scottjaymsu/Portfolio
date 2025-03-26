@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { GoogleMap, LoadScript, Polygon } from "@react-google-maps/api";
-import { Card, CardContent } from "./components/card";
-import { getStatusClass, getStatusColor } from "./utils/helpers";
+import { Card, CardContent } from "../components/card";
+import { getStatusClass, getStatusColor } from "../utils/helpers";
 
-import "./SummaryPage.css";
-import "../src/styles/Scrollable.css";
-import FlightTable from "./components/FlightTable";
-import TrafficOverview from "./components/TrafficOverview";
-import FBOComponent from "./components/FBOComponent";
+import "../styles/SummaryPage.css";
+import "../styles/Scrollable.css";
+import FlightTable from "../components/FlightTable";
+import TrafficOverview from "../components/TrafficOverview";
+import FBOComponent from "../components/FBOComponent";
 
 // Map Size
 const containerStyle = {
@@ -159,6 +159,7 @@ export default function SummaryPage() {
             lat: coord.x,
             lng: coord.y,
           }));
+          
           return {
             name: lot.FBO_Name,
             coordinates: coordinates,
