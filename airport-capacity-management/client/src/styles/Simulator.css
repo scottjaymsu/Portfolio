@@ -350,9 +350,25 @@ select option {
 }
 
 #alerts-title {
-    padding: 10px;
-    font-size: xx-large;
+    padding: 12.5px;
+    font-size: x-large;
     font-weight: bold;
+    text-align: center;
+}
+
+#alerts-title #sort-by {
+    font-size: large;
+    padding-top: 15px;
+}
+
+#sort-by {
+    display: flex;
+    gap: 10px; /* Space between buttons */
+    align-items: center;
+}
+
+#sort-by button {
+    width: 125px;
 }
 
 /* Table wrapper */
@@ -366,6 +382,12 @@ select option {
     flex-direction: column;
     overflow: hidden;
 }
+
+#rec-table td div p {
+    margin: 0;
+    padding-top: 5px;
+}
+
 
 /* Scrollable container around the table */
 .table-container {

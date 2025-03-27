@@ -388,7 +388,7 @@ const generateRecommendations = (parkedPlanes, sortedAirports) => {
           tailNumber: plane.acid,
           status: "Parked",
           nextEvent: formattedDate,
-          recString: `${underCapacity}`+`${close}` + `${closestAirport}`
+          recString: `K${closestAirport}`
           //`${longTerm}` // Example recommendation string
         };
         // console.log(plane);
