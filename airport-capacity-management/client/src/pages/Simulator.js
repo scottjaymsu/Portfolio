@@ -201,7 +201,7 @@ const SimulatorComponent = () => {
                         selectedAirport={selectedAirport}
                     />
                     {/* 
-                        Our Reccomendations for the Aiport 
+                        Our Recommendations for the Aiport 
                         and Capacity Movement 
                      */}
                     <SimulatorAlerts
